@@ -8,42 +8,50 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Fundo principal — branco premium quente
+        // Fundo branco premium tecnológico
         bg: {
-          DEFAULT: "#F8F8F5", // base
-          warm: "#F5F5F0",    // hero e seções principais
-          soft: "#EFEFEA",    // seções alternadas
-          ice: "#FBFBF9",     // cards claros
+          DEFAULT: "#F7F7F5",
+          white: "#FFFFFF",
+          soft: "#F1F1EF",
+          ice: "#FBFBF9",
         },
-        // Preto premium (header, footer, botão primário)
+        // Preto premium (header, footer, primary)
         ink: {
           DEFAULT: "#0A0A0A",
-          900: "#111111",
-          800: "#1A1A1A",
+          950: "#050505",
+          900: "#0A0A0A",
+          800: "#111111",
+          700: "#1A1A1A",
+          600: "#2A2A2A",
+        },
+        // Cinzas tecnológicos
+        gray: {
+          900: "#1A1A1A",
+          800: "#2A2A2A",
+          500: "#5F5F5F",
+          400: "#8A8A8A",
+          300: "#CFCFCF",
+          200: "#E5E5E3",
         },
         // Texto
         text: {
-          primary: "#111111",
-          secondary: "#5C5C5C",
+          primary: "#0A0A0A",
+          secondary: "#5F5F5F",
           tertiary: "#8A8A8A",
-          inverse: "#F5F5F0",
+          inverse: "#F7F7F5",
         },
         // Bordas hairline
         line: {
-          DEFAULT: "rgba(0,0,0,0.08)",
-          strong: "rgba(0,0,0,0.16)",
-          inverse: "rgba(255,255,255,0.10)",
+          DEFAULT: "rgba(10,10,10,0.08)",
+          strong: "rgba(10,10,10,0.16)",
+          inverse: "rgba(255,255,255,0.08)",
+          inverseStrong: "rgba(255,255,255,0.14)",
         },
-        // Dourado champagne — detalhes premium
-        champagne: {
-          DEFAULT: "#C8A96E",
-          soft: "#D4BC8A",
-          deep: "#B8985F",
-        },
-        // Vermelho premium — somente micro detalhes/erros
-        wine: {
-          DEFAULT: "#8B1A1A",
-          deep: "#6E1E1E",
+        // Vermelho profundo (apenas microdetalhes)
+        crimson: {
+          DEFAULT: "#6E1414",
+          deep: "#5A1010",
+          rich: "#7A1C1C",
         },
       },
       fontFamily: {
@@ -51,16 +59,54 @@ const config: Config = {
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       letterSpacing: {
-        "premium-tight": "-0.025em",
+        "premium-tight": "-0.03em",
+        "premium-snug": "-0.015em",
         "premium-wide": "0.18em",
-        "premium-widest": "0.32em",
+        "premium-widest": "0.36em",
       },
       transitionTimingFunction: {
         premium: "cubic-bezier(0.22, 1, 0.36, 1)",
+        tech: "cubic-bezier(0.65, 0, 0.35, 1)",
       },
       transitionDuration: {
         250: "250ms",
         350: "350ms",
+        450: "450ms",
+        600: "600ms",
+      },
+      backgroundImage: {
+        "grid-tech":
+          "linear-gradient(rgba(10,10,10,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(10,10,10,0.04) 1px, transparent 1px)",
+        "grid-tech-dark":
+          "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+        "radial-crimson":
+          "radial-gradient(ellipse at center, rgba(110,20,20,0.15) 0%, rgba(110,20,20,0) 60%)",
+        "radial-fade":
+          "radial-gradient(ellipse at top, rgba(10,10,10,0.06) 0%, rgba(10,10,10,0) 70%)",
+      },
+      animation: {
+        "fade-up": "fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both",
+        "fade-in": "fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1) both",
+        glow: "glowPulse 4s ease-in-out infinite",
+        float: "float 6s ease-in-out infinite",
+      },
+      keyframes: {
+        fadeUp: {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        glowPulse: {
+          "0%, 100%": { opacity: "0.5" },
+          "50%": { opacity: "0.85" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-8px)" },
+        },
       },
     },
   },

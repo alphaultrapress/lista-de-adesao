@@ -116,8 +116,8 @@ export default function AdesaoPublicaPage() {
   if (notFound) {
     return (
       <main className="min-h-screen bg-bg flex flex-col">
-        <header className="bg-ink">
-          <div className="max-w-6xl mx-auto px-6 h-20 flex items-center">
+        <header className="glass-dark sticky top-0 z-30">
+          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
             <Brand size="sm" variant="light" />
           </div>
         </header>
@@ -143,31 +143,39 @@ export default function AdesaoPublicaPage() {
   if (success) {
     return (
       <main className="min-h-screen bg-bg flex flex-col">
-        <header className="bg-ink">
-          <div className="max-w-6xl mx-auto px-6 h-20 flex items-center">
+        <header className="glass-dark sticky top-0 z-30">
+          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
             <Brand size="sm" variant="light" />
           </div>
         </header>
-        <section className="flex-1 flex items-center justify-center px-6">
-          <div className="text-center max-w-lg fade-in">
-            <div className="w-16 h-16 mx-auto mb-10 rounded-full border border-champagne flex items-center justify-center text-champagne-deep">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12l4 4L19 6"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+        <section className="flex-1 flex items-center justify-center px-6 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] glow-crimson-soft pointer-events-none" />
+          <div className="relative text-center max-w-lg fade-up">
+            <div className="relative w-20 h-20 mx-auto mb-10">
+              <div className="absolute inset-0 rounded-full border border-line-strong" />
+              <div className="absolute inset-0 rounded-full bg-ink-950 flex items-center justify-center text-white">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 12l4 4L19 6"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <div className="absolute -inset-3 rounded-full border border-crimson/20 animate-glow" />
             </div>
-            <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
+            <span className="tech-eyebrow">
+              <span className="dot" />
               Adesão registrada
-            </p>
-            <h1 className="font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary">
-              Recebemos sua adesão.
+            </span>
+            <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
+              Recebemos sua
+              <br />
+              <span className="italic font-light text-gray-500">adesão.</span>
             </h1>
-            <p className="mt-5 text-text-secondary leading-relaxed">
+            <p className="mt-6 text-text-secondary leading-relaxed">
               Nossa equipe entrará em contato em breve com mais informações
               sobre os convites de formatura.
             </p>
@@ -186,16 +194,21 @@ export default function AdesaoPublicaPage() {
         </div>
       </header>
 
-      <section className="max-w-2xl mx-auto px-6 py-20">
-        <div className="text-center mb-14">
-          <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
+      <section className="max-w-2xl mx-auto px-6 py-20 relative">
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[500px] h-[300px] glow-crimson-soft pointer-events-none opacity-60" />
+
+        <div className="relative text-center mb-14">
+          <span className="tech-eyebrow">
+            <span className="dot" />
             Lista de adesão
-          </p>
-          <h1 className="font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary">
+          </span>
+          <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
             Turma de{" "}
-            <span className="italic text-text-secondary">{turma?.curso}</span>
+            <span className="italic font-light text-gray-500">
+              {turma?.curso}
+            </span>
           </h1>
-          <p className="mt-3 text-sm text-text-secondary tracking-premium-wide uppercase">
+          <p className="mt-4 text-[11px] text-text-tertiary tracking-premium-widest uppercase">
             {turma?.instituicao} · {turma?.semestre}
           </p>
           <p className="mt-7 text-text-secondary max-w-md mx-auto leading-relaxed">

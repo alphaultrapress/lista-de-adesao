@@ -20,7 +20,7 @@ export default function PricingTable() {
             <h4 className="font-serif text-xl text-text-primary tracking-premium-tight">
               Convite Luxo com Caixa
             </h4>
-            <Badge tone="champagne">Premium</Badge>
+            <Badge tone="crimson">Premium</Badge>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-line">
             {luxoTiers.map((t) => (

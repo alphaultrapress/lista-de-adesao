@@ -58,22 +58,28 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-bg flex flex-col">
-      <header className="bg-ink">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center">
+      <header className="glass-dark sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
           <Brand size="sm" variant="light" />
         </div>
       </header>
 
-      <section className="flex-1 flex items-center justify-center px-6 py-20">
-        <div className="w-full max-w-md">
+      <section className="flex-1 flex items-center justify-center px-6 py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-light opacity-50 pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] glow-crimson-soft pointer-events-none" />
+
+        <div className="relative w-full max-w-md">
           <div className="text-center mb-12">
-            <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
+            <span className="tech-eyebrow">
+              <span className="dot" />
               Acesso do representante
-            </p>
-            <h1 className="font-serif text-4xl tracking-premium-tight text-text-primary">
-              Entre na sua conta
+            </span>
+            <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
+              Entre na
+              <br />
+              <span className="italic font-light text-gray-500">sua conta.</span>
             </h1>
-            <p className="mt-4 text-sm text-text-secondary leading-relaxed">
+            <p className="mt-5 text-sm text-text-secondary leading-relaxed">
               Apenas representantes de turma têm cadastro. Colegas que receberam
               o link devem acessá-lo diretamente.
             </p>
@@ -100,12 +106,12 @@ export default function LoginPage() {
             />
 
             {error && (
-              <div className="border border-wine/30 bg-wine/5 px-4 py-3 text-sm text-wine">
+              <div className="border border-crimson/30 bg-crimson/5 px-4 py-3 text-sm text-crimson">
                 {error}
               </div>
             )}
             {info && (
-              <div className="border border-champagne/30 bg-champagne/5 px-4 py-3 text-sm text-champagne-deep">
+              <div className="border border-ink/15 bg-ink/[0.03] px-4 py-3 text-sm text-text-primary">
                 {info}
               </div>
             )}

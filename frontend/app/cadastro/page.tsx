@@ -133,12 +133,12 @@ export default function CadastroPage() {
 
   return (
     <main className="min-h-screen bg-bg">
-      <header className="bg-ink">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+      <header className="glass-dark sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Brand size="sm" variant="light" />
           <Link
             href="/login"
-            className="text-[11px] tracking-premium-wide uppercase text-white/70 hover:text-champagne transition-colors duration-250"
+            className="text-[11px] tracking-premium-wide uppercase text-white/60 hover:text-white transition-colors duration-250"
           >
             Já tenho cadastro
           </Link>
@@ -147,15 +147,16 @@ export default function CadastroPage() {
 
       <section className="max-w-2xl mx-auto px-6 py-20">
         <div className="text-center mb-14">
-          <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
-            Cadastro do representante da turma
-          </p>
-          <h1 className="font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary">
+          <span className="tech-eyebrow">
+            <span className="dot" />
+            Cadastro do representante
+          </span>
+          <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
             Vamos conhecer
             <br />
-            <span className="italic text-text-secondary">a sua turma.</span>
+            <span className="italic font-light text-gray-500">a sua turma.</span>
           </h1>
-          <p className="mt-5 text-text-secondary max-w-md mx-auto leading-relaxed">
+          <p className="mt-6 text-text-secondary max-w-md mx-auto leading-relaxed">
             Você vai gerar o link oficial para sua sala preencher a lista de
             adesão. O cadastro é feito apenas pelo representante.
           </p>

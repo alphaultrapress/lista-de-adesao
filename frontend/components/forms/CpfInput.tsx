@@ -72,14 +72,14 @@ export default function CpfInput({
       error={error || localError}
       rightSlot={
         loading ? (
-          <Spinner size={16} className="text-champagne" />
+          <Spinner size={16} className="text-text-secondary" />
         ) : status === "valid" ? (
           <svg
             width="16"
             height="16"
             viewBox="0 0 24 24"
             fill="none"
-            className="text-champagne"
+            className="text-text-secondary"
           >
             <path
               d="M5 12l4 4L19 6"

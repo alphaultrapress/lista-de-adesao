@@ -62,30 +62,33 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-bg">
-      <header className="bg-ink sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+      <header className="glass-dark sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Brand size="sm" variant="light" />
           <button
             onClick={logout}
-            className="text-[11px] tracking-premium-wide uppercase text-white/70 hover:text-champagne transition-colors duration-250"
+            className="text-[11px] tracking-premium-wide uppercase text-white/60 hover:text-white transition-colors duration-250"
           >
             Sair
           </button>
         </div>
       </header>
 
-      <section className="max-w-6xl mx-auto px-6 py-16 md:py-20">
-        <div className="mb-14">
-          <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
+      <section className="max-w-6xl mx-auto px-6 py-16 md:py-20 relative">
+        <div className="absolute top-0 right-0 w-[400px] h-[300px] glow-crimson-soft pointer-events-none opacity-50" />
+
+        <div className="relative mb-14">
+          <span className="tech-eyebrow">
+            <span className="dot" />
             Painel do representante
-          </p>
-          <h1 className="font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary">
+          </span>
+          <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
             Olá,{" "}
-            <span className="italic text-text-secondary">
+            <span className="italic font-light text-gray-500">
               {formando.nome.split(" ")[0]}.
             </span>
           </h1>
-          <p className="mt-4 text-text-secondary">
+          <p className="mt-5 text-text-secondary">
             Turma de{" "}
             <span className="text-text-primary">{formando.curso}</span> ·{" "}
             <span className="text-text-primary">{formando.instituicao}</span> ·{" "}
@@ -106,20 +109,24 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="mt-14 bg-ink text-text-inverse p-10 md:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-          <div>
-            <p className="text-[10px] tracking-premium-widest uppercase text-champagne mb-3">
-              Atendimento
-            </p>
-            <h3 className="font-serif text-2xl mb-2 tracking-premium-tight">
+        <div className="relative mt-14 bg-ink-950 text-text-inverse p-10 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 overflow-hidden">
+          <div className="absolute inset-0 bg-grid-dark opacity-50 pointer-events-none" />
+          <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-[400px] h-[300px] glow-crimson pointer-events-none" />
+
+          <div className="relative">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 border border-white/10 bg-white/[0.03] text-[10px] tracking-premium-widest uppercase text-white/60">
+              <span className="w-1.5 h-1.5 rounded-full bg-crimson shadow-[0_0_10px_rgba(110,20,20,0.8)]" />
+              Atendimento direto
+            </span>
+            <h3 className="mt-4 font-serif text-2xl md:text-3xl mb-2 tracking-premium-tight">
               Quer falar com um consultor?
             </h3>
             <p className="text-sm text-white/60 max-w-md">
               Tire dúvidas e receba uma proposta personalizada para a sua turma.
             </p>
           </div>
-          <a href={waConsultor} target="_blank" rel="noreferrer">
-            <Button variant="champagne">Falar com um consultor</Button>
+          <a href={waConsultor} target="_blank" rel="noreferrer" className="relative">
+            <Button variant="light">Falar com um consultor</Button>
           </a>
         </div>
       </section>
