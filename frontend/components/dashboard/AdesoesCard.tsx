@@ -52,36 +52,41 @@ export default function AdesoesCard({ slug, curso }: Props) {
 
   return (
     <Card
-      title="Adesões da sua turma"
+      title="Adesões recebidas"
       subtitle="Atualizado em tempo real conforme os colegas preenchem."
     >
-      <div className="flex items-baseline gap-3 mb-6">
-        <span className="font-serif text-5xl text-premium-gold">{count}</span>
-        <span className="text-xs tracking-premium-wide uppercase text-premium-light1">
-          adesões recebidas
+      <div className="flex items-baseline gap-3 mb-8">
+        <span className="font-serif text-6xl text-text-primary tracking-premium-tight">
+          {count}
+        </span>
+        <span className="text-[10px] tracking-premium-widest uppercase text-text-tertiary">
+          adesões
         </span>
       </div>
 
       {loading ? (
-        <p className="text-sm text-premium-mid2">Carregando...</p>
+        <p className="text-sm text-text-tertiary">Carregando...</p>
       ) : list.length === 0 ? (
-        <div className="hairline border-premium-dark3 px-4 py-8 text-center">
-          <p className="text-sm text-premium-light1">
-            Nenhum colega preencheu ainda. Compartilhe seu link para começar.
+        <div className="border border-line px-4 py-10 text-center">
+          <p className="text-sm text-text-secondary">
+            Nenhum colega preencheu ainda.
+          </p>
+          <p className="mt-2 text-xs text-text-tertiary">
+            Compartilhe seu link para começar.
           </p>
         </div>
       ) : (
-        <ul className="divide-y divide-premium-dark3">
+        <ul className="divide-y divide-line">
           {list.map((a) => (
             <li
               key={a.id}
-              className="py-3 flex items-center justify-between text-sm"
+              className="py-3.5 flex items-center justify-between text-sm"
             >
               <div>
-                <p className="text-premium-white">{a.nome}</p>
-                <p className="text-xs text-premium-mid2">{curso}</p>
+                <p className="text-text-primary">{a.nome}</p>
+                <p className="text-xs text-text-tertiary">{curso}</p>
               </div>
-              <p className="text-xs text-premium-light1">
+              <p className="text-xs text-text-tertiary tracking-premium-wide uppercase">
                 {new Date(a.criado_em).toLocaleDateString("pt-BR")}
               </p>
             </li>

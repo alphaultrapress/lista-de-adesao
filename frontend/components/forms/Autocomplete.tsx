@@ -52,7 +52,7 @@ export default function Autocomplete({
         autoComplete="off"
       />
       {open && filtered.length > 0 && (
-        <ul className="absolute z-20 left-0 right-0 mt-1 max-h-56 overflow-auto bg-premium-dark2 hairline border-premium-dark3 fade-in">
+        <ul className="absolute z-20 left-0 right-0 mt-1 max-h-56 overflow-auto bg-bg-ice border border-line-strong fade-in shadow-[0_8px_24px_-12px_rgba(0,0,0,0.12)]">
           {filtered.map((o) => (
             <li
               key={o}
@@ -61,7 +61,7 @@ export default function Autocomplete({
                 onChange(o);
                 setOpen(false);
               }}
-              className="px-4 py-2 text-sm text-premium-light2 hover:bg-premium-dark3 hover:text-premium-white cursor-pointer transition-colors"
+              className="px-4 py-2.5 text-sm text-text-secondary hover:bg-bg-soft hover:text-text-primary cursor-pointer transition-colors duration-250"
             >
               {o}
             </li>

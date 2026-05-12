@@ -105,27 +105,31 @@ export default function AdesaoPublicaPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-premium-black flex items-center justify-center">
-        <p className="text-sm text-premium-light1">Carregando...</p>
+      <main className="min-h-screen bg-bg flex items-center justify-center">
+        <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
+          Carregando
+        </p>
       </main>
     );
   }
 
   if (notFound) {
     return (
-      <main className="min-h-screen bg-premium-black flex flex-col">
-        <header className="border-b-[0.5px] border-premium-dark3">
-          <div className="max-w-6xl mx-auto px-6 py-6">
-            <Brand size="sm" />
+      <main className="min-h-screen bg-bg flex flex-col">
+        <header className="bg-ink">
+          <div className="max-w-6xl mx-auto px-6 h-20 flex items-center">
+            <Brand size="sm" variant="light" />
           </div>
         </header>
         <section className="flex-1 flex items-center justify-center px-6">
           <div className="text-center max-w-md">
-            <p className="text-[11px] tracking-premium-wide uppercase text-premium-wine mb-3">
+            <p className="text-[10px] tracking-premium-widest uppercase text-wine mb-4">
               Link inválido
             </p>
-            <h1 className="font-serif text-3xl">Turma não encontrada</h1>
-            <p className="mt-4 text-sm text-premium-light1">
+            <h1 className="font-serif text-4xl text-text-primary tracking-premium-tight">
+              Turma não encontrada
+            </h1>
+            <p className="mt-5 text-text-secondary leading-relaxed">
               Verifique o link recebido ou peça ao representante da sua turma
               para enviá-lo novamente.
             </p>
@@ -138,16 +142,16 @@ export default function AdesaoPublicaPage() {
 
   if (success) {
     return (
-      <main className="min-h-screen bg-premium-black flex flex-col">
-        <header className="border-b-[0.5px] border-premium-dark3">
-          <div className="max-w-6xl mx-auto px-6 py-6">
-            <Brand size="sm" />
+      <main className="min-h-screen bg-bg flex flex-col">
+        <header className="bg-ink">
+          <div className="max-w-6xl mx-auto px-6 h-20 flex items-center">
+            <Brand size="sm" variant="light" />
           </div>
         </header>
         <section className="flex-1 flex items-center justify-center px-6">
           <div className="text-center max-w-lg fade-in">
-            <div className="w-16 h-16 mx-auto mb-8 rounded-full hairline border-premium-gold flex items-center justify-center text-premium-gold">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <div className="w-16 h-16 mx-auto mb-10 rounded-full border border-champagne flex items-center justify-center text-champagne-deep">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <path
                   d="M5 12l4 4L19 6"
                   stroke="currentColor"
@@ -157,13 +161,13 @@ export default function AdesaoPublicaPage() {
                 />
               </svg>
             </div>
-            <p className="text-[11px] tracking-premium-wide uppercase text-premium-gold mb-3">
+            <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
               Adesão registrada
             </p>
-            <h1 className="font-serif text-3xl md:text-4xl tracking-premium-tight">
+            <h1 className="font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary">
               Recebemos sua adesão.
             </h1>
-            <p className="mt-4 text-sm text-premium-light1">
+            <p className="mt-5 text-text-secondary leading-relaxed">
               Nossa equipe entrará em contato em breve com mais informações
               sobre os convites de formatura.
             </p>
@@ -175,25 +179,26 @@ export default function AdesaoPublicaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-premium-black">
-      <header className="border-b-[0.5px] border-premium-dark3">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <Brand size="sm" />
+    <main className="min-h-screen bg-bg">
+      <header className="bg-ink">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center">
+          <Brand size="sm" variant="light" />
         </div>
       </header>
 
-      <section className="max-w-2xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <p className="text-[11px] tracking-premium-wide uppercase text-premium-gold mb-3">
+      <section className="max-w-2xl mx-auto px-6 py-20">
+        <div className="text-center mb-14">
+          <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
             Lista de adesão
           </p>
-          <h1 className="font-serif text-3xl md:text-4xl tracking-premium-tight">
-            Turma de {turma?.curso}
+          <h1 className="font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary">
+            Turma de{" "}
+            <span className="italic text-text-secondary">{turma?.curso}</span>
           </h1>
-          <p className="mt-2 text-sm text-premium-light2">
+          <p className="mt-3 text-sm text-text-secondary tracking-premium-wide uppercase">
             {turma?.instituicao} · {turma?.semestre}
           </p>
-          <p className="mt-6 text-sm text-premium-light1 max-w-md mx-auto">
+          <p className="mt-7 text-text-secondary max-w-md mx-auto leading-relaxed">
             Preencha seus dados para receber informações sobre os convites de
             formatura da sua turma.
           </p>
@@ -273,20 +278,20 @@ export default function AdesaoPublicaPage() {
           />
 
           <div>
-            <label className="block mb-2 text-[11px] tracking-premium-wide uppercase text-premium-light1">
+            <label className="block mb-2 text-[10px] tracking-premium-widest uppercase text-text-tertiary font-medium">
               Observações (opcional)
             </label>
             <textarea
               value={form.observacoes}
               onChange={(e) => set("observacoes", e.target.value)}
               rows={4}
-              className="w-full bg-premium-dark1 hairline border-premium-dark3 text-premium-white px-4 py-3 text-sm placeholder-premium-mid2 focus:border-premium-gold focus:outline-none transition-colors duration-200"
+              className="input-premium w-full bg-bg-ice border border-line hover:border-line-strong text-text-primary px-4 py-3.5 text-[15px] placeholder:text-text-tertiary/70 transition-all duration-250"
               placeholder="Conte algo que possa ajudar nossa equipe..."
             />
           </div>
 
           {topError && (
-            <div className="hairline border-premium-wine bg-premium-dark1 px-4 py-3 text-sm text-premium-wine">
+            <div className="border border-wine/30 bg-wine/5 px-4 py-3 text-sm text-wine">
               {topError}
             </div>
           )}
@@ -295,7 +300,7 @@ export default function AdesaoPublicaPage() {
             {submitting ? "Enviando" : "Enviar minha adesão"}
           </Button>
 
-          <p className="text-center text-xs text-premium-mid2">
+          <p className="text-center text-xs text-text-tertiary">
             Seus dados são tratados com confidencialidade pela Alpha Convites.
           </p>
         </form>

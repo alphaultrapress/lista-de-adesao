@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0A0A0A;
-  --fg: #F5F5F0;
+  --bg: #F8F8F5;
+  --fg: #111111;
 }
 
 html,
@@ -13,10 +13,7 @@ body {
   color: var(--fg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  border-color: #2A2A2A;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
@@ -26,40 +23,81 @@ body {
 
 input::placeholder,
 textarea::placeholder {
-  color: #5C5C5C;
+  color: #B5B5B0;
 }
 
-/* Premium thin scrollbar */
+/* Scrollbar refinada */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #0A0A0A;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2A2A2A;
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  border: 2px solid #F8F8F5;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3D3D3D;
+  background: rgba(0, 0, 0, 0.24);
 }
 
-/* Reusable */
-.hairline {
-  border-width: 0.5px;
-}
-
+/* Reveal suave editorial */
 .fade-in {
-  animation: fadeIn 0.5s ease both;
+  animation: fadeIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+.fade-in-delay-1 { animation-delay: 0.08s; }
+.fade-in-delay-2 { animation-delay: 0.16s; }
+.fade-in-delay-3 { animation-delay: 0.24s; }
+.fade-in-delay-4 { animation-delay: 0.32s; }
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Link sublinhado editorial (vinho como microdetalhe) */
+.editorial-link {
+  position: relative;
+  display: inline-block;
+}
+.editorial-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: #8B1A1A;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.editorial-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Input focus elegante champagne */
+.input-premium:focus {
+  outline: none;
+  border-color: #C8A96E;
+  box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.14);
+}
+
+/* Card hover sutil */
+.card-hover {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 0, 0, 0.16);
 }

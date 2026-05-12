@@ -24,7 +24,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
       {label && (
         <label
           htmlFor={inputId}
-          className="block mb-2 text-[11px] tracking-premium-wide uppercase text-premium-light1"
+          className="block mb-2 text-[10px] tracking-premium-widest uppercase text-text-tertiary font-medium"
         >
           {label}
         </label>
@@ -32,9 +32,18 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
       <select
         id={inputId}
         ref={ref}
-        className={`w-full bg-premium-dark1 hairline border-premium-dark3 text-premium-white px-4 py-3 text-sm focus:border-premium-gold focus:outline-none transition-colors duration-200 ${
-          error ? "border-premium-wine" : ""
+        className={`input-premium w-full bg-bg-ice border text-text-primary px-4 py-3.5 text-[15px] transition-all duration-250 ease-premium appearance-none ${
+          error
+            ? "border-wine"
+            : "border-line hover:border-line-strong"
         } ${className}`}
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238A8A8A' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 1rem center",
+          paddingRight: "2.5rem",
+        }}
         {...rest}
       >
         {placeholder && (
@@ -48,7 +57,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
           </option>
         ))}
       </select>
-      {error && <p className="mt-2 text-xs text-premium-wine">{error}</p>}
+      {error && <p className="mt-2 text-xs text-wine">{error}</p>}
     </div>
   );
 });

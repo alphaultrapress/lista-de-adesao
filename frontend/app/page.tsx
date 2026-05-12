@@ -10,7 +10,7 @@ const passos = [
   {
     titulo: "Receba o link da turma",
     descricao:
-      "Geramos um link exclusivo e QR Code que você compartilha com os colegas pelo WhatsApp.",
+      "Geramos um link exclusivo e QR Code para você compartilhar com os colegas pelo WhatsApp.",
   },
   {
     titulo: "Acompanhe as adesões",
@@ -21,33 +21,42 @@ const passos = [
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#0A0A0A]">
+    <main className="min-h-screen bg-bg">
+      {/* Header escuro premium */}
+      <header className="bg-ink">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Brand size="sm" variant="light" href="" />
+          <Link
+            href="/login"
+            className="text-[11px] tracking-premium-wide uppercase text-white/70 hover:text-champagne transition-colors duration-250"
+          >
+            Acesso do representante
+          </Link>
+        </div>
+      </header>
+
       {/* Hero */}
       <section className="relative">
-        <div className="max-w-3xl mx-auto px-6 pt-20 md:pt-28 pb-20 text-center">
-          <div className="flex justify-center mb-14 fade-in">
-            <Brand size="lg" href="" />
-          </div>
-
-          <p className="text-[11px] tracking-premium-wide uppercase text-premium-gold mb-6 fade-in">
-            Lista de adesão · turmas de formatura
+        <div className="max-w-3xl mx-auto px-6 pt-28 md:pt-36 pb-24 text-center">
+          <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-8 fade-in">
+            Lista de adesão · Turmas de formatura
           </p>
 
-          <h1 className="font-serif text-4xl md:text-6xl tracking-premium-tight text-premium-white leading-[1.1] fade-in">
+          <h1 className="font-serif text-5xl md:text-7xl tracking-premium-tight text-text-primary leading-[1.05] fade-in fade-in-delay-1">
             Crie a lista oficial
             <br />
-            <span className="text-premium-light2 italic">da sua turma.</span>
+            <span className="italic text-text-secondary">da sua turma.</span>
           </h1>
 
-          <p className="mt-8 max-w-xl mx-auto text-premium-light1 text-sm md:text-base leading-relaxed fade-in">
+          <p className="mt-10 max-w-xl mx-auto text-text-secondary text-base md:text-[17px] leading-relaxed fade-in fade-in-delay-2">
             Cadastre sua turma, gere um link exclusivo e compartilhe com os
             colegas interessados nos convites de formatura Alpha.
           </p>
 
-          <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center fade-in">
+          <div className="mt-14 flex flex-col sm:flex-row gap-4 justify-center items-center fade-in fade-in-delay-3">
             <Link
               href="/cadastro"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-[#F5F5F0] text-[#0A0A0A] text-xs tracking-premium-wide uppercase hover:bg-premium-gold transition-colors duration-300"
+              className="group inline-flex items-center gap-3 px-9 py-4 bg-ink text-text-inverse text-[11px] tracking-premium-wide uppercase hover:bg-ink-800 transition-all duration-350 ease-premium"
             >
               Sou representante da turma
               <svg
@@ -57,6 +66,7 @@ export default function LandingPage() {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.5"
+                className="transition-transform duration-350 ease-premium group-hover:translate-x-1"
               >
                 <path
                   d="M5 12h14M13 6l6 6-6 6"
@@ -67,44 +77,51 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center px-8 py-4 border border-white/10 text-xs tracking-premium-wide uppercase text-premium-light2 hover:border-premium-gold hover:text-premium-gold transition-colors"
+              className="inline-flex items-center px-9 py-4 border border-line-strong text-[11px] tracking-premium-wide uppercase text-text-primary hover:border-ink hover:bg-black/[0.03] transition-all duration-350 ease-premium"
             >
               Já tenho cadastro
             </Link>
           </div>
 
-          <p className="mt-10 text-[11px] tracking-premium-wide uppercase text-premium-mid2 fade-in">
-            Recebeu um link da sua turma? Acesse-o diretamente — não precisa
-            criar conta para preencher a adesão.
+          <p className="mt-16 text-[11px] tracking-premium-wide uppercase text-text-tertiary fade-in fade-in-delay-4 max-w-md mx-auto">
+            Recebeu um link da sua turma? Acesse-o diretamente —{" "}
+            <span className="text-text-secondary">
+              não precisa criar conta
+            </span>{" "}
+            para preencher a adesão.
           </p>
         </div>
       </section>
 
-      {/* Passos */}
-      <section className="border-t border-white/10">
-        <div className="max-w-5xl mx-auto px-6 py-20">
-          <div className="text-center mb-14">
-            <p className="text-[11px] tracking-premium-wide uppercase text-premium-gold mb-3">
+      {/* Passos — fundo cinza suave */}
+      <section className="bg-bg-soft border-y border-line">
+        <div className="max-w-5xl mx-auto px-6 py-24">
+          <div className="text-center mb-16">
+            <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
               Como funciona
             </p>
-            <h2 className="font-serif text-2xl md:text-3xl tracking-premium-tight text-premium-white">
-              Um único representante. A turma toda alinhada.
+            <h2 className="font-serif text-3xl md:text-4xl tracking-premium-tight text-text-primary">
+              Um único representante.
+              <br />
+              <span className="italic text-text-secondary">
+                A turma toda alinhada.
+              </span>
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-px bg-white/10">
+          <div className="grid md:grid-cols-3 gap-px bg-line">
             {passos.map((p, i) => (
               <div
                 key={p.titulo}
-                className="bg-[#0A0A0A] p-10 hover:bg-[#141414] transition-colors duration-300"
+                className="bg-bg-warm p-10 transition-colors duration-350 ease-premium hover:bg-bg-ice"
               >
-                <p className="text-[10px] tracking-premium-wide uppercase text-premium-gold mb-4">
-                  0{i + 1}
+                <p className="font-serif text-3xl text-champagne mb-6">
+                  {String(i + 1).padStart(2, "0")}
                 </p>
-                <h3 className="font-serif text-xl text-premium-white mb-3 tracking-premium-tight">
+                <h3 className="font-serif text-xl text-text-primary mb-3 tracking-premium-tight">
                   {p.titulo}
                 </h3>
-                <p className="text-sm text-premium-light1 leading-relaxed">
+                <p className="text-sm text-text-secondary leading-relaxed">
                   {p.descricao}
                 </p>
               </div>
@@ -113,20 +130,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="border-t border-white/10">
-        <div className="max-w-3xl mx-auto px-6 py-20 text-center">
-          <h2 className="font-serif text-2xl md:text-3xl text-premium-white tracking-premium-tight">
+      {/* CTA final */}
+      <section>
+        <div className="max-w-3xl mx-auto px-6 py-24 text-center">
+          <h2 className="font-serif text-3xl md:text-4xl text-text-primary tracking-premium-tight">
             Pronto para representar sua turma?
           </h2>
-          <p className="mt-4 text-sm text-premium-light1">
+          <p className="mt-4 text-text-secondary">
             Cadastro em menos de dois minutos. Sem compromisso.
           </p>
           <Link
             href="/cadastro"
-            className="inline-block mt-8 px-8 py-4 border border-white/10 text-xs tracking-premium-wide uppercase text-premium-white hover:border-premium-gold hover:text-premium-gold transition-colors"
+            className="inline-block mt-10 px-9 py-4 bg-ink text-text-inverse text-[11px] tracking-premium-wide uppercase hover:bg-ink-800 transition-colors duration-350"
           >
-            Iniciar cadastro do representante
+            Iniciar cadastro
           </Link>
         </div>
       </section>

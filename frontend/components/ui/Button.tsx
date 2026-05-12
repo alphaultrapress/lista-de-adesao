@@ -3,7 +3,7 @@
 import { ButtonHTMLAttributes, forwardRef } from "react";
 import Spinner from "./Spinner";
 
-type Variant = "primary" | "ghost" | "outline" | "gold";
+type Variant = "primary" | "ghost" | "outline" | "champagne" | "dark";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
@@ -12,17 +12,19 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const base =
-  "inline-flex items-center justify-center gap-2 px-6 py-3 text-sm tracking-premium-wide uppercase transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-1 focus-visible:ring-premium-gold/60";
+  "inline-flex items-center justify-center gap-2 px-6 py-3.5 text-xs tracking-premium-wide uppercase transition-all duration-250 ease-premium disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-champagne/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg";
 
 const variants: Record<Variant, string> = {
   primary:
-    "bg-premium-white text-premium-black hover:bg-premium-light2 border-[0.5px] border-premium-white",
+    "bg-ink text-text-inverse hover:bg-ink-800 border border-ink",
   ghost:
-    "bg-transparent text-premium-light2 hover:text-premium-white hover:bg-premium-dark2 border-[0.5px] border-transparent",
+    "bg-transparent text-text-primary hover:bg-black/5 border border-transparent",
   outline:
-    "bg-transparent text-premium-white border-[0.5px] border-premium-mid1 hover:border-premium-gold hover:text-premium-gold",
-  gold:
-    "bg-premium-gold text-premium-black hover:bg-[#b8985f] border-[0.5px] border-premium-gold",
+    "bg-transparent text-text-primary border border-line-strong hover:border-ink hover:bg-black/[0.03]",
+  champagne:
+    "bg-champagne text-ink hover:bg-champagne-deep border border-champagne",
+  dark:
+    "bg-ink text-text-inverse hover:bg-ink-800 border border-ink",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(

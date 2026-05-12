@@ -43,8 +43,10 @@ export default function DashboardPage() {
 
   if (loading || !formando) {
     return (
-      <main className="min-h-screen bg-premium-black flex items-center justify-center">
-        <p className="text-sm text-premium-light1">Carregando seu painel...</p>
+      <main className="min-h-screen bg-bg flex items-center justify-center">
+        <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
+          Carregando seu painel
+        </p>
       </main>
     );
   }
@@ -59,32 +61,35 @@ export default function DashboardPage() {
   )}`;
 
   return (
-    <main className="min-h-screen bg-premium-black">
-      <header className="border-b-[0.5px] border-premium-dark3 bg-premium-black/80 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
-          <Brand size="sm" />
+    <main className="min-h-screen bg-bg">
+      <header className="bg-ink sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Brand size="sm" variant="light" />
           <button
             onClick={logout}
-            className="text-[11px] tracking-premium-wide uppercase text-premium-light1 hover:text-premium-gold transition-colors"
+            className="text-[11px] tracking-premium-wide uppercase text-white/70 hover:text-champagne transition-colors duration-250"
           >
             Sair
           </button>
         </div>
       </header>
 
-      <section className="max-w-6xl mx-auto px-6 py-12 md:py-16">
-        <div className="mb-12">
-          <p className="text-[11px] tracking-premium-wide uppercase text-premium-gold mb-3">
+      <section className="max-w-6xl mx-auto px-6 py-16 md:py-20">
+        <div className="mb-14">
+          <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
             Painel do representante
           </p>
-          <h1 className="font-serif text-3xl md:text-4xl tracking-premium-tight">
-            Olá, {formando.nome.split(" ")[0]}.
+          <h1 className="font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary">
+            Olá,{" "}
+            <span className="italic text-text-secondary">
+              {formando.nome.split(" ")[0]}.
+            </span>
           </h1>
-          <p className="mt-3 text-sm text-premium-light1">
+          <p className="mt-4 text-text-secondary">
             Turma de{" "}
-            <span className="text-premium-white">{formando.curso}</span> ·{" "}
-            <span className="text-premium-white">{formando.instituicao}</span> ·{" "}
-            <span className="text-premium-white">{formando.semestre}</span>
+            <span className="text-text-primary">{formando.curso}</span> ·{" "}
+            <span className="text-text-primary">{formando.instituicao}</span> ·{" "}
+            <span className="text-text-primary">{formando.semestre}</span>
           </p>
         </div>
 
@@ -101,17 +106,20 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="mt-12 hairline border-premium-dark3 p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="mt-14 bg-ink text-text-inverse p-10 md:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div>
-            <h3 className="font-serif text-xl text-premium-white mb-2">
-              Quer falar diretamente com um consultor?
+            <p className="text-[10px] tracking-premium-widest uppercase text-champagne mb-3">
+              Atendimento
+            </p>
+            <h3 className="font-serif text-2xl mb-2 tracking-premium-tight">
+              Quer falar com um consultor?
             </h3>
-            <p className="text-sm text-premium-light1">
+            <p className="text-sm text-white/60 max-w-md">
               Tire dúvidas e receba uma proposta personalizada para a sua turma.
             </p>
           </div>
           <a href={waConsultor} target="_blank" rel="noreferrer">
-            <Button variant="gold">Falar com um consultor</Button>
+            <Button variant="champagne">Falar com um consultor</Button>
           </a>
         </div>
       </section>

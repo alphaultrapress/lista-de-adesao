@@ -15,18 +15,18 @@ export default function Card({
 }: CardProps) {
   return (
     <div
-      className={`bg-premium-dark1 hairline border-premium-dark3 p-6 md:p-8 ${className}`}
+      className={`bg-bg-ice border border-line p-8 md:p-10 card-hover ${className}`}
       {...rest}
     >
       {(title || subtitle) && (
-        <header className="mb-6 pb-6 border-b-[0.5px] border-premium-dark3">
+        <header className="mb-8 pb-6 border-b border-line">
           {title && (
-            <h3 className="font-serif text-xl text-premium-white tracking-premium-tight">
+            <h3 className="font-serif text-2xl text-text-primary tracking-premium-tight">
               {title}
             </h3>
           )}
           {subtitle && (
-            <p className="mt-1 text-xs text-premium-light1">{subtitle}</p>
+            <p className="mt-2 text-sm text-text-secondary">{subtitle}</p>
           )}
         </header>
       )}

@@ -132,28 +132,30 @@ export default function CadastroPage() {
   }
 
   return (
-    <main className="min-h-screen bg-premium-black">
-      <header className="border-b-[0.5px] border-premium-dark3">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-          <Brand size="sm" />
+    <main className="min-h-screen bg-bg">
+      <header className="bg-ink">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Brand size="sm" variant="light" />
           <Link
             href="/login"
-            className="text-[11px] tracking-premium-wide uppercase text-premium-light1 hover:text-premium-gold transition-colors"
+            className="text-[11px] tracking-premium-wide uppercase text-white/70 hover:text-champagne transition-colors duration-250"
           >
             Já tenho cadastro
           </Link>
         </div>
       </header>
 
-      <section className="max-w-2xl mx-auto px-6 py-16">
-        <div className="text-center mb-12">
-          <p className="text-[11px] tracking-premium-wide uppercase text-premium-gold mb-3">
+      <section className="max-w-2xl mx-auto px-6 py-20">
+        <div className="text-center mb-14">
+          <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
             Cadastro do representante da turma
           </p>
-          <h1 className="font-serif text-3xl md:text-4xl tracking-premium-tight text-premium-white">
-            Vamos conhecer a sua turma.
+          <h1 className="font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary">
+            Vamos conhecer
+            <br />
+            <span className="italic text-text-secondary">a sua turma.</span>
           </h1>
-          <p className="mt-4 text-sm text-premium-light1 max-w-md mx-auto">
+          <p className="mt-5 text-text-secondary max-w-md mx-auto leading-relaxed">
             Você vai gerar o link oficial para sua sala preencher a lista de
             adesão. O cadastro é feito apenas pelo representante.
           </p>
@@ -290,7 +292,7 @@ export default function CadastroPage() {
             />
           </div>
 
-          <label className="flex items-start gap-3 text-sm text-premium-light1 cursor-pointer pt-2">
+          <label className="flex items-start gap-3 text-sm text-text-secondary cursor-pointer pt-2">
             <input
               type="checkbox"
               checked={aceito}
@@ -298,7 +300,7 @@ export default function CadastroPage() {
                 setAceito(e.target.checked);
                 setErrors((er) => ({ ...er, aceito: "" }));
               }}
-              className="mt-1 accent-premium-gold"
+              className="mt-1 accent-ink"
             />
             <span>
               Aceito os termos de uso e a política de privacidade da Alpha
@@ -306,11 +308,11 @@ export default function CadastroPage() {
             </span>
           </label>
           {errors.aceito && (
-            <p className="text-xs text-premium-wine -mt-4">{errors.aceito}</p>
+            <p className="text-xs text-wine -mt-4">{errors.aceito}</p>
           )}
 
           {topError && (
-            <div className="hairline border-premium-wine bg-premium-dark1 px-4 py-3 text-sm text-premium-wine">
+            <div className="border border-wine/30 bg-wine/5 px-4 py-3 text-sm text-wine">
               {topError}
             </div>
           )}
@@ -324,11 +326,11 @@ export default function CadastroPage() {
             {submitting ? "Criando sua conta" : "Concluir cadastro"}
           </Button>
 
-          <p className="text-center text-xs text-premium-mid2">
+          <p className="text-center text-xs text-text-tertiary">
             Já é cadastrado?{" "}
             <Link
               href="/login"
-              className="text-premium-light2 hover:text-premium-gold transition-colors"
+              className="text-text-primary editorial-link"
             >
               Entrar
             </Link>

@@ -57,23 +57,23 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-premium-black flex flex-col">
-      <header className="border-b-[0.5px] border-premium-dark3">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <Brand size="sm" />
+    <main className="min-h-screen bg-bg flex flex-col">
+      <header className="bg-ink">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center">
+          <Brand size="sm" variant="light" />
         </div>
       </header>
 
-      <section className="flex-1 flex items-center justify-center px-6 py-16">
+      <section className="flex-1 flex items-center justify-center px-6 py-20">
         <div className="w-full max-w-md">
-          <div className="text-center mb-10">
-            <p className="text-[11px] tracking-premium-wide uppercase text-premium-gold mb-3">
+          <div className="text-center mb-12">
+            <p className="text-[10px] tracking-premium-widest uppercase text-champagne-deep mb-4">
               Acesso do representante
             </p>
-            <h1 className="font-serif text-3xl tracking-premium-tight text-premium-white">
+            <h1 className="font-serif text-4xl tracking-premium-tight text-text-primary">
               Entre na sua conta
             </h1>
-            <p className="mt-3 text-xs text-premium-light1">
+            <p className="mt-4 text-sm text-text-secondary leading-relaxed">
               Apenas representantes de turma têm cadastro. Colegas que receberam
               o link devem acessá-lo diretamente.
             </p>
@@ -100,12 +100,12 @@ export default function LoginPage() {
             />
 
             {error && (
-              <div className="hairline border-premium-wine bg-premium-dark1 px-4 py-3 text-sm text-premium-wine">
+              <div className="border border-wine/30 bg-wine/5 px-4 py-3 text-sm text-wine">
                 {error}
               </div>
             )}
             {info && (
-              <div className="hairline border-premium-gold bg-premium-dark1 px-4 py-3 text-sm text-premium-gold">
+              <div className="border border-champagne/30 bg-champagne/5 px-4 py-3 text-sm text-champagne-deep">
                 {info}
               </div>
             )}
@@ -114,17 +114,17 @@ export default function LoginPage() {
               {loading ? "Entrando" : "Entrar"}
             </Button>
 
-            <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center justify-between text-[11px] tracking-premium-wide uppercase pt-2">
               <button
                 type="button"
                 onClick={handleReset}
-                className="text-premium-light1 hover:text-premium-gold transition-colors tracking-premium-wide uppercase"
+                className="text-text-secondary hover:text-text-primary transition-colors duration-250"
               >
                 Esqueci minha senha
               </button>
               <Link
                 href="/cadastro"
-                className="text-premium-light1 hover:text-premium-gold transition-colors tracking-premium-wide uppercase"
+                className="text-text-secondary hover:text-text-primary transition-colors duration-250"
               >
                 Criar conta
               </Link>

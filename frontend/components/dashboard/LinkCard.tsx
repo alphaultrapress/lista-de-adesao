@@ -36,12 +36,12 @@ export default function LinkCard({
 
   return (
     <Card
-      title="Seu link de adesão"
-      subtitle="Compartilhe com os colegas da sua turma."
+      title="Link da turma"
+      subtitle="Compartilhe este link com os colegas da sua turma."
     >
       <div className="grid md:grid-cols-[1fr,auto] gap-8 items-center">
         <div className="space-y-5">
-          <div className="hairline border-premium-dark3 bg-premium-black px-4 py-3 text-sm text-premium-light2 break-all font-mono">
+          <div className="border border-line bg-bg px-4 py-3 text-sm text-text-secondary break-all font-mono">
             {url}
           </div>
           <div className="flex flex-wrap gap-3">
@@ -53,24 +53,24 @@ export default function LinkCard({
               target="_blank"
               rel="noreferrer"
             >
-              <Button variant="gold" type="button">
-                Compartilhar no WhatsApp
+              <Button variant="primary" type="button">
+                Compartilhar
               </Button>
             </a>
           </div>
         </div>
 
         <div className="flex flex-col items-center gap-3 mx-auto md:mx-0">
-          <div className="p-3 bg-premium-white">
+          <div className="p-4 border border-line bg-bg">
             <QRCodeCanvas
               value={url}
-              size={140}
-              bgColor="#F5F5F0"
+              size={132}
+              bgColor="#F8F8F5"
               fgColor="#0A0A0A"
               level="M"
             />
           </div>
-          <p className="text-[10px] tracking-premium-wide uppercase text-premium-light1">
+          <p className="text-[10px] tracking-premium-widest uppercase text-text-tertiary">
             QR Code da turma
           </p>
         </div>

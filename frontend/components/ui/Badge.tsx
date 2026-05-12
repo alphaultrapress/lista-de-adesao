@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-type Tone = "neutral" | "gold" | "wine";
+type Tone = "neutral" | "champagne" | "wine" | "dark";
 
 interface BadgeProps {
   children: ReactNode;
@@ -8,15 +8,16 @@ interface BadgeProps {
 }
 
 const tones: Record<Tone, string> = {
-  neutral: "border-premium-mid1 text-premium-light2",
-  gold: "border-premium-gold text-premium-gold",
-  wine: "border-premium-wine text-premium-wine",
+  neutral: "border-line-strong text-text-secondary",
+  champagne: "border-champagne text-champagne-deep",
+  wine: "border-wine/30 text-wine",
+  dark: "border-ink text-ink",
 };
 
 export default function Badge({ children, tone = "neutral" }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-1 text-[10px] tracking-premium-wide uppercase hairline ${tones[tone]}`}
+      className={`inline-flex items-center px-2.5 py-1 text-[10px] tracking-premium-wide uppercase border ${tones[tone]}`}
     >
       {children}
     </span>

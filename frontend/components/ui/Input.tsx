@@ -19,7 +19,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       {label && (
         <label
           htmlFor={inputId}
-          className="block mb-2 text-[11px] tracking-premium-wide uppercase text-premium-light1"
+          className="block mb-2 text-[10px] tracking-premium-widest uppercase text-text-tertiary font-medium"
         >
           {label}
         </label>
@@ -28,21 +28,23 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         <input
           id={inputId}
           ref={ref}
-          className={`w-full bg-premium-dark1 hairline border-premium-dark3 text-premium-white px-4 py-3 text-sm placeholder-premium-mid2 focus:border-premium-gold focus:outline-none transition-colors duration-200 ${
-            error ? "border-premium-wine" : ""
+          className={`input-premium w-full bg-bg-ice border text-text-primary px-4 py-3.5 text-[15px] placeholder:text-text-tertiary/70 transition-all duration-250 ease-premium ${
+            error
+              ? "border-wine"
+              : "border-line hover:border-line-strong"
           } ${rightSlot ? "pr-12" : ""} ${className}`}
           {...rest}
         />
         {rightSlot && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
             {rightSlot}
           </div>
         )}
       </div>
       {error ? (
-        <p className="mt-2 text-xs text-premium-wine">{error}</p>
+        <p className="mt-2 text-xs text-wine">{error}</p>
       ) : hint ? (
-        <p className="mt-2 text-xs text-premium-mid2">{hint}</p>
+        <p className="mt-2 text-xs text-text-tertiary">{hint}</p>
       ) : null}
     </div>
   );

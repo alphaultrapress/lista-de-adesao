@@ -19,7 +19,7 @@ export default function Spinner({ size = 16, className = "" }: SpinnerProps) {
         cy="12"
         r="10"
         stroke="currentColor"
-        strokeOpacity="0.2"
+        strokeOpacity="0.18"
         strokeWidth="2"
       />
       <path

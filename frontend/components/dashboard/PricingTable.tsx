@@ -2,36 +2,33 @@ import Card from "../ui/Card";
 import Badge from "../ui/Badge";
 
 const luxoTiers = [
-  { qtd: 50, preco: "R$ 350,00" },
-  { qtd: 100, preco: "R$ 227,00" },
-  { qtd: 150, preco: "R$ 193,00" },
-  { qtd: 200, preco: "R$ 166,00" },
+  { qtd: 50, preco: "R$ 350" },
+  { qtd: 100, preco: "R$ 227" },
+  { qtd: 150, preco: "R$ 193" },
+  { qtd: 200, preco: "R$ 166" },
 ];
 
 export default function PricingTable() {
   return (
     <Card
       title="Tipos de convite"
-      subtitle="Valores por unidade. Tabela referencial — proposta final é personalizada."
+      subtitle="Valores referenciais por unidade. Proposta final é personalizada."
     >
-      <div className="space-y-8">
+      <div className="space-y-10">
         <div>
-          <div className="flex items-center gap-3 mb-4">
-            <h4 className="font-serif text-lg text-premium-white">
+          <div className="flex items-center gap-3 mb-6">
+            <h4 className="font-serif text-xl text-text-primary tracking-premium-tight">
               Convite Luxo com Caixa
             </h4>
-            <Badge tone="gold">Premium</Badge>
+            <Badge tone="champagne">Premium</Badge>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-premium-dark3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-line">
             {luxoTiers.map((t) => (
-              <div
-                key={t.qtd}
-                className="bg-premium-dark2 px-4 py-5 text-center"
-              >
-                <p className="text-[10px] tracking-premium-wide uppercase text-premium-light1">
+              <div key={t.qtd} className="bg-bg-warm px-4 py-6 text-center">
+                <p className="text-[10px] tracking-premium-widest uppercase text-text-tertiary mb-3">
                   {t.qtd} unidades
                 </p>
-                <p className="mt-2 font-serif text-xl text-premium-gold">
+                <p className="font-serif text-2xl text-text-primary">
                   {t.preco}
                 </p>
               </div>
@@ -39,23 +36,23 @@ export default function PricingTable() {
           </div>
         </div>
 
-        <div className="pt-6 border-t-[0.5px] border-premium-dark3">
-          <div className="flex items-center gap-3 mb-4">
-            <h4 className="font-serif text-lg text-premium-white">
+        <div className="pt-8 border-t border-line">
+          <div className="flex items-center gap-3 mb-6">
+            <h4 className="font-serif text-xl text-text-primary tracking-premium-tight">
               Convite Simples com Luva
             </h4>
             <Badge>Econômico</Badge>
           </div>
-          <div className="bg-premium-dark2 px-6 py-5 flex items-center justify-between">
+          <div className="bg-bg-warm px-6 py-6 flex items-center justify-between">
             <div>
-              <p className="text-[10px] tracking-premium-wide uppercase text-premium-light1">
+              <p className="text-[10px] tracking-premium-widest uppercase text-text-tertiary mb-1">
                 A partir de 250 unidades
               </p>
-              <p className="mt-1 text-sm text-premium-light2">
+              <p className="text-sm text-text-secondary">
                 Acabamento clássico com luva.
               </p>
             </div>
-            <p className="font-serif text-xl text-premium-gold">R$ 25,00</p>
+            <p className="font-serif text-2xl text-text-primary">R$ 25</p>
           </div>
         </div>
       </div>

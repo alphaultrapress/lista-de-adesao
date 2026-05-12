@@ -4,19 +4,20 @@ import Link from "next/link";
 interface BrandProps {
   size?: "sm" | "md" | "lg";
   href?: string;
+  /** "dark" → logo escura para fundos claros · "light" → logo branca para fundos escuros */
   variant?: "light" | "dark";
 }
 
 const heights: Record<NonNullable<BrandProps["size"]>, number> = {
-  sm: 36,
-  md: 56,
-  lg: 96,
+  sm: 32,
+  md: 52,
+  lg: 88,
 };
 
 export function Brand({
   size = "md",
   href = "/",
-  variant = "light",
+  variant = "dark",
 }: BrandProps) {
   const src = variant === "light" ? "/logos/logo-white.png" : "/logos/logo-dark.png";
   const h = heights[size];
@@ -40,25 +41,27 @@ export function Brand({
 
 export function Footer() {
   return (
-    <footer className="mt-24 border-t-[0.5px] border-white/10">
-      <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-premium-light1">
-        <div className="flex items-center gap-2">
-          <span className="font-serif text-premium-white">Alpha Convites</span>
-          <span className="text-premium-mid2">·</span>
-          <span>convites de formatura premium</span>
+    <footer className="mt-32 bg-ink text-text-inverse">
+      <div className="max-w-6xl mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-3">
+          <Brand size="sm" variant="light" href="" />
+          <span className="hidden md:inline text-line-inverse">·</span>
+          <span className="hidden md:inline text-xs tracking-premium-wide uppercase text-white/50">
+            convites de formatura premium
+          </span>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8 text-[11px] tracking-premium-wide uppercase text-white/60">
           <a
             href="https://instagram.com/alphaconvites"
             target="_blank"
             rel="noreferrer"
-            className="hover:text-premium-gold transition-colors tracking-premium-wide uppercase"
+            className="hover:text-champagne transition-colors duration-250"
           >
             @alphaconvites
           </a>
           <a
             href="mailto:contato@alphaconvites.com.br"
-            className="hover:text-premium-gold transition-colors tracking-premium-wide uppercase"
+            className="hover:text-champagne transition-colors duration-250"
           >
             Contato
           </a>
