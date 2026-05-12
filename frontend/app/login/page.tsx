@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Brand, Footer } from "@/components/Brand";
@@ -15,6 +15,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [info, setInfo] = useState<string | undefined>();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) router.replace("/dashboard");
+    });
+  }, [router]);
 
   async function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault();

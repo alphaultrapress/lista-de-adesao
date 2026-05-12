@@ -41,6 +41,12 @@ export default function CadastroPage() {
   const [topError, setTopError] = useState<string | undefined>();
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) router.replace("/dashboard");
+    });
+  }, [router]);
+
+  useEffect(() => {
     if (form.estado) {
       fetchMunicipios(form.estado).then(setMunicipios);
       setForm((f) => ({ ...f, cidade: "" }));
