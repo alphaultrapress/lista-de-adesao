@@ -63,7 +63,7 @@ export default function LandingPage() {
     <main className="page-canvas min-h-screen bg-bg">
       <PremiumHeader
         actions={[
-          { href: "/login", label: "Login representante" },
+          { href: "/login", label: "Login" },
           { href: "/cadastro", label: "Cadastrar", emphasis: true },
         ]}
       />
@@ -154,7 +154,7 @@ export default function LandingPage() {
                   </svg>
                 </Link>
                 <Link href="/login" className="hero-btn-secondary group">
-                  <span>Já tenho cadastro</span>
+                  <span>Login</span>
                   <svg
                     width="14"
                     height="14"

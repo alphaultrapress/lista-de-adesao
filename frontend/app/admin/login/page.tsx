@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
     <main className="page-canvas min-h-screen bg-bg flex flex-col">
       <PremiumHeader
         compact
-        actions={[{ href: "/login", label: "Representante" }]}
+        actions={[{ href: "/login", label: "Login" }]}
       />
 
       <section className="relative flex flex-1 items-center justify-center overflow-hidden px-6 pb-20 pt-32">

@@ -45,7 +45,7 @@ const footerLinks = [
   { href: "/", label: "Início" },
   { href: "/#como-funciona", label: "Como funciona" },
   { href: "/cadastro", label: "Cadastro" },
-  { href: "/login", label: "Login representante" },
+  { href: "/login", label: "Login" },
 ];
 
 export function Footer() {

@@ -9,6 +9,8 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { supabase } from "@/lib/supabase";
 
+type LoginTarget = "admin" | "representative" | "onboarding";
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -28,17 +30,26 @@ export default function LoginPage() {
         return;
       }
 
-      const { data: representative } = await supabase
-        .from("representatives")
-        .select("id")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      router.replace(representative ? "/dashboard" : "/cadastro");
+      await routeAuthenticatedUser(userId, true);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
-  async function goToRepresentativeArea(userId: string) {
+  async function findLoginTarget(userId: string): Promise<LoginTarget> {
+    const { data: admin, error: adminError } = await supabase
+      .from("admins")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (adminError && adminError.code === "42P01") {
+      throw new Error(
+        "O banco ainda precisa receber o schema novo. Execute o arquivo supabase/schema.sql no Supabase.",
+      );
+    }
+
+    if (admin) return "admin";
+
     const { data: representative, error: representativeError } = await supabase
       .from("representatives")
       .select("id")
@@ -46,13 +57,40 @@ export default function LoginPage() {
       .maybeSingle();
 
     if (representativeError && representativeError.code === "42P01") {
-      setError(
+      throw new Error(
         "O banco ainda precisa receber o schema novo. Execute o arquivo supabase/schema.sql no Supabase.",
       );
-      return;
     }
 
-    router.push(representative ? "/dashboard" : "/cadastro");
+    return representative ? "representative" : "onboarding";
+  }
+
+  async function routeAuthenticatedUser(userId: string, fromSession = false) {
+    try {
+      const target = await findLoginTarget(userId);
+
+      if (target === "admin") {
+        router.replace("/admin/dashboard");
+        return;
+      }
+
+      if (target === "representative") {
+        router.replace("/dashboard");
+        return;
+      }
+
+      router.replace("/cadastro");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Nao foi possivel verificar seu acesso.",
+      );
+
+      if (fromSession) {
+        setCheckingSession(false);
+      }
+    }
   }
 
   async function handleSubmit(ev: React.FormEvent) {
@@ -60,16 +98,20 @@ export default function LoginPage() {
     setError(undefined);
     setInfo(undefined);
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
+
+    const { data, error: signError } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
       password: senha,
     });
-    setLoading(false);
-    if (error || !data.user) {
+
+    if (signError || !data.user) {
+      setLoading(false);
       setError("E-mail ou senha incorretos. Verifique e tente novamente.");
       return;
     }
-    await goToRepresentativeArea(data.user.id);
+
+    await routeAuthenticatedUser(data.user.id);
+    setLoading(false);
   }
 
   async function handleReset() {
@@ -77,16 +119,20 @@ export default function LoginPage() {
       setError("Informe seu e-mail para recuperar a senha.");
       return;
     }
+
     setError(undefined);
     setInfo(undefined);
-    const { error } = await supabase.auth.resetPasswordForEmail(
+
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
       email.trim().toLowerCase(),
     );
-    if (error) {
-      setError("Não foi possível enviar o e-mail. Tente novamente.");
+
+    if (resetError) {
+      setError("Nao foi possivel enviar o e-mail. Tente novamente.");
       return;
     }
-    setInfo("Enviamos um link de recuperação para o seu e-mail.");
+
+    setInfo("Enviamos um link de recuperacao para o seu e-mail.");
   }
 
   if (checkingSession) {
@@ -112,7 +158,7 @@ export default function LoginPage() {
           <div className="mb-11 text-center">
             <span className="tech-eyebrow">
               <span className="dot" />
-              Acesso do representante
+              Acesso ao sistema
             </span>
             <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
               Entre na
@@ -120,8 +166,8 @@ export default function LoginPage() {
               <span className="italic font-light text-gray-500">sua conta.</span>
             </h1>
             <p className="mt-5 text-sm leading-relaxed text-text-secondary">
-              Apenas representantes de turma têm cadastro. Colegas que receberam
-              o link devem acessá-lo diretamente.
+              Use seu acesso administrativo ou a conta de representante da turma.
+              Alunos entram apenas pelo link publico da turma.
             </p>
           </div>
 
