@@ -10,7 +10,6 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import CpfInput from "@/components/forms/CpfInput";
 import PhoneInput from "@/components/forms/PhoneInput";
-import Autocomplete from "@/components/forms/Autocomplete";
 import { supabase } from "@/lib/supabase";
 import { isValidCpf, isValidPhoneBr } from "@/lib/cpf";
 import { buildTurmaSlug } from "@/lib/slugify";
@@ -326,15 +325,20 @@ export default function CadastroPage() {
               error={errors.estado}
               required
             />
-            <Autocomplete
+            <Select
               label="Cidade"
+              name="cidade"
               value={form.cidade}
-              onChange={(v) => set("cidade", v)}
-              options={municipioNomes}
+              onChange={(e) => set("cidade", e.target.value)}
+              options={municipioNomes.map((nome) => ({
+                value: nome,
+                label: nome,
+              }))}
               placeholder={
-                form.estado ? "Comece a digitar..." : "Selecione o estado primeiro"
+                form.estado ? "Selecione a cidade" : "Selecione o estado primeiro"
               }
               error={errors.cidade}
+              disabled={!form.estado || municipioNomes.length === 0}
               required
             />
           </div>
