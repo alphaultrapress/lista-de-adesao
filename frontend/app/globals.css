@@ -750,14 +750,20 @@ textarea::placeholder {
     drop-shadow(0 0 18px rgba(255, 255, 255, 0.035));
 }
 
+.premium-header-inner-centered > a {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .premium-header-inner-centered .brand-lockup img {
-  height: 78px !important;
+  height: 62px !important;
   width: auto !important;
 }
 
 @media (max-width: 640px) {
   .premium-header-inner-centered .brand-lockup img {
-    height: 58px !important;
+    height: 52px !important;
   }
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
@@ -195,31 +196,41 @@ export default function AdesaoPublicaPage() {
         <section className="relative flex flex-1 items-center justify-center overflow-hidden px-6 pb-20 pt-32">
           <div className="absolute inset-0 bg-grid-light opacity-50 pointer-events-none" />
           <div className="absolute left-1/2 top-1/2 h-[420px] w-[680px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
-          <div className="relative max-w-lg text-center fade-up">
+          <div className="relative max-w-2xl text-center fade-up">
             <div className="relative mx-auto mb-10 h-20 w-20">
-              <div className="absolute inset-0 border border-line-strong" />
-              <div className="absolute inset-0 flex items-center justify-center bg-ink-950 text-white">
+              <div className="absolute inset-0 border border-[#00ff7f]/60 bg-[#00ff7f] shadow-[0_0_24px_rgba(0,255,127,0.35)]" />
+              <div className="absolute inset-0 flex items-center justify-center text-ink">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M5 12l4 4L19 6"
                     stroke="currentColor"
-                    strokeWidth="1.5"
+                    strokeWidth="1.8"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                 </svg>
               </div>
-              <div className="absolute -inset-3 border border-crimson/20 animate-glow" />
+              <div className="absolute -inset-3 border border-[#00ff7f]/25 shadow-[0_0_44px_rgba(0,255,127,0.18)] animate-glow" />
             </div>
             <span className="tech-eyebrow">
               <span className="dot" />
               Adesão registrada
             </span>
-            <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-              Recebemos sua
-              <br />
-              <span className="italic font-light text-gray-500">adesão.</span>
-            </h1>
+            <div className="mt-7 flex flex-col items-center justify-center gap-5 md:flex-row md:gap-8">
+              <h1 className="font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
+                Recebemos sua
+                <br />
+                <span className="italic font-light text-gray-500">adesão.</span>
+              </h1>
+              <Image
+                src="/logos/logo-dark.png"
+                alt="Alpha Convites"
+                width={420}
+                height={140}
+                priority
+                className="h-auto w-[120px] md:w-[150px]"
+              />
+            </div>
             <p className="mt-6 leading-relaxed text-text-secondary">
               Nossa equipe entrará em contato em breve com mais informações
               sobre os convites de formatura.
