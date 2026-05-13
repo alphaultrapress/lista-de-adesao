@@ -134,7 +134,6 @@ export default function AdminDashboardPage() {
         onLogout={logout}
         logoutLabel="Sair"
         compact
-        actions={[{ href: "/dashboard", label: "Representante" }]}
       />
 
       <section className="relative mx-auto max-w-7xl px-6 pb-20 pt-32 md:pt-36">
