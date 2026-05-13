@@ -8,6 +8,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import CpfInput from "@/components/forms/CpfInput";
 import PhoneInput from "@/components/forms/PhoneInput";
+import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 import { supabase, PublicRepresentative } from "@/lib/supabase";
 import { isValidCpf, isValidPhoneBr, onlyDigits } from "@/lib/cpf";
 
@@ -331,6 +332,8 @@ export default function AdesaoPublicaPage() {
           </p>
         </form>
       </section>
+      <AcabamentosShowcase />
+
       <Footer />
     </main>
   );
