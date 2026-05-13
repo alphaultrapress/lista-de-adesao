@@ -167,7 +167,7 @@ export default function AdesaoPublicaPage() {
   if (notFound) {
     return (
       <main className="page-canvas min-h-screen bg-bg flex flex-col">
-        <PremiumHeader compact />
+        <PremiumHeader compact centeredBrand brandSize="lg" />
         <section className="relative flex flex-1 items-center justify-center px-6 pb-20 pt-32">
           <div className="absolute left-1/2 top-1/2 h-[340px] w-[560px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
           <div className="relative max-w-md text-center fade-up">
@@ -191,7 +191,7 @@ export default function AdesaoPublicaPage() {
   if (success) {
     return (
       <main className="page-canvas min-h-screen bg-bg flex flex-col">
-        <PremiumHeader compact />
+        <PremiumHeader compact centeredBrand brandSize="lg" />
         <section className="relative flex flex-1 items-center justify-center overflow-hidden px-6 pb-20 pt-32">
           <div className="absolute inset-0 bg-grid-light opacity-50 pointer-events-none" />
           <div className="absolute left-1/2 top-1/2 h-[420px] w-[680px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
@@ -233,7 +233,7 @@ export default function AdesaoPublicaPage() {
 
   return (
     <main className="page-canvas min-h-screen bg-bg">
-      <PremiumHeader compact />
+      <PremiumHeader compact centeredBrand brandSize="lg" />
 
       <section className="relative mx-auto max-w-3xl px-6 pb-20 pt-32 md:pt-36">
         <div className="absolute left-1/2 top-10 h-[340px] w-[620px] -translate-x-1/2 glow-crimson-soft opacity-60 pointer-events-none" />

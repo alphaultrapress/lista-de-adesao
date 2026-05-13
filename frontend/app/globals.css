@@ -750,6 +750,17 @@ textarea::placeholder {
     drop-shadow(0 0 18px rgba(255, 255, 255, 0.035));
 }
 
+.premium-header-inner-centered .brand-lockup img {
+  height: 78px !important;
+  width: auto !important;
+}
+
+@media (max-width: 640px) {
+  .premium-header-inner-centered .brand-lockup img {
+    height: 58px !important;
+  }
+}
+
 .premium-nav-cta {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.11), transparent 34%),

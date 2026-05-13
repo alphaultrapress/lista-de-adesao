@@ -15,6 +15,8 @@ interface PremiumHeaderProps {
   onLogout?: () => void;
   logoutLabel?: string;
   compact?: boolean;
+  centeredBrand?: boolean;
+  brandSize?: "sm" | "md" | "lg";
 }
 
 export default function PremiumHeader({
@@ -22,6 +24,8 @@ export default function PremiumHeader({
   onLogout,
   logoutLabel = "Sair",
   compact = false,
+  centeredBrand = false,
+  brandSize,
 }: PremiumHeaderProps) {
   const [scrolled, setScrolled] = useState(false);
 
@@ -39,11 +43,13 @@ export default function PremiumHeader({
       }`}
     >
       <div
-        className={`premium-header-inner mx-auto flex max-w-7xl items-center justify-between px-5 sm:px-6 ${
-          compact ? "h-[76px]" : "h-[94px]"
+        className={`premium-header-inner mx-auto flex max-w-7xl items-center px-5 sm:px-6 ${
+          centeredBrand ? "justify-center" : "justify-between"
+        } ${compact ? (centeredBrand ? "h-[88px]" : "h-[76px]") : "h-[94px]"} ${
+          centeredBrand ? "premium-header-inner-centered" : ""
         }`}
       >
-        <Brand size={compact ? "md" : "lg"} variant="light" />
+        <Brand size={brandSize || (compact ? "md" : "lg")} variant="light" />
 
         <nav className="flex items-center gap-2 sm:gap-4">
           {actions.map((action) => (
