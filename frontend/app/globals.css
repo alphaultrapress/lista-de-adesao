@@ -1166,12 +1166,12 @@ textarea::placeholder {
   }
 
   .hero-banner-wrap {
-    width: min(100%, 790px);
-    transform: translateX(-80px);
+    width: min(100%, 760px);
+    transform: translateX(-120px);
   }
 
   .hero-banner-img {
-    right: clamp(-24rem, -24vw, -20rem);
+    right: clamp(-18rem, -19vw, -15rem);
     height: 104%;
   }
 }
