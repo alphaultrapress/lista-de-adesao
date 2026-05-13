@@ -1162,17 +1162,17 @@ textarea::placeholder {
 
 @media (min-width: 1025px) and (max-width: 1440px) {
   .hero-content {
-    gap: clamp(1rem, 1.7vw, 1.75rem);
+    gap: clamp(1.2rem, 2vw, 2rem);
   }
 
   .hero-banner-wrap {
-    width: min(100%, 760px);
-    transform: translateX(-120px);
+    width: min(100%, 820px);
+    transform: translateX(-64px);
   }
 
   .hero-banner-img {
-    right: clamp(-18rem, -19vw, -15rem);
-    height: 104%;
+    right: clamp(-23rem, -23vw, -18rem);
+    height: 106%;
   }
 }
 
