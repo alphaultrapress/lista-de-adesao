@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Brand, Footer } from "@/components/Brand";
+import { Footer } from "@/components/Brand";
+import PremiumHeader from "@/components/PremiumHeader";
 import Button from "@/components/ui/Button";
 import LinkCard from "@/components/dashboard/LinkCard";
 import PricingTable from "@/components/dashboard/PricingTable";
@@ -43,7 +44,7 @@ export default function DashboardPage() {
 
   if (loading || !formando) {
     return (
-      <main className="min-h-screen bg-bg flex items-center justify-center">
+      <main className="page-canvas min-h-screen bg-bg flex items-center justify-center">
         <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
           Carregando seu painel
         </p>
@@ -61,42 +62,31 @@ export default function DashboardPage() {
   )}`;
 
   return (
-    <main className="min-h-screen bg-bg">
-      <header className="glass-dark sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Brand size="sm" variant="light" />
-          <button
-            onClick={logout}
-            className="text-[11px] tracking-premium-wide uppercase text-white/60 hover:text-white transition-colors duration-250"
-          >
-            Sair
-          </button>
-        </div>
-      </header>
+    <main className="page-canvas min-h-screen bg-bg">
+      <PremiumHeader onLogout={logout} compact />
 
-      <section className="max-w-6xl mx-auto px-6 py-16 md:py-20 relative">
-        <div className="absolute top-0 right-0 w-[400px] h-[300px] glow-crimson-soft pointer-events-none opacity-50" />
+      <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-32 md:pb-20 md:pt-36">
+        <div className="absolute right-0 top-0 h-[300px] w-[400px] glow-crimson-soft opacity-50 pointer-events-none" />
 
-        <div className="relative mb-14">
+        <div className="relative mb-14 fade-up">
           <span className="tech-eyebrow">
             <span className="dot" />
             Painel do representante
           </span>
-          <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
+          <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
             Olá,{" "}
             <span className="italic font-light text-gray-500">
               {formando.nome.split(" ")[0]}.
             </span>
           </h1>
           <p className="mt-5 text-text-secondary">
-            Turma de{" "}
-            <span className="text-text-primary">{formando.curso}</span> ·{" "}
-            <span className="text-text-primary">{formando.instituicao}</span> ·{" "}
-            <span className="text-text-primary">{formando.semestre}</span>
+            Turma de <span className="text-text-primary">{formando.curso}</span>{" "}
+            · <span className="text-text-primary">{formando.instituicao}</span>{" "}
+            · <span className="text-text-primary">{formando.semestre}</span>
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid gap-6 lg:grid-cols-2">
           <LinkCard
             url={adesaoUrl}
             nome={formando.nome}
@@ -109,19 +99,20 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="relative mt-14 bg-ink-950 text-text-inverse p-10 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 overflow-hidden">
+        <div className="relative mt-14 flex flex-col items-start justify-between gap-8 overflow-hidden bg-ink-950 p-10 text-text-inverse md:flex-row md:items-center md:p-14">
           <div className="absolute inset-0 bg-grid-dark opacity-50 pointer-events-none" />
-          <div className="absolute -right-20 top-1/2 -translate-y-1/2 w-[400px] h-[300px] glow-crimson pointer-events-none" />
+          <div className="absolute inset-0 cinematic-noise opacity-30 pointer-events-none" />
+          <div className="absolute -right-20 top-1/2 h-[300px] w-[400px] -translate-y-1/2 glow-crimson pointer-events-none" />
 
           <div className="relative">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 border border-white/10 bg-white/[0.03] text-[10px] tracking-premium-widest uppercase text-white/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-crimson shadow-[0_0_10px_rgba(110,20,20,0.8)]" />
+            <span className="tech-eyebrow dark">
+              <span className="dot" />
               Atendimento direto
             </span>
-            <h3 className="mt-4 font-serif text-2xl md:text-3xl mb-2 tracking-premium-tight">
+            <h3 className="mb-2 mt-5 font-serif text-2xl tracking-premium-tight md:text-3xl">
               Quer falar com um consultor?
             </h3>
-            <p className="text-sm text-white/60 max-w-md">
+            <p className="max-w-md text-sm text-white/60">
               Tire dúvidas e receba uma proposta personalizada para a sua turma.
             </p>
           </div>

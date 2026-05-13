@@ -16,16 +16,16 @@ export default function PricingTable() {
     >
       <div className="space-y-10">
         <div>
-          <div className="flex items-center gap-3 mb-6">
-            <h4 className="font-serif text-xl text-text-primary tracking-premium-tight">
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <h4 className="font-serif text-xl tracking-premium-tight text-text-primary">
               Convite Luxo com Caixa
             </h4>
             <Badge tone="crimson">Premium</Badge>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-line">
+          <div className="grid grid-cols-2 gap-px bg-line md:grid-cols-4">
             {luxoTiers.map((t) => (
-              <div key={t.qtd} className="bg-bg-warm px-4 py-6 text-center">
-                <p className="text-[10px] tracking-premium-widest uppercase text-text-tertiary mb-3">
+              <div key={t.qtd} className="bg-white/70 px-4 py-6 text-center">
+                <p className="mb-3 text-[10px] uppercase tracking-premium-widest text-text-tertiary">
                   {t.qtd} unidades
                 </p>
                 <p className="font-serif text-2xl text-text-primary">
@@ -36,16 +36,16 @@ export default function PricingTable() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-line">
-          <div className="flex items-center gap-3 mb-6">
-            <h4 className="font-serif text-xl text-text-primary tracking-premium-tight">
+        <div className="border-t border-line pt-8">
+          <div className="mb-6 flex flex-wrap items-center gap-3">
+            <h4 className="font-serif text-xl tracking-premium-tight text-text-primary">
               Convite Simples com Luva
             </h4>
             <Badge>Econômico</Badge>
           </div>
-          <div className="bg-bg-warm px-6 py-6 flex items-center justify-between">
+          <div className="flex flex-col gap-4 bg-white/70 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[10px] tracking-premium-widest uppercase text-text-tertiary mb-1">
+              <p className="mb-1 text-[10px] uppercase tracking-premium-widest text-text-tertiary">
                 A partir de 250 unidades
               </p>
               <p className="text-sm text-text-secondary">

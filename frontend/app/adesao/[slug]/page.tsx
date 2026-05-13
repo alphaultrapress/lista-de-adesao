@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Brand, Footer } from "@/components/Brand";
+import { Footer } from "@/components/Brand";
+import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -105,7 +106,7 @@ export default function AdesaoPublicaPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-bg flex items-center justify-center">
+      <main className="page-canvas min-h-screen bg-bg flex items-center justify-center">
         <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
           Carregando
         </p>
@@ -115,21 +116,18 @@ export default function AdesaoPublicaPage() {
 
   if (notFound) {
     return (
-      <main className="min-h-screen bg-bg flex flex-col">
-        <header className="glass-dark sticky top-0 z-30">
-          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
-            <Brand size="sm" variant="light" />
-          </div>
-        </header>
-        <section className="flex-1 flex items-center justify-center px-6">
-          <div className="text-center max-w-md">
-            <p className="text-[10px] tracking-premium-widest uppercase text-wine mb-4">
+      <main className="page-canvas min-h-screen bg-bg flex flex-col">
+        <PremiumHeader compact />
+        <section className="relative flex flex-1 items-center justify-center px-6 pb-20 pt-32">
+          <div className="absolute left-1/2 top-1/2 h-[340px] w-[560px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
+          <div className="relative max-w-md text-center fade-up">
+            <p className="mb-4 text-[10px] uppercase tracking-premium-widest text-wine">
               Link inválido
             </p>
-            <h1 className="font-serif text-4xl text-text-primary tracking-premium-tight">
+            <h1 className="font-serif text-4xl tracking-premium-tight text-text-primary">
               Turma não encontrada
             </h1>
-            <p className="mt-5 text-text-secondary leading-relaxed">
+            <p className="mt-5 leading-relaxed text-text-secondary">
               Verifique o link recebido ou peça ao representante da sua turma
               para enviá-lo novamente.
             </p>
@@ -142,18 +140,15 @@ export default function AdesaoPublicaPage() {
 
   if (success) {
     return (
-      <main className="min-h-screen bg-bg flex flex-col">
-        <header className="glass-dark sticky top-0 z-30">
-          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
-            <Brand size="sm" variant="light" />
-          </div>
-        </header>
-        <section className="flex-1 flex items-center justify-center px-6 relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] glow-crimson-soft pointer-events-none" />
-          <div className="relative text-center max-w-lg fade-up">
-            <div className="relative w-20 h-20 mx-auto mb-10">
-              <div className="absolute inset-0 rounded-full border border-line-strong" />
-              <div className="absolute inset-0 rounded-full bg-ink-950 flex items-center justify-center text-white">
+      <main className="page-canvas min-h-screen bg-bg flex flex-col">
+        <PremiumHeader compact />
+        <section className="relative flex flex-1 items-center justify-center overflow-hidden px-6 pb-20 pt-32">
+          <div className="absolute inset-0 bg-grid-light opacity-50 pointer-events-none" />
+          <div className="absolute left-1/2 top-1/2 h-[420px] w-[680px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
+          <div className="relative max-w-lg text-center fade-up">
+            <div className="relative mx-auto mb-10 h-20 w-20">
+              <div className="absolute inset-0 border border-line-strong" />
+              <div className="absolute inset-0 flex items-center justify-center bg-ink-950 text-white">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M5 12l4 4L19 6"
@@ -164,18 +159,18 @@ export default function AdesaoPublicaPage() {
                   />
                 </svg>
               </div>
-              <div className="absolute -inset-3 rounded-full border border-crimson/20 animate-glow" />
+              <div className="absolute -inset-3 border border-crimson/20 animate-glow" />
             </div>
             <span className="tech-eyebrow">
               <span className="dot" />
               Adesão registrada
             </span>
-            <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
+            <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
               Recebemos sua
               <br />
               <span className="italic font-light text-gray-500">adesão.</span>
             </h1>
-            <p className="mt-6 text-text-secondary leading-relaxed">
+            <p className="mt-6 leading-relaxed text-text-secondary">
               Nossa equipe entrará em contato em breve com mais informações
               sobre os convites de formatura.
             </p>
@@ -187,37 +182,34 @@ export default function AdesaoPublicaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-bg">
-      <header className="bg-ink">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center">
-          <Brand size="sm" variant="light" />
-        </div>
-      </header>
+    <main className="page-canvas min-h-screen bg-bg">
+      <PremiumHeader compact />
 
-      <section className="max-w-2xl mx-auto px-6 py-20 relative">
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[500px] h-[300px] glow-crimson-soft pointer-events-none opacity-60" />
+      <section className="relative mx-auto max-w-3xl px-6 pb-20 pt-32 md:pt-36">
+        <div className="absolute left-1/2 top-10 h-[340px] w-[620px] -translate-x-1/2 glow-crimson-soft opacity-60 pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-[420px] bg-grid-light opacity-50 pointer-events-none" />
 
-        <div className="relative text-center mb-14">
+        <div className="relative mb-14 text-center fade-up">
           <span className="tech-eyebrow">
             <span className="dot" />
             Lista de adesão
           </span>
-          <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
+          <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
             Turma de{" "}
             <span className="italic font-light text-gray-500">
               {turma?.curso}
             </span>
           </h1>
-          <p className="mt-4 text-[11px] text-text-tertiary tracking-premium-widest uppercase">
+          <p className="mt-4 text-[11px] uppercase tracking-premium-widest text-text-tertiary">
             {turma?.instituicao} · {turma?.semestre}
           </p>
-          <p className="mt-7 text-text-secondary max-w-md mx-auto leading-relaxed">
+          <p className="mx-auto mt-7 max-w-md leading-relaxed text-text-secondary">
             Preencha seus dados para receber informações sobre os convites de
             formatura da sua turma.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <form onSubmit={handleSubmit} className="card-hover space-y-6 p-6 md:p-9" noValidate>
           <Input
             label="Nome completo"
             name="nome"
@@ -236,7 +228,7 @@ export default function AdesaoPublicaPage() {
             error={errors.cpf}
           />
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <Input
               label="E-mail"
               name="email"
@@ -254,7 +246,7 @@ export default function AdesaoPublicaPage() {
             />
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <Input
               label="Convites luxo (qtd.)"
               name="qtd_luxo"
@@ -291,14 +283,14 @@ export default function AdesaoPublicaPage() {
           />
 
           <div>
-            <label className="block mb-2 text-[10px] tracking-premium-widest uppercase text-text-tertiary font-medium">
+            <label className="mb-2 block text-[10px] font-medium uppercase tracking-premium-widest text-text-tertiary">
               Observações (opcional)
             </label>
             <textarea
               value={form.observacoes}
               onChange={(e) => set("observacoes", e.target.value)}
               rows={4}
-              className="input-premium w-full bg-bg-ice border border-line hover:border-line-strong text-text-primary px-4 py-3.5 text-[15px] placeholder:text-text-tertiary/70 transition-all duration-250"
+              className="input-premium w-full border border-line bg-bg-ice px-4 py-3.5 text-[15px] text-text-primary placeholder:text-text-tertiary/70 transition-all duration-250 hover:border-line-strong"
               placeholder="Conte algo que possa ajudar nossa equipe..."
             />
           </div>

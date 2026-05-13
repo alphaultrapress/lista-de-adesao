@@ -8,9 +8,9 @@ interface BrandProps {
 }
 
 const heights: Record<NonNullable<BrandProps["size"]>, number> = {
-  sm: 30,
-  md: 48,
-  lg: 80,
+  sm: 36,
+  md: 52,
+  lg: 78,
 };
 
 export function Brand({
@@ -22,7 +22,10 @@ export function Brand({
   const h = heights[size];
 
   const content = (
-    <span className="inline-flex items-center select-none" aria-label="Alpha Convites">
+    <span
+      className="brand-lockup inline-flex items-center select-none"
+      aria-label="Alpha Convites"
+    >
       <Image
         src={src}
         alt="Alpha Convites"
@@ -38,54 +41,67 @@ export function Brand({
   return content;
 }
 
+const footerLinks = [
+  { href: "/", label: "Início" },
+  { href: "/#como-funciona", label: "Como funciona" },
+  { href: "/cadastro", label: "Cadastro" },
+  { href: "/login", label: "Login representante" },
+];
+
 export function Footer() {
   return (
-    <footer className="relative bg-ink-950 text-text-inverse overflow-hidden">
-      {/* Grid técnico sutil no fundo */}
-      <div className="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" />
-      {/* Glow crimson na base */}
-      <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] glow-crimson-soft pointer-events-none" />
+    <footer id="footer" className="footer-premium">
+      <div className="footer-grid-layer" />
+      <div className="footer-noise cinematic-noise" />
+      <div className="footer-glow" />
 
-      <div className="relative max-w-6xl mx-auto px-6 py-16">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
-          <div>
-            <Brand size="md" variant="light" href="" />
-            <p className="mt-5 text-[11px] tracking-premium-wide uppercase text-white/40 max-w-xs">
-              Convites de formatura premium · Lista de adesão para turmas
-            </p>
-          </div>
-
-          <div className="flex flex-col md:items-end gap-3">
-            <p className="text-[10px] tracking-premium-widest uppercase text-white/30">
-              Contato
-            </p>
-            <div className="flex flex-col md:items-end gap-2 text-sm text-white/70">
-              <a
-                href="https://instagram.com/alphaconvites"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-white transition-colors duration-250"
-              >
-                @alphaconvites
-              </a>
-              <a
-                href="mailto:contato@alphaconvites.com.br"
-                className="hover:text-white transition-colors duration-250"
-              >
-                contato@alphaconvites.com.br
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-14 pt-8 hairline-divider-dark" />
-        <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-3 text-[10px] tracking-premium-wide uppercase text-white/30">
-          <p>© {new Date().getFullYear()} Alpha Convites · Todos os direitos reservados</p>
-          <p className="flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-crimson" />
-            Plataforma operando
+      <div className="footer-inner">
+        <div className="footer-brand-column">
+          <Brand size="lg" variant="light" href="" />
+          <p>
+            Tecnologia premium para listas de adesão e relacionamento de turmas
+            de formatura.
           </p>
         </div>
+
+        <div className="footer-column">
+          <p className="footer-title">Navegação</p>
+          <nav>
+            {footerLinks.map((item) => (
+              <Link key={item.href} href={item.href} className="premium-dark-link">
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        <div className="footer-column">
+          <p className="footer-title">Contato</p>
+          <nav>
+            <a
+              href="https://instagram.com/alphaconvites"
+              target="_blank"
+              rel="noreferrer"
+              className="premium-dark-link"
+            >
+              @alphaconvites
+            </a>
+            <a
+              href="mailto:contato@alphaconvites.com.br"
+              className="premium-dark-link"
+            >
+              contato@alphaconvites.com.br
+            </a>
+          </nav>
+        </div>
+      </div>
+
+      <div className="footer-bottom">
+        <p>© 2026 Alpha Convites. Todos os direitos reservados.</p>
+        <p className="footer-status">
+          <span />
+          Plataforma operando
+        </p>
       </div>
     </footer>
   );

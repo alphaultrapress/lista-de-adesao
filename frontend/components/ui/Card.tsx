@@ -15,11 +15,11 @@ export default function Card({
 }: CardProps) {
   return (
     <div
-      className={`bg-bg-ice border border-line p-8 md:p-10 card-hover ${className}`}
+      className={`card-hover p-7 md:p-10 ${className}`}
       {...rest}
     >
       {(title || subtitle) && (
-        <header className="mb-8 pb-6 border-b border-line">
+        <header className="relative z-10 mb-8 border-b border-line pb-6">
           {title && (
             <h3 className="font-serif text-2xl text-text-primary tracking-premium-tight">
               {title}
@@ -30,7 +30,7 @@ export default function Card({
           )}
         </header>
       )}
-      {children}
+      <div className="relative z-10">{children}</div>
     </div>
   );
 }

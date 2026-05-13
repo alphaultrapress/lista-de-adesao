@@ -8,14 +8,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Fundo branco premium tecnológico
         bg: {
           DEFAULT: "#F7F7F5",
           white: "#FFFFFF",
           soft: "#F1F1EF",
           ice: "#FBFBF9",
+          warm: "#F1F1EF",
         },
-        // Preto premium (header, footer, primary)
         ink: {
           DEFAULT: "#0A0A0A",
           950: "#050505",
@@ -24,7 +23,6 @@ const config: Config = {
           700: "#1A1A1A",
           600: "#2A2A2A",
         },
-        // Cinzas tecnológicos
         gray: {
           900: "#1A1A1A",
           800: "#2A2A2A",
@@ -33,22 +31,24 @@ const config: Config = {
           300: "#CFCFCF",
           200: "#E5E5E3",
         },
-        // Texto
         text: {
           primary: "#0A0A0A",
           secondary: "#5F5F5F",
           tertiary: "#8A8A8A",
           inverse: "#F7F7F5",
         },
-        // Bordas hairline
         line: {
           DEFAULT: "rgba(10,10,10,0.08)",
           strong: "rgba(10,10,10,0.16)",
           inverse: "rgba(255,255,255,0.08)",
           inverseStrong: "rgba(255,255,255,0.14)",
         },
-        // Vermelho profundo (apenas microdetalhes)
         crimson: {
+          DEFAULT: "#6E1414",
+          deep: "#5A1010",
+          rich: "#7A1C1C",
+        },
+        wine: {
           DEFAULT: "#6E1414",
           deep: "#5A1010",
           rich: "#7A1C1C",
@@ -59,8 +59,8 @@ const config: Config = {
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       letterSpacing: {
-        "premium-tight": "-0.03em",
-        "premium-snug": "-0.015em",
+        "premium-tight": "0em",
+        "premium-snug": "0em",
         "premium-wide": "0.18em",
         "premium-widest": "0.36em",
       },
@@ -88,7 +88,8 @@ const config: Config = {
         "fade-up": "fadeUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both",
         "fade-in": "fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1) both",
         glow: "glowPulse 4s ease-in-out infinite",
-        float: "float 6s ease-in-out infinite",
+        float: "float 7s ease-in-out infinite",
+        "slow-pan": "slowPan 18s ease-in-out infinite alternate",
       },
       keyframes: {
         fadeUp: {
@@ -100,12 +101,16 @@ const config: Config = {
           "100%": { opacity: "1" },
         },
         glowPulse: {
-          "0%, 100%": { opacity: "0.5" },
-          "50%": { opacity: "0.85" },
+          "0%, 100%": { opacity: "0.48" },
+          "50%": { opacity: "0.9" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
+        },
+        slowPan: {
+          "0%": { transform: "translate3d(-1%, -1%, 0) scale(1)" },
+          "100%": { transform: "translate3d(1%, 1%, 0) scale(1.03)" },
         },
       },
     },

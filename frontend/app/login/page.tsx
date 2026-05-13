@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Brand, Footer } from "@/components/Brand";
+import { Footer } from "@/components/Brand";
+import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { supabase } from "@/lib/supabase";
@@ -57,35 +58,32 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-bg flex flex-col">
-      <header className="glass-dark sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center">
-          <Brand size="sm" variant="light" />
-        </div>
-      </header>
+    <main className="page-canvas min-h-screen bg-bg flex flex-col">
+      <PremiumHeader compact />
 
-      <section className="flex-1 flex items-center justify-center px-6 py-20 relative overflow-hidden">
+      <section className="relative flex flex-1 items-center justify-center overflow-hidden px-6 pb-20 pt-32">
         <div className="absolute inset-0 bg-grid-light opacity-50 pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] glow-crimson-soft pointer-events-none" />
+        <div className="absolute inset-0 cinematic-noise opacity-40 pointer-events-none" />
+        <div className="absolute left-1/2 top-1/2 h-[340px] w-[560px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
 
-        <div className="relative w-full max-w-md">
-          <div className="text-center mb-12">
+        <div className="relative w-full max-w-md fade-up">
+          <div className="mb-11 text-center">
             <span className="tech-eyebrow">
               <span className="dot" />
               Acesso do representante
             </span>
-            <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
+            <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
               Entre na
               <br />
               <span className="italic font-light text-gray-500">sua conta.</span>
             </h1>
-            <p className="mt-5 text-sm text-text-secondary leading-relaxed">
+            <p className="mt-5 text-sm leading-relaxed text-text-secondary">
               Apenas representantes de turma têm cadastro. Colegas que receberam
               o link devem acessá-lo diretamente.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          <form onSubmit={handleSubmit} className="card-hover space-y-5 p-6 md:p-8" noValidate>
             <Input
               label="E-mail"
               type="email"
@@ -111,7 +109,7 @@ export default function LoginPage() {
               </div>
             )}
             {info && (
-              <div className="border border-ink/15 bg-ink/[0.03] px-4 py-3 text-sm text-text-primary">
+              <div className="border border-ink/20 bg-ink/[0.03] px-4 py-3 text-sm text-text-primary">
                 {info}
               </div>
             )}
@@ -120,17 +118,17 @@ export default function LoginPage() {
               {loading ? "Entrando" : "Entrar"}
             </Button>
 
-            <div className="flex items-center justify-between text-[11px] tracking-premium-wide uppercase pt-2">
+            <div className="flex items-center justify-between pt-2 text-[11px] uppercase tracking-premium-wide">
               <button
                 type="button"
                 onClick={handleReset}
-                className="text-text-secondary hover:text-text-primary transition-colors duration-250"
+                className="text-text-secondary transition-colors duration-250 hover:text-text-primary"
               >
                 Esqueci minha senha
               </button>
               <Link
                 href="/cadastro"
-                className="text-text-secondary hover:text-text-primary transition-colors duration-250"
+                className="text-text-secondary transition-colors duration-250 hover:text-text-primary"
               >
                 Criar conta
               </Link>

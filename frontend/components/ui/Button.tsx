@@ -12,19 +12,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const base =
-  "inline-flex items-center justify-center gap-2 px-7 py-3.5 text-[11px] tracking-premium-wide uppercase transition-all duration-450 ease-premium disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 focus-visible:ring-offset-2 focus-visible:ring-offset-bg relative overflow-hidden";
+  "inline-flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 focus-visible:ring-offset-2 focus-visible:ring-offset-bg relative overflow-hidden";
 
 const variants: Record<Variant, string> = {
-  primary:
-    "bg-ink text-text-inverse hover:bg-ink-800 border border-ink hover:shadow-[0_18px_40px_-20px_rgba(110,20,20,0.5)] hover:-translate-y-px",
+  primary: "btn-primary-tech",
   ghost:
-    "bg-transparent text-text-primary hover:bg-black/5 border border-transparent",
-  outline:
-    "bg-transparent text-text-primary border border-line-strong hover:border-ink hover:bg-black/[0.03]",
+    "px-7 py-3.5 text-[11px] tracking-premium-wide uppercase bg-transparent text-text-primary hover:bg-black/5 border border-transparent transition-all duration-450 ease-premium",
+  outline: "btn-secondary-tech",
   light:
-    "bg-white text-ink hover:bg-bg-soft border border-white hover:shadow-[0_18px_40px_-20px_rgba(0,0,0,0.3)]",
-  dark:
-    "bg-ink text-text-inverse hover:bg-ink-800 border border-ink",
+    "px-7 py-3.5 text-[11px] tracking-premium-wide uppercase bg-white text-ink hover:bg-bg-soft border border-white/70 hover:shadow-[0_22px_48px_-34px_rgba(0,0,0,0.42)] transition-all duration-450 ease-premium",
+  dark: "btn-primary-tech",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(

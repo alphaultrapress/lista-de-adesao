@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Brand, Footer } from "@/components/Brand";
+import { Footer } from "@/components/Brand";
+import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -132,37 +133,33 @@ export default function CadastroPage() {
   }
 
   return (
-    <main className="min-h-screen bg-bg">
-      <header className="glass-dark sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Brand size="sm" variant="light" />
-          <Link
-            href="/login"
-            className="text-[11px] tracking-premium-wide uppercase text-white/60 hover:text-white transition-colors duration-250"
-          >
-            Já tenho cadastro
-          </Link>
-        </div>
-      </header>
+    <main className="page-canvas min-h-screen bg-bg">
+      <PremiumHeader
+        compact
+        actions={[{ href: "/login", label: "Já tenho cadastro", emphasis: true }]}
+      />
 
-      <section className="max-w-2xl mx-auto px-6 py-20">
-        <div className="text-center mb-14">
+      <section className="relative mx-auto max-w-3xl px-6 pb-20 pt-32 md:pt-36">
+        <div className="absolute left-1/2 top-12 h-[340px] w-[620px] -translate-x-1/2 glow-crimson-soft opacity-60 pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-[420px] bg-grid-light opacity-50 pointer-events-none" />
+
+        <div className="relative mb-14 text-center fade-up">
           <span className="tech-eyebrow">
             <span className="dot" />
             Cadastro do representante
           </span>
-          <h1 className="mt-7 font-serif text-4xl md:text-5xl tracking-premium-tight text-text-primary leading-[1.05]">
+          <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
             Vamos conhecer
             <br />
             <span className="italic font-light text-gray-500">a sua turma.</span>
           </h1>
-          <p className="mt-6 text-text-secondary max-w-md mx-auto leading-relaxed">
+          <p className="mx-auto mt-6 max-w-md leading-relaxed text-text-secondary">
             Você vai gerar o link oficial para sua sala preencher a lista de
             adesão. O cadastro é feito apenas pelo representante.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+        <form onSubmit={handleSubmit} className="card-hover space-y-6 p-6 md:p-9" noValidate>
           <Input
             label="Nome completo"
             name="nome"
@@ -172,7 +169,7 @@ export default function CadastroPage() {
             required
           />
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <CpfInput
               value={form.cpf}
               onChange={(v) => set("cpf", v)}
@@ -195,7 +192,7 @@ export default function CadastroPage() {
             />
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <Input
               label="E-mail"
               name="email"
@@ -234,7 +231,7 @@ export default function CadastroPage() {
             required
           />
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <Select
               label="Estado"
               name="estado"
@@ -269,7 +266,7 @@ export default function CadastroPage() {
             required
           />
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6 md:grid-cols-2">
             <Input
               label="Senha"
               name="senha"
@@ -293,7 +290,7 @@ export default function CadastroPage() {
             />
           </div>
 
-          <label className="flex items-start gap-3 text-sm text-text-secondary cursor-pointer pt-2">
+          <label className="flex cursor-pointer items-start gap-3 pt-2 text-sm text-text-secondary">
             <input
               type="checkbox"
               checked={aceito}
@@ -309,7 +306,7 @@ export default function CadastroPage() {
             </span>
           </label>
           {errors.aceito && (
-            <p className="text-xs text-wine -mt-4">{errors.aceito}</p>
+            <p className="-mt-4 text-xs text-wine">{errors.aceito}</p>
           )}
 
           {topError && (
@@ -318,21 +315,13 @@ export default function CadastroPage() {
             </div>
           )}
 
-          <Button
-            type="submit"
-            loading={submitting}
-            fullWidth
-            className="mt-4"
-          >
+          <Button type="submit" loading={submitting} fullWidth className="mt-4">
             {submitting ? "Criando sua conta" : "Concluir cadastro"}
           </Button>
 
           <p className="text-center text-xs text-text-tertiary">
             Já é cadastrado?{" "}
-            <Link
-              href="/login"
-              className="text-text-primary editorial-link"
-            >
+            <Link href="/login" className="editorial-link text-text-primary">
               Entrar
             </Link>
           </p>

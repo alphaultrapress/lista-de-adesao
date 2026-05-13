@@ -55,11 +55,11 @@ export default function AdesoesCard({ slug, curso }: Props) {
       title="Adesões recebidas"
       subtitle="Atualizado em tempo real conforme os colegas preenchem."
     >
-      <div className="flex items-baseline gap-3 mb-8">
-        <span className="font-serif text-6xl text-text-primary tracking-premium-tight">
+      <div className="mb-8 flex items-baseline gap-3">
+        <span className="font-serif text-6xl tracking-premium-tight text-text-primary">
           {count}
         </span>
-        <span className="text-[10px] tracking-premium-widest uppercase text-text-tertiary">
+        <span className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
           adesões
         </span>
       </div>
@@ -67,7 +67,7 @@ export default function AdesoesCard({ slug, curso }: Props) {
       {loading ? (
         <p className="text-sm text-text-tertiary">Carregando...</p>
       ) : list.length === 0 ? (
-        <div className="border border-line px-4 py-10 text-center">
+        <div className="border border-line bg-white/60 px-4 py-10 text-center">
           <p className="text-sm text-text-secondary">
             Nenhum colega preencheu ainda.
           </p>
@@ -80,13 +80,13 @@ export default function AdesoesCard({ slug, curso }: Props) {
           {list.map((a) => (
             <li
               key={a.id}
-              className="py-3.5 flex items-center justify-between text-sm"
+              className="flex items-center justify-between gap-4 py-3.5 text-sm"
             >
               <div>
                 <p className="text-text-primary">{a.nome}</p>
                 <p className="text-xs text-text-tertiary">{curso}</p>
               </div>
-              <p className="text-xs text-text-tertiary tracking-premium-wide uppercase">
+              <p className="text-xs uppercase tracking-premium-wide text-text-tertiary">
                 {new Date(a.criado_em).toLocaleDateString("pt-BR")}
               </p>
             </li>

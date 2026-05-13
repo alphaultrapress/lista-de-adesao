@@ -39,9 +39,9 @@ export default function LinkCard({
       title="Link da turma"
       subtitle="Compartilhe este link com os colegas da sua turma."
     >
-      <div className="grid md:grid-cols-[1fr,auto] gap-8 items-center">
+      <div className="grid items-center gap-8 md:grid-cols-[1fr,auto]">
         <div className="space-y-5">
-          <div className="border border-line bg-bg px-4 py-3 text-sm text-text-secondary break-all font-mono">
+          <div className="break-all border border-line bg-white/70 px-4 py-3 font-mono text-sm text-text-secondary shadow-[0_1px_0_rgba(255,255,255,0.72)_inset]">
             {url}
           </div>
           <div className="flex flex-wrap gap-3">
@@ -60,17 +60,17 @@ export default function LinkCard({
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-3 mx-auto md:mx-0">
-          <div className="p-4 border border-line bg-bg">
+        <div className="mx-auto flex flex-col items-center gap-3 md:mx-0">
+          <div className="border border-line bg-white/80 p-4 shadow-[0_24px_42px_-34px_rgba(10,10,10,0.42)]">
             <QRCodeCanvas
               value={url}
               size={132}
-              bgColor="#F8F8F5"
+              bgColor="#FFFFFF"
               fgColor="#0A0A0A"
               level="M"
             />
           </div>
-          <p className="text-[10px] tracking-premium-widest uppercase text-text-tertiary">
+          <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
             QR Code da turma
           </p>
         </div>
