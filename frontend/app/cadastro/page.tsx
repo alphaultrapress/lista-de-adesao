@@ -10,7 +10,7 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import CpfInput from "@/components/forms/CpfInput";
 import PhoneInput from "@/components/forms/PhoneInput";
-import { supabase } from "@/lib/supabase";
+import { signOutAndClearSession, supabase } from "@/lib/supabase";
 import { isValidCpf, isValidPhoneBr } from "@/lib/cpf";
 import { buildTurmaSlug } from "@/lib/slugify";
 import { UFS, fetchMunicipios, Municipio } from "@/lib/ibge";
@@ -183,7 +183,7 @@ export default function CadastroPage() {
   }
 
   async function logout() {
-    await supabase.auth.signOut();
+    await signOutAndClearSession();
     setExistingUserId(null);
     setForm((current) => ({ ...current, email: "", senha: "", confirmar: "" }));
   }

@@ -6,7 +6,12 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
-import { supabase, Representative, Student } from "@/lib/supabase";
+import {
+  signOutAndClearSession,
+  supabase,
+  Representative,
+  Student,
+} from "@/lib/supabase";
 import { formatCpf, formatDateBr, formatPhone } from "@/lib/format";
 
 export default function AdminRepresentativePage() {
@@ -39,7 +44,7 @@ export default function AdminRepresentativePage() {
         .maybeSingle();
 
       if (!admin) {
-        await supabase.auth.signOut();
+        await signOutAndClearSession();
         router.replace("/admin/login");
         return;
       }
@@ -75,7 +80,7 @@ export default function AdminRepresentativePage() {
   }, [representativeId, router]);
 
   async function logout() {
-    await supabase.auth.signOut();
+    await signOutAndClearSession();
     router.replace("/admin/login");
   }
 

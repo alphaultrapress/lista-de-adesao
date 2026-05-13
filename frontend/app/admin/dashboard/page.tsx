@@ -6,7 +6,12 @@ import { useRouter } from "next/navigation";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
-import { supabase, Representative, Student } from "@/lib/supabase";
+import {
+  signOutAndClearSession,
+  supabase,
+  Representative,
+  Student,
+} from "@/lib/supabase";
 import { formatDateBr, formatDateTimeBr } from "@/lib/format";
 
 export default function AdminDashboardPage() {
@@ -36,7 +41,7 @@ export default function AdminDashboardPage() {
         .maybeSingle();
 
       if (!admin) {
-        await supabase.auth.signOut();
+        await signOutAndClearSession();
         router.replace("/admin/login");
         return;
       }
@@ -68,7 +73,7 @@ export default function AdminDashboardPage() {
   }, [router]);
 
   async function logout() {
-    await supabase.auth.signOut();
+    await signOutAndClearSession();
     router.replace("/admin/login");
   }
 

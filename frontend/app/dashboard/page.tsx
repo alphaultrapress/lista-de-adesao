@@ -8,7 +8,11 @@ import Button from "@/components/ui/Button";
 import LinkCard from "@/components/dashboard/LinkCard";
 import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 import AdesoesCard from "@/components/dashboard/AdesoesCard";
-import { supabase, Representative } from "@/lib/supabase";
+import {
+  signOutAndClearSession,
+  supabase,
+  Representative,
+} from "@/lib/supabase";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -42,7 +46,7 @@ export default function DashboardPage() {
   }, [router]);
 
   async function logout() {
-    await supabase.auth.signOut();
+    await signOutAndClearSession();
     router.replace("/login");
   }
 

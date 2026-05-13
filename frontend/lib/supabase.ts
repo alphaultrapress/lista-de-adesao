@@ -4,6 +4,9 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+const authStorageKey = "alpha-lista-auth-token";
+const browserSessionStorage =
+  typeof window !== "undefined" ? window.sessionStorage : undefined;
 
 if (!isSupabaseConfigured && typeof window !== "undefined") {
   // eslint-disable-next-line no-console
@@ -19,11 +22,48 @@ export const supabase: SupabaseClient = isSupabaseConfigured
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        storageKey: authStorageKey,
+        ...(browserSessionStorage ? { storage: browserSessionStorage } : {}),
       },
     })
   : createClient("https://placeholder.supabase.co", "placeholder-anon-key", {
       auth: { persistSession: false, autoRefreshToken: false },
     });
+
+function clearAuthStorage(storage: Storage | undefined) {
+  if (!storage) return;
+
+  const keysToRemove: string[] = [];
+
+  for (let index = 0; index < storage.length; index += 1) {
+    const key = storage.key(index);
+
+    if (
+      key === authStorageKey ||
+      key === "supabase.auth.token" ||
+      (key?.startsWith("sb-") && key.endsWith("-auth-token"))
+    ) {
+      keysToRemove.push(key);
+    }
+  }
+
+  keysToRemove.forEach((key) => storage.removeItem(key));
+}
+
+export function clearStoredAuthSession() {
+  if (typeof window === "undefined") return;
+
+  clearAuthStorage(window.localStorage);
+  clearAuthStorage(window.sessionStorage);
+}
+
+export async function signOutAndClearSession() {
+  try {
+    await supabase.auth.signOut({ scope: "global" });
+  } finally {
+    clearStoredAuthSession();
+  }
+}
 
 export type Representative = {
   id: string;

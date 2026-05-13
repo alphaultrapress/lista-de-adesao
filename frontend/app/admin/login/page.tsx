@@ -6,7 +6,7 @@ import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { supabase } from "@/lib/supabase";
+import { signOutAndClearSession, supabase } from "@/lib/supabase";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
     setLoading(false);
 
     if (adminError || !admin) {
-      await supabase.auth.signOut();
+      await signOutAndClearSession();
       setError("Este usuario nao possui permissao administrativa.");
       return;
     }
