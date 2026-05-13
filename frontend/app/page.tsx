@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
@@ -57,27 +58,6 @@ const steps = [
   },
 ];
 
-const classes = [
-  {
-    course: "Medicina 2027.2",
-    detail: "86 adesões registradas",
-  },
-  {
-    course: "Direito 2026.2",
-    detail: "42 adesões confirmadas",
-  },
-  {
-    course: "Arquitetura 2028.1",
-    detail: "73 formulários enviados",
-  },
-];
-
-const indicators = [
-  { value: "100%", label: "Sincronização em tempo real" },
-  { value: "01", label: "Representante central" },
-  { value: "24/7", label: "Link ativo para turma" },
-];
-
 export default function LandingPage() {
   return (
     <main className="page-canvas min-h-screen bg-bg">
@@ -106,96 +86,104 @@ export default function LandingPage() {
             </div>
 
             <h1 className="hero-title fade-up fade-up-d1">
-              Crie a
-              <br />
-              lista oficial
+              Crie a lista oficial
               <br />
               <span>da sua turma.</span>
             </h1>
 
             <p className="hero-description fade-up fade-up-d2">
               A Alpha Convites transforma a organização da turma em uma
-              experiência digital precisa, elegante e monitorada em tempo real,
-              feita para representantes que precisam de clareza e presença.
+              experiência digital precisa, elegante e monitorada em tempo real.
             </p>
+          </div>
 
-            <div className="hero-actions fade-up fade-up-d3">
-              <Link href="/cadastro" className="btn-primary-tech group">
-                <span className="relative z-10">Sou representante da turma</span>
+          <div className="hero-banner-wrap fade-up fade-up-d3">
+            <div className="hero-banner-surface" aria-hidden>
+              <div className="hero-banner-ambient" aria-hidden />
+              <div className="hero-banner-vignette" aria-hidden />
+            </div>
+
+            <div className="hero-cta-panel">
+              <span className="hero-cta-eyebrow">
                 <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
+                  width="18"
+                  height="10"
+                  viewBox="0 0 18 10"
                   fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  className="relative z-10 transition-transform duration-450 ease-premium group-hover:translate-x-1"
+                  aria-hidden
                 >
                   <path
-                    d="M5 12h14M13 6l6 6-6 6"
+                    d="M1 5h2l1.5-3.5L7 8.5l2-7L11 9l1.5-4L14 5h3"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                 </svg>
-              </Link>
-              <Link href="/login" className="btn-secondary-tech">
-                Já tenho cadastro
-              </Link>
-            </div>
+                Gestão inteligente
+              </span>
 
-            <p className="hero-note fade-up fade-up-d4">
-              Recebeu um link da turma? Acesse diretamente o link oficial
-              enviado pelo representante.
-            </p>
-          </div>
+              <h2 className="hero-cta-title">
+                Sua lista,
+                <br />
+                sua turma<span className="dot-crimson">.</span>
+              </h2>
 
-          <div className="hero-mockup-wrap fade-up fade-up-d3">
-            <div className="representative-panel">
-              <div className="panel-chrome">
-                <span />
-                <span />
-                <span />
-              </div>
+              <p className="hero-cta-text">
+                Tudo que o representante precisa para organizar, acompanhar e
+                entregar uma experiência impecável para toda a turma.
+              </p>
 
-              <div className="panel-header">
-                <div>
-                  <p className="panel-kicker">Painel do representante</p>
-                  <h2>Monitoramento em tempo real</h2>
-                </div>
-                <div className="live-status">
-                  <span />
-                  Ao vivo
-                </div>
-              </div>
-
-              <div className="panel-list">
-                {classes.map((item) => (
-                  <div key={item.course} className="panel-row">
-                    <div>
-                      <p>{item.course}</p>
-                      <span>{item.detail}</span>
-                    </div>
-                    <svg viewBox="0 0 56 20" fill="none" aria-hidden="true">
-                      <path
-                        d="M1 14C8 14 8 6 15 6s7 9 14 9 8-12 14-12 6 8 12 8"
-                        stroke="currentColor"
-                        strokeWidth="1.2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
-                ))}
-              </div>
-
-              <div className="panel-indicators">
-                {indicators.map((item) => (
-                  <div key={item.label}>
-                    <p>{item.value}</p>
-                    <span>{item.label}</span>
-                  </div>
-                ))}
+              <div className="hero-cta-actions">
+                <Link href="/cadastro" className="hero-btn-primary group">
+                  <span>Sou representante</span>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    className="transition-transform duration-450 ease-premium group-hover:translate-x-1"
+                  >
+                    <path
+                      d="M5 12h14M13 6l6 6-6 6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Link>
+                <Link href="/login" className="hero-btn-secondary group">
+                  <span>Já tenho cadastro</span>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    className="transition-transform duration-450 ease-premium group-hover:translate-x-1"
+                  >
+                    <path
+                      d="M5 12h14M13 6l6 6-6 6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Link>
               </div>
             </div>
+
+            <Image
+              src="/images/Modelo-IA.png"
+              alt="Formando segurando convite premium da Alpha"
+              width={1600}
+              height={1600}
+              priority
+              quality={100}
+              sizes="(max-width: 900px) 92vw, 60vw"
+              className="hero-banner-img"
+            />
           </div>
         </div>
       </section>

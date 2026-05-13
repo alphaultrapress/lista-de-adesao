@@ -6,7 +6,7 @@ import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import Button from "@/components/ui/Button";
 import LinkCard from "@/components/dashboard/LinkCard";
-import PricingTable from "@/components/dashboard/PricingTable";
+import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 import AdesoesCard from "@/components/dashboard/AdesoesCard";
 import { supabase, Formando } from "@/lib/supabase";
 
@@ -94,29 +94,32 @@ export default function DashboardPage() {
             instituicao={formando.instituicao}
           />
           <AdesoesCard slug={formando.slug} curso={formando.curso} />
-          <div className="lg:col-span-2">
-            <PricingTable />
-          </div>
         </div>
+      </section>
 
-        <div className="relative mt-14 flex flex-col items-start justify-between gap-8 overflow-hidden bg-ink-950 p-10 text-text-inverse md:flex-row md:items-center md:p-14">
-          <div className="absolute inset-0 bg-grid-dark opacity-50 pointer-events-none" />
-          <div className="absolute inset-0 cinematic-noise opacity-30 pointer-events-none" />
-          <div className="absolute -right-20 top-1/2 h-[300px] w-[400px] -translate-y-1/2 glow-crimson pointer-events-none" />
+      <AcabamentosShowcase />
+
+      <section className="relative mx-auto max-w-6xl px-6 pb-20">
+        <div className="cta-consultor relative flex flex-col items-start justify-between gap-8 overflow-hidden p-10 text-text-inverse md:flex-row md:items-center md:p-14">
+          <div className="cta-grid pointer-events-none absolute inset-0" />
+          <div className="cta-glow-tr pointer-events-none absolute inset-0" />
+          <div className="cta-glow-bc pointer-events-none absolute inset-0" />
+          <div className="cta-scanline pointer-events-none absolute inset-x-0 top-1/2" />
+          <div className="cinematic-noise pointer-events-none absolute inset-0 opacity-20" />
 
           <div className="relative">
             <span className="tech-eyebrow dark">
               <span className="dot" />
               Atendimento direto
             </span>
-            <h3 className="mb-2 mt-5 font-serif text-2xl tracking-premium-tight md:text-3xl">
+            <h3 className="mb-2 mt-5 font-serif text-2xl tracking-premium-tight text-[#f5f5f5] md:text-3xl">
               Quer falar com um consultor?
             </h3>
-            <p className="max-w-md text-sm text-white/60">
+            <p className="max-w-md text-sm text-[#b8b8b8]">
               Tire dúvidas e receba uma proposta personalizada para a sua turma.
             </p>
           </div>
-          <a href={waConsultor} target="_blank" rel="noreferrer" className="relative">
+          <a href={waConsultor} target="_blank" rel="noreferrer" className="cta-btn-wrap relative">
             <Button variant="light">Falar com um consultor</Button>
           </a>
         </div>
