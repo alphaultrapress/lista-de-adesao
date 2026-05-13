@@ -17,6 +17,31 @@ import { UFS, fetchMunicipios, Municipio } from "@/lib/ibge";
 import { getStoredConsultant } from "@/lib/consultants";
 
 const SEMESTRES = ["2026.1", "2026.2", "2027.1", "2027.2", "2028.1", "2028.2"];
+const DUPLICATE_EMAIL_MESSAGE = "Este e-mail já está cadastrado.";
+
+function isDuplicateEmailError(error: any) {
+  const message = String(
+    [
+      error?.message,
+      error?.error_description,
+      error?.details,
+      error?.hint,
+      error?.constraint,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  )
+    .toLowerCase();
+
+  return (
+    message.includes("user already registered") ||
+    message.includes("already registered") ||
+    message.includes("email already exists") ||
+    message.includes("already been registered") ||
+    (error?.code === "23505" && message.includes("email")) ||
+    (message.includes("email") && message.includes("exists"))
+  );
+}
 
 export default function CadastroPage() {
   const router = useRouter();
@@ -130,13 +155,39 @@ export default function CadastroPage() {
     setSubmitting(true);
     try {
       let userId = existingUserId;
+      const normalizedEmail = form.email.trim().toLowerCase();
 
       if (!userId) {
+        const [representativeLookup, adminLookup] = await Promise.all([
+          supabase
+            .from("representatives")
+            .select("id")
+            .eq("email", normalizedEmail)
+            .maybeSingle(),
+          supabase
+            .from("admins")
+            .select("id")
+            .eq("email", normalizedEmail)
+            .maybeSingle(),
+        ]);
+
+        if (representativeLookup.data || adminLookup.data) {
+          throw new Error(DUPLICATE_EMAIL_MESSAGE);
+        }
+
         const { data: signUp, error: signErr } = await supabase.auth.signUp({
-          email: form.email.trim().toLowerCase(),
+          email: normalizedEmail,
           password: form.senha,
         });
-        if (signErr) throw signErr;
+        if (signErr) {
+          if (isDuplicateEmailError(signErr)) {
+            throw new Error(DUPLICATE_EMAIL_MESSAGE);
+          }
+          throw signErr;
+        }
+        if (signUp.user && signUp.user.identities?.length === 0) {
+          throw new Error(DUPLICATE_EMAIL_MESSAGE);
+        }
         userId = signUp.user?.id || null;
       }
 
@@ -157,7 +208,7 @@ export default function CadastroPage() {
         const representativePayload: Record<string, string | undefined> = {
           user_id: userId,
           name: form.nome.trim(),
-          email: form.email.trim().toLowerCase(),
+          email: normalizedEmail,
           course_name: form.curso.trim(),
           institution_name: form.instituicao.trim(),
           graduation_year: form.semestre,
@@ -181,7 +232,7 @@ export default function CadastroPage() {
             .insert({
               user_id: userId,
               name: form.nome.trim(),
-              email: form.email.trim().toLowerCase(),
+              email: normalizedEmail,
               course_name: form.curso.trim(),
               institution_name: form.instituicao.trim(),
               graduation_year: form.semestre,
@@ -200,11 +251,15 @@ export default function CadastroPage() {
 
       router.push("/dashboard");
     } catch (err: any) {
+      if (err?.message === DUPLICATE_EMAIL_MESSAGE || isDuplicateEmailError(err)) {
+        setTopError(DUPLICATE_EMAIL_MESSAGE);
+        return;
+      }
+
       setTopError(
         err?.code === "42P01"
           ? "O banco ainda precisa receber o schema novo. Execute o arquivo supabase/schema.sql no Supabase."
-          : err?.message ||
-              "Algo deu errado ao concluir seu cadastro. Tente novamente.",
+          : "Não foi possível criar a conta. Tente novamente.",
       );
     } finally {
       setSubmitting(false);
