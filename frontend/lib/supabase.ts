@@ -9,12 +9,10 @@ if (!isSupabaseConfigured && typeof window !== "undefined") {
   // eslint-disable-next-line no-console
   console.warn(
     "[supabase] NEXT_PUBLIC_SUPABASE_URL e/ou NEXT_PUBLIC_SUPABASE_ANON_KEY ausentes. " +
-      "Crie frontend/.env.local com essas variáveis e reinicie o servidor.",
+      "Crie frontend/.env.local com essas variaveis e reinicie o servidor.",
   );
 }
 
-// Cliente real quando configurado; placeholder seguro caso contrário,
-// para não quebrar o build/import em telas como /login e /cadastro.
 export const supabase: SupabaseClient = isSupabaseConfigured
   ? createClient(supabaseUrl as string, supabaseAnonKey as string, {
       auth: {
@@ -23,39 +21,41 @@ export const supabase: SupabaseClient = isSupabaseConfigured
         detectSessionInUrl: true,
       },
     })
-  : createClient(
-      "https://placeholder.supabase.co",
-      "placeholder-anon-key",
-      { auth: { persistSession: false, autoRefreshToken: false } },
-    );
+  : createClient("https://placeholder.supabase.co", "placeholder-anon-key", {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
 
-export type Formando = {
+export type Representative = {
   id: string;
   user_id: string;
-  nome: string;
-  cpf: string;
+  name: string;
   email: string;
-  whatsapp: string;
-  data_nascimento: string;
-  curso: string;
-  instituicao: string;
-  cidade: string;
-  estado: string;
-  semestre: string;
+  course_name: string;
+  institution_name: string;
+  graduation_year: string;
   slug: string;
-  criado_em: string;
+  created_at: string;
 };
 
-export type Adesao = {
+export type PublicRepresentative = Pick<
+  Representative,
+  "id" | "name" | "course_name" | "institution_name" | "graduation_year" | "slug"
+>;
+
+export type Student = {
   id: string;
-  slug_origem: string;
-  nome: string;
-  cpf: string | null;
+  representative_id: string;
+  cpf: string;
+  full_name: string;
+  birth_date: string;
+  phone: string;
   email: string;
-  whatsapp: string;
-  qtd_luxo: number;
-  qtd_simples: number;
-  tem_fotos: "sim" | "nao" | "nao_sei";
-  observacoes: string | null;
-  criado_em: string;
+  created_at: string;
+};
+
+export type Admin = {
+  id: string;
+  user_id: string;
+  email: string;
+  created_at: string;
 };

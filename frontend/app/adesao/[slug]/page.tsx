@@ -5,32 +5,25 @@ import { useParams } from "next/navigation";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import CpfInput from "@/components/forms/CpfInput";
 import PhoneInput from "@/components/forms/PhoneInput";
-import { supabase, Formando } from "@/lib/supabase";
+import { supabase, PublicRepresentative } from "@/lib/supabase";
 import { isValidCpf, isValidPhoneBr, onlyDigits } from "@/lib/cpf";
 
 export default function AdesaoPublicaPage() {
   const params = useParams<{ slug: string }>();
   const slug = params?.slug;
-  const [turma, setTurma] = useState<Pick<
-    Formando,
-    "curso" | "instituicao" | "semestre" | "nome"
-  > | null>(null);
+  const [turma, setTurma] = useState<PublicRepresentative | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
-    nome: "",
     cpf: "",
-    email: "",
+    nome: "",
+    data_nascimento: "",
     whatsapp: "",
-    qtd_luxo: "0",
-    qtd_simples: "0",
-    tem_fotos: "" as "" | "sim" | "nao" | "nao_sei",
-    observacoes: "",
+    email: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -40,37 +33,70 @@ export default function AdesaoPublicaPage() {
   useEffect(() => {
     if (!slug) return;
     (async () => {
-      const { data } = await supabase
-        .from("formandos")
-        .select("nome, curso, instituicao, semestre")
-        .eq("slug", slug)
-        .single();
-      if (!data) {
+      let representative: PublicRepresentative | null = null;
+
+      const { data: rpcData } = await supabase.rpc(
+        "get_representative_by_slug",
+        { p_slug: slug },
+      );
+      const rpcRepresentative = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+
+      if (rpcRepresentative) {
+        representative = rpcRepresentative as PublicRepresentative;
+      } else {
+        const { data } = await supabase
+          .from("representatives")
+          .select("id, name, course_name, institution_name, graduation_year, slug")
+          .eq("slug", slug)
+          .maybeSingle();
+
+        if (data) {
+          representative = data as PublicRepresentative;
+        }
+      }
+
+      if (!representative) {
+        const { data: legacy } = await supabase
+          .from("formandos")
+          .select("id, nome, curso, instituicao, semestre, slug")
+          .eq("slug", slug)
+          .maybeSingle();
+
+        if (legacy) {
+          representative = {
+            id: legacy.id,
+            name: legacy.nome,
+            course_name: legacy.curso,
+            institution_name: legacy.instituicao,
+            graduation_year: legacy.semestre,
+            slug: legacy.slug,
+          };
+        }
+      }
+
+      if (!representative) {
         setNotFound(true);
       } else {
-        setTurma(data as any);
+        setTurma(representative);
       }
       setLoading(false);
     })();
   }, [slug]);
 
   function set<K extends keyof typeof form>(key: K, val: string) {
-    setForm((f) => ({ ...f, [key]: val } as any));
+    setForm((f) => ({ ...f, [key]: val }));
     setErrors((e) => ({ ...e, [key]: "" }));
   }
 
   function validate() {
     const e: Record<string, string> = {};
+    if (!isValidCpf(form.cpf)) e.cpf = "CPF inválido.";
     if (!form.nome.trim()) e.nome = "Informe seu nome completo.";
-    if (form.cpf && !isValidCpf(form.cpf)) e.cpf = "CPF inválido.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+    if (!form.data_nascimento) e.data_nascimento = "Informe a data.";
+    if (!isValidPhoneBr(form.whatsapp)) e.whatsapp = "Celular inválido.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       e.email = "E-mail inválido.";
-    if (!isValidPhoneBr(form.whatsapp)) e.whatsapp = "WhatsApp inválido.";
-    const luxo = parseInt(form.qtd_luxo || "0", 10);
-    const simples = parseInt(form.qtd_simples || "0", 10);
-    if (Number.isNaN(luxo) || luxo < 0) e.qtd_luxo = "Valor inválido.";
-    if (Number.isNaN(simples) || simples < 0) e.qtd_simples = "Valor inválido.";
-    if (!form.tem_fotos) e.tem_fotos = "Selecione uma opção.";
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -78,21 +104,44 @@ export default function AdesaoPublicaPage() {
   async function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault();
     setTopError(undefined);
-    if (!validate()) return;
+    if (!validate() || !turma) return;
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("adesoes").insert({
-        slug_origem: slug,
-        nome: form.nome.trim(),
-        cpf: form.cpf ? onlyDigits(form.cpf) : null,
+      const { error } = await supabase.from("students").insert({
+        representative_id: turma.id,
+        cpf: onlyDigits(form.cpf),
+        full_name: form.nome.trim(),
+        birth_date: form.data_nascimento,
+        phone: onlyDigits(form.whatsapp),
         email: form.email.trim().toLowerCase(),
-        whatsapp: onlyDigits(form.whatsapp),
-        qtd_luxo: parseInt(form.qtd_luxo || "0", 10),
-        qtd_simples: parseInt(form.qtd_simples || "0", 10),
-        tem_fotos: form.tem_fotos,
-        observacoes: form.observacoes.trim() || null,
       });
-      if (error) throw error;
+
+      if (error?.code === "23505") {
+        setErrors((e) => ({
+          ...e,
+          cpf: "Este CPF já foi cadastrado para esta turma.",
+        }));
+        return;
+      }
+
+      if (error?.code === "42P01") {
+        const { error: legacyError } = await supabase.from("adesoes").insert({
+          slug_origem: slug,
+          cpf: onlyDigits(form.cpf),
+          nome: form.nome.trim(),
+          data_nascimento: form.data_nascimento,
+          whatsapp: onlyDigits(form.whatsapp),
+          email: form.email.trim().toLowerCase(),
+          qtd_luxo: 0,
+          qtd_simples: 0,
+          tem_fotos: "nao_sei",
+          observacoes: null,
+        });
+        if (legacyError) throw legacyError;
+      } else if (error) {
+        throw error;
+      }
+
       setSuccess(true);
     } catch (err: any) {
       setTopError(
@@ -197,11 +246,11 @@ export default function AdesaoPublicaPage() {
           <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
             Turma de{" "}
             <span className="italic font-light text-gray-500">
-              {turma?.curso}
+              {turma?.course_name}
             </span>
           </h1>
           <p className="mt-4 text-[11px] uppercase tracking-premium-widest text-text-tertiary">
-            {turma?.instituicao} · {turma?.semestre}
+            {turma?.institution_name} · {turma?.graduation_year}
           </p>
           <p className="mx-auto mt-7 max-w-md leading-relaxed text-text-secondary">
             Preencha seus dados para receber informações sobre os convites de
@@ -209,89 +258,61 @@ export default function AdesaoPublicaPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="card-hover space-y-6 p-6 md:p-9" noValidate>
-          <Input
-            label="Nome completo"
-            name="nome"
-            value={form.nome}
-            onChange={(e) => set("nome", e.target.value)}
-            error={errors.nome}
-            required
-          />
-
+        <form
+          onSubmit={handleSubmit}
+          className="card-hover space-y-6 p-6 md:p-9"
+          noValidate
+        >
           <CpfInput
             value={form.cpf}
             onChange={(v) => set("cpf", v)}
             onResolved={(d) => {
-              if (d.nome && !form.nome) set("nome", d.nome);
+              if (d.nome) set("nome", d.nome);
+              if (d.data_nascimento) {
+                set("data_nascimento", d.data_nascimento);
+              }
             }}
             error={errors.cpf}
+            required
           />
 
           <div className="grid gap-6 md:grid-cols-2">
             <Input
-              label="E-mail"
-              name="email"
-              type="email"
-              value={form.email}
-              onChange={(e) => set("email", e.target.value)}
-              error={errors.email}
+              label="Nome completo"
+              name="nome"
+              value={form.nome}
+              onChange={(e) => set("nome", e.target.value)}
+              error={errors.nome}
               required
             />
+            <Input
+              label="Data de nascimento"
+              name="data_nascimento"
+              type="date"
+              value={form.data_nascimento}
+              onChange={(e) => set("data_nascimento", e.target.value)}
+              error={errors.data_nascimento}
+              required
+            />
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
             <PhoneInput
+              label="Celular"
               value={form.whatsapp}
               onChange={(v) => set("whatsapp", v)}
               error={errors.whatsapp}
               required
             />
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
             <Input
-              label="Convites luxo (qtd.)"
-              name="qtd_luxo"
-              type="number"
-              min={0}
-              value={form.qtd_luxo}
-              onChange={(e) => set("qtd_luxo", e.target.value)}
-              error={errors.qtd_luxo}
-            />
-            <Input
-              label="Convites simples (qtd.)"
-              name="qtd_simples"
-              type="number"
-              min={0}
-              value={form.qtd_simples}
-              onChange={(e) => set("qtd_simples", e.target.value)}
-              error={errors.qtd_simples}
-            />
-          </div>
-
-          <Select
-            label="Já tem fotos de formatura prontas?"
-            name="tem_fotos"
-            value={form.tem_fotos}
-            onChange={(e) => set("tem_fotos", e.target.value as any)}
-            placeholder="Selecione"
-            options={[
-              { value: "sim", label: "Sim" },
-              { value: "nao", label: "Não" },
-              { value: "nao_sei", label: "Ainda não sei" },
-            ]}
-            error={errors.tem_fotos}
-            required
-          />
-
-          <div>
-            <label className="mb-2 block text-[10px] font-medium uppercase tracking-premium-widest text-text-tertiary">
-              Observações (opcional)
-            </label>
-            <textarea
-              value={form.observacoes}
-              onChange={(e) => set("observacoes", e.target.value)}
-              rows={4}
-              className="input-premium w-full border border-line bg-bg-ice px-4 py-3.5 text-[15px] text-text-primary placeholder:text-text-tertiary/70 transition-all duration-250 hover:border-line-strong"
-              placeholder="Conte algo que possa ajudar nossa equipe..."
+              label="E-mail"
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={form.email}
+              onChange={(e) => set("email", e.target.value)}
+              error={errors.email}
+              required
             />
           </div>
 

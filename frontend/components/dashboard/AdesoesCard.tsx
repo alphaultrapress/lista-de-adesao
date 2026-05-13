@@ -2,27 +2,27 @@
 
 import { useEffect, useState } from "react";
 import Card from "../ui/Card";
-import { supabase, Adesao } from "@/lib/supabase";
+import { supabase, Student } from "@/lib/supabase";
 
 interface Props {
-  slug: string;
+  representativeId: string;
   curso: string;
 }
 
-export default function AdesoesCard({ slug, curso }: Props) {
-  const [list, setList] = useState<Pick<Adesao, "id" | "nome" | "criado_em">[]>(
-    [],
-  );
+export default function AdesoesCard({ representativeId, curso }: Props) {
+  const [list, setList] = useState<
+    Pick<Student, "id" | "full_name" | "created_at">[]
+  >([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   async function load() {
     setLoading(true);
     const { data, count } = await supabase
-      .from("adesoes")
-      .select("id, nome, criado_em", { count: "exact" })
-      .eq("slug_origem", slug)
-      .order("criado_em", { ascending: false })
+      .from("students")
+      .select("id, full_name, created_at", { count: "exact" })
+      .eq("representative_id", representativeId)
+      .order("created_at", { ascending: false })
       .limit(20);
     setList((data as any) || []);
     setCount(count || 0);
@@ -32,14 +32,14 @@ export default function AdesoesCard({ slug, curso }: Props) {
   useEffect(() => {
     load();
     const channel = supabase
-      .channel(`adesoes-${slug}`)
+      .channel(`students-${representativeId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
-          table: "adesoes",
-          filter: `slug_origem=eq.${slug}`,
+          table: "students",
+          filter: `representative_id=eq.${representativeId}`,
         },
         () => load(),
       )
@@ -48,7 +48,7 @@ export default function AdesoesCard({ slug, curso }: Props) {
       supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
+  }, [representativeId]);
 
   return (
     <Card
@@ -77,17 +77,17 @@ export default function AdesoesCard({ slug, curso }: Props) {
         </div>
       ) : (
         <ul className="divide-y divide-line">
-          {list.map((a) => (
+          {list.map((student) => (
             <li
-              key={a.id}
+              key={student.id}
               className="flex items-center justify-between gap-4 py-3.5 text-sm"
             >
               <div>
-                <p className="text-text-primary">{a.nome}</p>
+                <p className="text-text-primary">{student.full_name}</p>
                 <p className="text-xs text-text-tertiary">{curso}</p>
               </div>
               <p className="text-xs uppercase tracking-premium-wide text-text-tertiary">
-                {new Date(a.criado_em).toLocaleDateString("pt-BR")}
+                {new Date(student.created_at).toLocaleDateString("pt-BR")}
               </p>
             </li>
           ))}

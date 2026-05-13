@@ -12,7 +12,7 @@ import CpfInput from "@/components/forms/CpfInput";
 import PhoneInput from "@/components/forms/PhoneInput";
 import Autocomplete from "@/components/forms/Autocomplete";
 import { supabase } from "@/lib/supabase";
-import { isValidCpf, isValidPhoneBr, onlyDigits } from "@/lib/cpf";
+import { isValidCpf, isValidPhoneBr } from "@/lib/cpf";
 import { buildTurmaSlug } from "@/lib/slugify";
 import { UFS, fetchMunicipios, Municipio } from "@/lib/ibge";
 import { CURSOS_COMUNS } from "@/lib/cursos";
@@ -35,6 +35,8 @@ export default function CadastroPage() {
     senha: "",
     confirmar: "",
   });
+  const [existingUserId, setExistingUserId] = useState<string | null>(null);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [aceito, setAceito] = useState(false);
   const [municipios, setMunicipios] = useState<Municipio[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -42,9 +44,41 @@ export default function CadastroPage() {
   const [topError, setTopError] = useState<string | undefined>();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.replace("/dashboard");
-    });
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      const user = data.session?.user;
+
+      if (!user) {
+        setCheckingSession(false);
+        return;
+      }
+
+      const { data: representative, error } = await supabase
+        .from("representatives")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (representative) {
+        router.replace("/dashboard");
+        return;
+      }
+
+      if (error && error.code !== "PGRST116") {
+        setTopError(
+          error.code === "42P01"
+            ? "O banco ainda precisa receber o schema novo. Execute o arquivo supabase/schema.sql no Supabase."
+            : error.message,
+        );
+      }
+
+      setExistingUserId(user.id);
+      setForm((current) => ({
+        ...current,
+        email: user.email || current.email,
+      }));
+      setCheckingSession(false);
+    })();
   }, [router]);
 
   useEffect(() => {
@@ -71,8 +105,9 @@ export default function CadastroPage() {
     const e: Record<string, string> = {};
     if (!form.nome.trim()) e.nome = "Informe seu nome completo.";
     if (!isValidCpf(form.cpf)) e.cpf = "CPF inválido.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       e.email = "E-mail inválido.";
+    }
     if (!isValidPhoneBr(form.whatsapp)) e.whatsapp = "WhatsApp inválido.";
     if (!form.data_nascimento) e.data_nascimento = "Informe a data.";
     if (!form.curso.trim()) e.curso = "Informe o curso.";
@@ -80,8 +115,9 @@ export default function CadastroPage() {
     if (!form.estado) e.estado = "Selecione o estado.";
     if (!form.cidade.trim()) e.cidade = "Selecione a cidade.";
     if (!form.semestre) e.semestre = "Selecione o semestre.";
-    if (form.senha.length < 6) e.senha = "Mínimo de 6 caracteres.";
-    if (form.senha !== form.confirmar)
+    if (!existingUserId && form.senha.length < 6)
+      e.senha = "Mínimo de 6 caracteres.";
+    if (!existingUserId && form.senha !== form.confirmar)
       e.confirmar = "As senhas não coincidem.";
     if (!aceito) e.aceito = "Você precisa aceitar os termos.";
     setErrors(e);
@@ -94,49 +130,87 @@ export default function CadastroPage() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      const { data: signUp, error: signErr } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.senha,
-      });
-      if (signErr) throw signErr;
-      const userId = signUp.user?.id;
-      if (!userId)
+      let userId = existingUserId;
+
+      if (!userId) {
+        const { data: signUp, error: signErr } = await supabase.auth.signUp({
+          email: form.email.trim().toLowerCase(),
+          password: form.senha,
+        });
+        if (signErr) throw signErr;
+        userId = signUp.user?.id || null;
+      }
+
+      if (!userId) {
         throw new Error("Não foi possível criar sua conta. Tente novamente.");
+      }
 
-      const slug = buildTurmaSlug(form.curso, form.instituicao, form.semestre);
+      const baseSlug = buildTurmaSlug(
+        form.curso,
+        form.instituicao,
+        form.semestre,
+      );
+      let insertErr: any = null;
 
-      const { error: insertErr } = await supabase.from("formandos").insert({
-        user_id: userId,
-        nome: form.nome.trim(),
-        cpf: onlyDigits(form.cpf),
-        email: form.email.trim().toLowerCase(),
-        whatsapp: onlyDigits(form.whatsapp),
-        data_nascimento: form.data_nascimento,
-        curso: form.curso.trim(),
-        instituicao: form.instituicao.trim(),
-        cidade: form.cidade.trim(),
-        estado: form.estado,
-        semestre: form.semestre,
-        slug,
-      });
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const slug = attempt === 0 ? baseSlug : `${baseSlug}-${attempt + 1}`;
+        const { error } = await supabase.from("representatives").insert({
+          user_id: userId,
+          name: form.nome.trim(),
+          email: form.email.trim().toLowerCase(),
+          course_name: form.curso.trim(),
+          institution_name: form.instituicao.trim(),
+          graduation_year: form.semestre,
+          slug,
+        });
+
+        insertErr = error;
+        if (!error) break;
+        if (error.code !== "23505") throw error;
+      }
+
       if (insertErr) throw insertErr;
 
       router.push("/dashboard");
     } catch (err: any) {
       setTopError(
-        err?.message ||
-          "Algo deu errado ao concluir seu cadastro. Tente novamente.",
+        err?.code === "42P01"
+          ? "O banco ainda precisa receber o schema novo. Execute o arquivo supabase/schema.sql no Supabase."
+          : err?.message ||
+              "Algo deu errado ao concluir seu cadastro. Tente novamente.",
       );
     } finally {
       setSubmitting(false);
     }
   }
 
+  async function logout() {
+    await supabase.auth.signOut();
+    setExistingUserId(null);
+    setForm((current) => ({ ...current, email: "", senha: "", confirmar: "" }));
+  }
+
+  if (checkingSession) {
+    return (
+      <main className="page-canvas min-h-screen bg-bg flex items-center justify-center">
+        <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
+          Carregando cadastro
+        </p>
+      </main>
+    );
+  }
+
   return (
     <main className="page-canvas min-h-screen bg-bg">
       <PremiumHeader
         compact
-        actions={[{ href: "/login", label: "Já tenho cadastro", emphasis: true }]}
+        onLogout={existingUserId ? logout : undefined}
+        logoutLabel="Trocar conta"
+        actions={
+          existingUserId
+            ? []
+            : [{ href: "/login", label: "Já tenho cadastro", emphasis: true }]
+        }
       />
 
       <section className="relative mx-auto max-w-3xl px-6 pb-20 pt-32 md:pt-36">
@@ -159,7 +233,18 @@ export default function CadastroPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="card-hover space-y-6 p-6 md:p-9" noValidate>
+        <form
+          onSubmit={handleSubmit}
+          className="card-hover space-y-6 p-6 md:p-9"
+          noValidate
+        >
+          {existingUserId && (
+            <div className="border border-ink/20 bg-ink/[0.03] px-4 py-3 text-sm text-text-primary">
+              Encontramos uma sessão ativa. Complete os dados da turma para
+              liberar seu painel.
+            </div>
+          )}
+
           <Input
             label="Nome completo"
             name="nome"
@@ -201,6 +286,7 @@ export default function CadastroPage() {
               value={form.email}
               onChange={(e) => set("email", e.target.value)}
               error={errors.email}
+              readOnly={Boolean(existingUserId)}
               required
             />
             <PhoneInput
@@ -266,29 +352,31 @@ export default function CadastroPage() {
             required
           />
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <Input
-              label="Senha"
-              name="senha"
-              type="password"
-              autoComplete="new-password"
-              value={form.senha}
-              onChange={(e) => set("senha", e.target.value)}
-              hint="Mínimo de 6 caracteres."
-              error={errors.senha}
-              required
-            />
-            <Input
-              label="Confirmar senha"
-              name="confirmar"
-              type="password"
-              autoComplete="new-password"
-              value={form.confirmar}
-              onChange={(e) => set("confirmar", e.target.value)}
-              error={errors.confirmar}
-              required
-            />
-          </div>
+          {!existingUserId && (
+            <div className="grid gap-6 md:grid-cols-2">
+              <Input
+                label="Senha"
+                name="senha"
+                type="password"
+                autoComplete="new-password"
+                value={form.senha}
+                onChange={(e) => set("senha", e.target.value)}
+                hint="Mínimo de 6 caracteres."
+                error={errors.senha}
+                required
+              />
+              <Input
+                label="Confirmar senha"
+                name="confirmar"
+                type="password"
+                autoComplete="new-password"
+                value={form.confirmar}
+                onChange={(e) => set("confirmar", e.target.value)}
+                error={errors.confirmar}
+                required
+              />
+            </div>
+          )}
 
           <label className="flex cursor-pointer items-start gap-3 pt-2 text-sm text-text-secondary">
             <input

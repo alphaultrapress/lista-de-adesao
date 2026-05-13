@@ -23,6 +23,20 @@ function isValidCpf(cpf: string): boolean {
   return rev === parseInt(d[10]);
 }
 
+function normalizeDate(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const date = value.trim();
+  if (!date) return undefined;
+
+  const iso = date.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+
+  const br = date.match(/^(\d{2})[/-](\d{2})[/-](\d{4})$/);
+  if (br) return `${br[3]}-${br[2]}-${br[1]}`;
+
+  return undefined;
+}
+
 export async function GET(
   _req: Request,
   ctx: { params: { cpf: string } },
@@ -67,12 +81,13 @@ export async function GET(
 
     const json = await res.json().catch(() => ({}));
     const data = json?.data ?? json ?? {};
+    const dataNascimento =
+      data?.data_nascimento ?? data?.nascimento ?? data?.birth_date;
 
     return NextResponse.json({
       ok: true,
       nome: data?.nome ?? data?.name ?? undefined,
-      data_nascimento:
-        data?.data_nascimento ?? data?.nascimento ?? data?.birth_date ?? undefined,
+      data_nascimento: normalizeDate(dataNascimento),
     });
   } catch {
     return NextResponse.json(

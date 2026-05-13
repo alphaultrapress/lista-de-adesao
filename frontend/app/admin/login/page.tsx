@@ -2,106 +2,76 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { supabase } from "@/lib/supabase";
 
-export default function LoginPage() {
+export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
-  const [checkingSession, setCheckingSession] = useState(true);
   const [error, setError] = useState<string | undefined>();
-  const [info, setInfo] = useState<string | undefined>();
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getSession();
       const userId = data.session?.user.id;
+      if (!userId) return;
 
-      if (!userId) {
-        setCheckingSession(false);
-        return;
-      }
-
-      const { data: representative } = await supabase
-        .from("representatives")
+      const { data: admin } = await supabase
+        .from("admins")
         .select("id")
         .eq("user_id", userId)
         .maybeSingle();
 
-      router.replace(representative ? "/dashboard" : "/cadastro");
+      if (admin) {
+        router.replace("/admin/dashboard");
+      }
     })();
   }, [router]);
-
-  async function goToRepresentativeArea(userId: string) {
-    const { data: representative, error: representativeError } = await supabase
-      .from("representatives")
-      .select("id")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    if (representativeError && representativeError.code === "42P01") {
-      setError(
-        "O banco ainda precisa receber o schema novo. Execute o arquivo supabase/schema.sql no Supabase.",
-      );
-      return;
-    }
-
-    router.push(representative ? "/dashboard" : "/cadastro");
-  }
 
   async function handleSubmit(ev: React.FormEvent) {
     ev.preventDefault();
     setError(undefined);
-    setInfo(undefined);
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
+
+    const { data, error: signError } = await supabase.auth.signInWithPassword({
       email: email.trim().toLowerCase(),
       password: senha,
     });
-    setLoading(false);
-    if (error || !data.user) {
+
+    if (signError || !data.user) {
+      setLoading(false);
       setError("E-mail ou senha incorretos. Verifique e tente novamente.");
       return;
     }
-    await goToRepresentativeArea(data.user.id);
-  }
 
-  async function handleReset() {
-    if (!email) {
-      setError("Informe seu e-mail para recuperar a senha.");
+    const { data: admin, error: adminError } = await supabase
+      .from("admins")
+      .select("id")
+      .eq("user_id", data.user.id)
+      .maybeSingle();
+
+    setLoading(false);
+
+    if (adminError || !admin) {
+      await supabase.auth.signOut();
+      setError("Este usuario nao possui permissao administrativa.");
       return;
     }
-    setError(undefined);
-    setInfo(undefined);
-    const { error } = await supabase.auth.resetPasswordForEmail(
-      email.trim().toLowerCase(),
-    );
-    if (error) {
-      setError("Não foi possível enviar o e-mail. Tente novamente.");
-      return;
-    }
-    setInfo("Enviamos um link de recuperação para o seu e-mail.");
-  }
 
-  if (checkingSession) {
-    return (
-      <main className="page-canvas min-h-screen bg-bg flex items-center justify-center">
-        <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
-          Carregando acesso
-        </p>
-      </main>
-    );
+    router.push("/admin/dashboard");
   }
 
   return (
     <main className="page-canvas min-h-screen bg-bg flex flex-col">
-      <PremiumHeader compact />
+      <PremiumHeader
+        compact
+        actions={[{ href: "/login", label: "Representante" }]}
+      />
 
       <section className="relative flex flex-1 items-center justify-center overflow-hidden px-6 pb-20 pt-32">
         <div className="absolute inset-0 bg-grid-light opacity-50 pointer-events-none" />
@@ -112,16 +82,15 @@ export default function LoginPage() {
           <div className="mb-11 text-center">
             <span className="tech-eyebrow">
               <span className="dot" />
-              Acesso do representante
+              Acesso administrativo
             </span>
             <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-              Entre na
+              Painel da
               <br />
-              <span className="italic font-light text-gray-500">sua conta.</span>
+              <span className="italic font-light text-gray-500">Alpha.</span>
             </h1>
             <p className="mt-5 text-sm leading-relaxed text-text-secondary">
-              Apenas representantes de turma têm cadastro. Colegas que receberam
-              o link devem acessá-lo diretamente.
+              Area restrita para acompanhar representantes e alunos cadastrados.
             </p>
           </div>
 
@@ -154,31 +123,10 @@ export default function LoginPage() {
                 {error}
               </div>
             )}
-            {info && (
-              <div className="border border-ink/20 bg-ink/[0.03] px-4 py-3 text-sm text-text-primary">
-                {info}
-              </div>
-            )}
 
             <Button type="submit" loading={loading} fullWidth>
-              {loading ? "Entrando" : "Entrar"}
+              {loading ? "Entrando" : "Entrar como admin"}
             </Button>
-
-            <div className="flex items-center justify-between pt-2 text-[11px] uppercase tracking-premium-wide">
-              <button
-                type="button"
-                onClick={handleReset}
-                className="text-text-secondary transition-colors duration-250 hover:text-text-primary"
-              >
-                Esqueci minha senha
-              </button>
-              <Link
-                href="/cadastro"
-                className="text-text-secondary transition-colors duration-250 hover:text-text-primary"
-              >
-                Criar conta
-              </Link>
-            </div>
           </form>
         </div>
       </section>
