@@ -1894,8 +1894,8 @@ textarea::placeholder {
   }
 
   .hero-banner-wrap {
-    min-height: 548px;
-    height: 548px;
+    min-height: 588px;
+    height: 588px;
     margin-top: 1rem;
   }
 
@@ -1939,7 +1939,7 @@ textarea::placeholder {
 
   .hero-banner-img {
     right: clamp(-4.7rem, -14vw, -2.6rem);
-    bottom: -0.85rem;
+    bottom: 0;
     height: 43%;
     object-position: right top;
   }
@@ -2022,8 +2022,8 @@ textarea::placeholder {
   }
 
   .hero-banner-wrap {
-    min-height: 565px;
-    height: 565px;
+    min-height: 610px;
+    height: 610px;
     margin-top: 1rem;
   }
 
@@ -2067,7 +2067,7 @@ textarea::placeholder {
 
   .hero-banner-img {
     right: clamp(-7.5rem, -16vw, -4.25rem);
-    bottom: -0.7rem;
+    bottom: 0;
     height: 59%;
     object-position: right top;
   }
