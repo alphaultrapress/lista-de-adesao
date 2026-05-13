@@ -1141,11 +1141,17 @@ textarea::placeholder {
 }
 
 @media (min-width: 1025px) and (max-width: 1500px) {
+  .hero-content {
+    grid-template-columns: minmax(0, 0.58fr) minmax(620px, 1.2fr);
+    gap: clamp(1.35rem, 2.4vw, 2.4rem);
+  }
+
   .hero-banner-wrap {
     width: min(100%, 820px);
     min-height: 560px;
     height: clamp(540px, 39vw, 580px);
     margin-right: 0;
+    transform: translateX(-40px);
   }
 
   .hero-banner-img {
