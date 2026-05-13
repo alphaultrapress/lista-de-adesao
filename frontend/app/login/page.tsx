@@ -147,7 +147,7 @@ export default function LoginPage() {
 
   return (
     <main className="page-canvas min-h-screen bg-bg flex flex-col">
-      <PremiumHeader compact />
+      <PremiumHeader compact centeredBrand brandSize="lg" />
 
       <section className="relative flex flex-1 items-center justify-center overflow-hidden px-6 pb-20 pt-32">
         <div className="absolute inset-0 bg-grid-light opacity-50 pointer-events-none" />

@@ -67,7 +67,12 @@ export default function DashboardPage() {
 
   return (
     <main className="page-canvas min-h-screen bg-bg">
-      <PremiumHeader onLogout={logout} compact />
+      <PremiumHeader
+        onLogout={logout}
+        compact
+        centeredBrand
+        brandSize="lg"
+      />
 
       <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-32 md:pb-20 md:pt-36">
         <div className="absolute right-0 top-0 h-[300px] w-[400px] glow-crimson-soft opacity-50 pointer-events-none" />

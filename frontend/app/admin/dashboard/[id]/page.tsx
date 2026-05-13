@@ -97,7 +97,12 @@ export default function AdminRepresentativePage() {
   if (!representative) {
     return (
       <main className="page-canvas min-h-screen bg-bg flex flex-col">
-        <PremiumHeader onLogout={logout} compact />
+        <PremiumHeader
+          onLogout={logout}
+          compact
+          centeredBrand
+          brandSize="lg"
+        />
         <section className="relative flex flex-1 items-center justify-center px-6 pb-20 pt-32">
           <div className="absolute left-1/2 top-1/2 h-[340px] w-[560px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
           <div className="relative max-w-md text-center fade-up">
@@ -130,6 +135,8 @@ export default function AdminRepresentativePage() {
       <PremiumHeader
         onLogout={logout}
         compact
+        centeredBrand
+        brandSize="lg"
         actions={[{ href: "/admin/dashboard", label: "Admin" }]}
       />
 

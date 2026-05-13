@@ -70,6 +70,8 @@ export default function AdminLoginPage() {
     <main className="page-canvas min-h-screen bg-bg flex flex-col">
       <PremiumHeader
         compact
+        centeredBrand
+        brandSize="lg"
         actions={[{ href: "/login", label: "Login" }]}
       />
 
