@@ -18,8 +18,16 @@ create table if not exists public.representatives (
   institution_name  text not null,
   graduation_year   text not null,
   slug              text not null unique,
+  consultant_name   text,
+  consultant_phone  text,
   created_at        timestamptz not null default now()
 );
+
+alter table public.representatives
+  add column if not exists consultant_name text;
+
+alter table public.representatives
+  add column if not exists consultant_phone text;
 
 create index if not exists idx_representatives_user_id
   on public.representatives (user_id);

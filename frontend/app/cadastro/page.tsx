@@ -14,6 +14,7 @@ import { signOutAndClearSession, supabase } from "@/lib/supabase";
 import { isValidCpf, isValidPhoneBr } from "@/lib/cpf";
 import { buildTurmaSlug } from "@/lib/slugify";
 import { UFS, fetchMunicipios, Municipio } from "@/lib/ibge";
+import { getStoredConsultant } from "@/lib/consultants";
 
 const SEMESTRES = ["2026.1", "2026.2", "2027.1", "2027.2", "2028.1", "2028.2"];
 
@@ -148,11 +149,12 @@ export default function CadastroPage() {
         form.instituicao,
         form.semestre,
       );
+      const assignedConsultant = getStoredConsultant();
       let insertErr: any = null;
 
       for (let attempt = 0; attempt < 5; attempt += 1) {
         const slug = attempt === 0 ? baseSlug : `${baseSlug}-${attempt + 1}`;
-        const { error } = await supabase.from("representatives").insert({
+        const representativePayload: Record<string, string | undefined> = {
           user_id: userId,
           name: form.nome.trim(),
           email: form.email.trim().toLowerCase(),
@@ -160,10 +162,37 @@ export default function CadastroPage() {
           institution_name: form.instituicao.trim(),
           graduation_year: form.semestre,
           slug,
-        });
+        };
+
+        if (assignedConsultant) {
+          representativePayload.consultant_name = assignedConsultant.name;
+          representativePayload.consultant_phone = assignedConsultant.phone;
+        }
+
+        const { error } = await supabase
+          .from("representatives")
+          .insert(representativePayload);
 
         insertErr = error;
         if (!error) break;
+        if (assignedConsultant && error.code === "PGRST204") {
+          const { error: fallbackError } = await supabase
+            .from("representatives")
+            .insert({
+              user_id: userId,
+              name: form.nome.trim(),
+              email: form.email.trim().toLowerCase(),
+              course_name: form.curso.trim(),
+              institution_name: form.instituicao.trim(),
+              graduation_year: form.semestre,
+              slug,
+            });
+
+          insertErr = fallbackError;
+          if (!fallbackError) break;
+          if (fallbackError.code !== "23505") throw fallbackError;
+          continue;
+        }
         if (error.code !== "23505") throw error;
       }
 

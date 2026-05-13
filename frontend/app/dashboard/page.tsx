@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
-import Button from "@/components/ui/Button";
+import ConsultantContact from "@/components/ConsultantContact";
 import LinkCard from "@/components/dashboard/LinkCard";
 import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 import AdesoesCard from "@/components/dashboard/AdesoesCard";
@@ -64,10 +64,6 @@ export default function DashboardPage() {
     process.env.NEXT_PUBLIC_APP_URL ||
     (typeof window !== "undefined" ? window.location.origin : "");
   const adesaoUrl = `${appUrl}/adesao/${representative.slug}`;
-
-  const waConsultor = `https://wa.me/?text=${encodeURIComponent(
-    `Olá! Sou ${representative.name}, formando de ${representative.course_name} na ${representative.institution_name}. Quero saber mais sobre os convites Alpha.`,
-  )}`;
 
   return (
     <main className="page-canvas min-h-screen bg-bg">
@@ -139,14 +135,24 @@ export default function DashboardPage() {
               Tire dúvidas e receba uma proposta personalizada para a sua turma.
             </p>
           </div>
-          <a
-            href={waConsultor}
-            target="_blank"
-            rel="noreferrer"
-            className="cta-btn-wrap relative"
-          >
-            <Button variant="light">Falar com um consultor</Button>
-          </a>
+          <div className="cta-btn-wrap relative">
+            <ConsultantContact
+              representativeId={representative.id}
+              consultantName={representative.consultant_name}
+              consultantPhone={representative.consultant_phone}
+              onAssigned={(consultant) =>
+                setRepresentative((current) =>
+                  current
+                    ? {
+                        ...current,
+                        consultant_name: consultant.name,
+                        consultant_phone: consultant.phone,
+                      }
+                    : current,
+                )
+              }
+            />
+          </div>
         </div>
       </section>
       <Footer />
