@@ -15,7 +15,6 @@ import { supabase } from "@/lib/supabase";
 import { isValidCpf, isValidPhoneBr } from "@/lib/cpf";
 import { buildTurmaSlug } from "@/lib/slugify";
 import { UFS, fetchMunicipios, Municipio } from "@/lib/ibge";
-import { CURSOS_COMUNS } from "@/lib/cursos";
 
 const SEMESTRES = ["2026.1", "2026.2", "2027.1", "2027.2", "2028.1", "2028.2"];
 
@@ -245,25 +244,24 @@ export default function CadastroPage() {
             </div>
           )}
 
-          <Input
-            label="Nome completo"
-            name="nome"
-            value={form.nome}
-            onChange={(e) => set("nome", e.target.value)}
-            error={errors.nome}
+          <CpfInput
+            value={form.cpf}
+            onChange={(v) => set("cpf", v)}
+            onResolved={(d) => {
+              if (d.nome) set("nome", d.nome);
+              if (d.data_nascimento) set("data_nascimento", d.data_nascimento);
+            }}
+            error={errors.cpf}
             required
           />
 
           <div className="grid gap-6 md:grid-cols-2">
-            <CpfInput
-              value={form.cpf}
-              onChange={(v) => set("cpf", v)}
-              onResolved={(d) => {
-                if (d.nome && !form.nome) set("nome", d.nome);
-                if (d.data_nascimento && !form.data_nascimento)
-                  set("data_nascimento", d.data_nascimento);
-              }}
-              error={errors.cpf}
+            <Input
+              label="Nome completo"
+              name="nome"
+              value={form.nome}
+              onChange={(e) => set("nome", e.target.value)}
+              error={errors.nome}
               required
             />
             <Input
@@ -297,11 +295,11 @@ export default function CadastroPage() {
             />
           </div>
 
-          <Autocomplete
+          <Input
             label="Curso de graduação"
+            name="curso"
             value={form.curso}
-            onChange={(v) => set("curso", v)}
-            options={CURSOS_COMUNS}
+            onChange={(e) => set("curso", e.target.value)}
             placeholder="Ex: Medicina"
             error={errors.curso}
             required
