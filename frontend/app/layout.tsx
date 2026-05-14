@@ -15,11 +15,11 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Alpha Convites — Lista de Adesão",
+  title: "Alpha Convites — Lista de Interesse",
   description:
     "Convites de formatura premium. Cadastre sua turma e receba propostas personalizadas da Alpha Convites.",
   openGraph: {
-    title: "Alpha Convites — Lista de Adesão",
+    title: "Alpha Convites — Lista de Interesse",
     description:
       "Convites de formatura premium. Cadastre sua turma e receba propostas personalizadas.",
     type: "website",

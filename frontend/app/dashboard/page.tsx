@@ -134,7 +134,7 @@ export default function DashboardPage() {
               Atendimento direto
             </span>
             <h3 className="mb-2 mt-5 font-serif text-2xl tracking-premium-tight text-[#f5f5f5] md:text-3xl">
-              Quer falar com um consultor?
+              Quer falar com a Alpha?
             </h3>
             <p className="max-w-md text-sm text-[#b8b8b8]">
               Tire dúvidas e receba uma proposta personalizada para a sua turma.

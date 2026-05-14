@@ -2,61 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
-
-const steps = [
-  {
-    title: "Crie o acesso oficial",
-    description:
-      "O representante cadastra a turma e recebe um ambiente exclusivo para iniciar a lista de adesão.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-        <path
-          d="M7 8.5h10M7 12h7M7 15.5h4"
-          stroke="currentColor"
-          strokeWidth="1.25"
-          strokeLinecap="round"
-        />
-        <path
-          d="M5.5 3.5h13A1.5 1.5 0 0 1 20 5v14a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19V5a1.5 1.5 0 0 1 1.5-1.5Z"
-          stroke="currentColor"
-          strokeWidth="1.25"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Compartilhe o link da turma",
-    description:
-      "Cada colega acessa o formulário oficial sem criar conta, com uma experiência simples e confiável.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-        <path
-          d="M9.5 14.5 14.5 9.5M10.5 7.5l1.2-1.2a4 4 0 0 1 5.7 5.7l-1.2 1.2M13.5 16.5l-1.2 1.2a4 4 0 0 1-5.7-5.7l1.2-1.2"
-          stroke="currentColor"
-          strokeWidth="1.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    title: "Monitore as adesões",
-    description:
-      "O painel organiza os registros em tempo real para apoiar a decisão da turma e o atendimento Alpha.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-        <path
-          d="M4 18V6M4 18h16M8 15v-4M12 15V8M16 15v-6"
-          stroke="currentColor"
-          strokeWidth="1.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-];
+import SocialProof from "@/components/SocialProof";
+import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 
 export default function LandingPage() {
   return (
@@ -81,19 +28,25 @@ export default function LandingPage() {
             <div className="fade-up">
               <span className="tech-eyebrow">
                 <span className="dot" />
-                Tecnologia premium para formaturas
+                Convites premium para formaturas
               </span>
             </div>
 
-            <h1 className="hero-title fade-up fade-up-d1">
-              Crie a lista oficial
+            <h1
+              className="hero-title fade-up fade-up-d1"
+              style={{ maxWidth: "18ch" }}
+            >
+              Sua turma merece um
               <br />
-              <span>da sua turma.</span>
+              <span style={{ whiteSpace: "normal" }}>
+                convite inesquecível.
+              </span>
             </h1>
 
             <p className="hero-description fade-up fade-up-d2">
-              A Alpha Convites transforma a organização da turma em uma
-              experiência digital precisa, elegante e monitorada em tempo real.
+              Há mais de 50 anos a Alpha transforma histórias em memórias.
+              Representantes de turma criam aqui a lista oficial para receber
+              propostas personalizadas, sem compromisso.
             </p>
           </div>
 
@@ -120,7 +73,7 @@ export default function LandingPage() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                Gestão inteligente
+                Para representantes
               </span>
 
               <h2 className="hero-cta-title">
@@ -130,8 +83,8 @@ export default function LandingPage() {
               </h2>
 
               <p className="hero-cta-text">
-                Tudo que o representante precisa para organizar, acompanhar e
-                entregar uma experiência impecável para toda a turma.
+                Cadastre a turma, gere o link oficial e acompanhe quem
+                demonstrou interesse — tudo em um ambiente premium e simples.
               </p>
 
               <div className="hero-cta-actions">
@@ -188,62 +141,189 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="como-funciona" className="process-section">
-        <div className="section-ambient" />
-        <div className="section-heading scroll-reveal">
-          <span className="tech-eyebrow">
+      <section className="relative overflow-hidden bg-bg-ice py-20 md:py-24">
+        <div className="absolute inset-0 bg-grid-tech bg-[length:48px_48px] opacity-30 pointer-events-none" />
+        <div className="relative mx-auto max-w-4xl px-6 text-center fade-up">
+          <span className="tech-eyebrow mx-auto">
             <span className="dot" />
-            Como funciona
+            Nossa história
           </span>
-          <h2>
-            Fluxo simples.
-            <br />
-            <span>Experiência premium.</span>
+          <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
+            Há mais de 50 anos{" "}
+            <span className="italic font-light text-gray-500">
+              transformando histórias em memórias.
+            </span>
           </h2>
-          <p>
-            Um sistema enxuto para coletar adesões, organizar informações e
-            manter a turma alinhada sem ruído operacional.
+          <p className="mx-auto mt-7 max-w-2xl leading-relaxed text-text-secondary md:text-lg">
+            A Alpha acompanha momentos especiais através de convites que unem
+            tradição, sofisticação e acabamentos exclusivos.
           </p>
-        </div>
 
-        <div className="process-grid">
-          {steps.map((step, index) => (
-            <article key={step.title} className="process-card scroll-reveal">
-              <div className="process-card-top">
-                <span className="process-icon">{step.icon}</span>
-                <span className="process-number">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
+          <div
+            aria-hidden
+            className="mx-auto mt-12 h-px w-24"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
+            }}
+          />
+
+          <dl className="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-4 md:gap-10">
+            {[
+              { value: "50+", label: "anos transformando histórias em memórias" },
+              { value: "30+", label: "anos sob a segunda geração" },
+              { value: "Brasil", label: "turmas atendidas em todo o país" },
+            ].map((item) => (
+              <div key={item.label} className="flex flex-col items-center">
+                <dt className="font-serif text-4xl leading-none tracking-premium-tight text-text-primary md:text-6xl">
+                  {item.value}
+                </dt>
+                <dd className="mt-3 max-w-[14rem] text-[11px] uppercase leading-relaxed tracking-premium-wide text-text-tertiary md:text-xs">
+                  {item.label}
+                </dd>
               </div>
-              <h3>{step.title}</h3>
-              <p>{step.description}</p>
-            </article>
-          ))}
+            ))}
+          </dl>
         </div>
       </section>
 
-      <section className="final-cta">
-        <div className="final-cta-grid" />
-        <div className="final-cta-light" />
-        <div className="final-cta-inner scroll-reveal">
-          <span className="tech-eyebrow dark">
+      <section
+        id="como-funciona"
+        className="relative mx-auto max-w-6xl px-6 py-20 md:py-24"
+      >
+        <div className="mb-14 text-center fade-up md:mb-16">
+          <span className="tech-eyebrow mx-auto">
             <span className="dot" />
-            Pronto para iniciar
+            Simples e sem compromisso
           </span>
-          <h2>
-            Sua turma com uma presença
-            <br />
-            <span>digital de alto padrão.</span>
+          <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
+            Como{" "}
+            <span className="italic font-light text-gray-500">funciona?</span>
           </h2>
-          <p>
-            Cadastre a turma, gere o link oficial e acompanhe as adesões com uma
-            interface criada para parecer tão premium quanto a formatura.
-          </p>
-          <Link href="/cadastro" className="btn-primary-tech">
-            <span className="relative z-10">Cadastrar turma</span>
-          </Link>
+          <div
+            aria-hidden
+            className="mx-auto mt-8 h-px w-24"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
+            }}
+          />
+        </div>
+
+        <ol className="relative mx-auto max-w-5xl">
+          <div
+            aria-hidden
+            className="absolute left-7 top-7 bottom-7 w-px md:hidden"
+            style={{
+              background:
+                "linear-gradient(180deg, transparent 0%, #C9A961 12%, #C9A961 88%, transparent 100%)",
+            }}
+          />
+          <div
+            aria-hidden
+            className="absolute left-[10%] right-[10%] top-7 hidden h-px md:block"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, #C9A961 12%, #C9A961 88%, transparent 100%)",
+            }}
+          />
+
+          <div className="grid gap-10 md:grid-cols-4 md:gap-6">
+            {[
+              "Compartilhe o link com sua turma",
+              "Cada interessado preenche rapidamente",
+              "Nossa equipe analisa o interesse da turma",
+              "Entramos em contato com possibilidades e condições especiais",
+            ].map((step, index) => (
+              <li
+                key={step}
+                className="relative flex items-start gap-5 md:flex-col md:items-center md:gap-6 md:text-center"
+              >
+                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-line-strong bg-bg-white shadow-[0_4px_20px_rgba(10,10,10,0.04)]">
+                  <span className="font-serif text-xl italic text-text-primary">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <p className="pt-2 text-[15px] leading-relaxed text-text-secondary md:max-w-[14rem] md:pt-0 md:text-base">
+                  {step}
+                </p>
+              </li>
+            ))}
+          </div>
+        </ol>
+
+        <div className="relative mx-auto mt-16 max-w-3xl border border-line bg-bg-ice px-7 py-6 md:mt-20 md:px-10 md:py-7">
+          <span
+            aria-hidden
+            className="absolute left-0 top-1/2 h-10 w-px -translate-y-1/2"
+            style={{ background: "#C9A961" }}
+          />
+          <div className="flex items-center gap-5">
+            <span
+              aria-hidden
+              className="hidden h-2 w-2 rotate-45 shrink-0 md:inline-block"
+              style={{ background: "#C9A961" }}
+            />
+            <p className="font-serif text-lg italic leading-relaxed text-text-primary md:text-xl">
+              Turmas com maior número de interessados podem receber condições
+              especiais e projetos personalizados.
+            </p>
+          </div>
         </div>
       </section>
+
+      <section className="relative mx-auto max-w-6xl px-6 py-20 md:py-24">
+        <div className="mb-14 text-center fade-up">
+          <span className="tech-eyebrow mx-auto">
+            <span className="dot" />
+            Diferenciais Alpha
+          </span>
+          <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
+            Por que conhecer a{" "}
+            <span className="italic font-light text-gray-500">Alpha?</span>
+          </h2>
+          <div
+            aria-hidden
+            className="mx-auto mt-8 h-px w-24"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
+            }}
+          />
+        </div>
+
+        <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {[
+            "Mais de 50 anos de história",
+            "Acabamentos premium e personalizados",
+            "Turmas atendidas em todo o Brasil",
+            "Convite online e soluções complementares",
+            "Atendimento especializado para formandos",
+            "Projetos com percepção de exclusividade",
+          ].map((title, index) => (
+            <li
+              key={title}
+              className="group relative border border-line bg-bg-white p-7 transition-all duration-450 ease-premium hover:border-line-strong"
+            >
+              <span
+                aria-hidden
+                className="absolute left-7 top-0 h-px w-8"
+                style={{ background: "#C9A961" }}
+              />
+              <span className="block font-serif text-lg italic text-text-tertiary">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mt-5 font-sans text-base leading-snug text-text-primary md:text-lg">
+                {title}
+              </h3>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <SocialProof />
+
+      <AcabamentosShowcase />
 
       <Footer />
     </main>

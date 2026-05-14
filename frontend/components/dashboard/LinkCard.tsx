@@ -31,7 +31,7 @@ export default function LinkCard({
   }
 
   const waText = encodeURIComponent(
-    `Olá! Sou ${nome}, de ${curso} - ${instituicao}. Preencha sua adesão dos convites de formatura aqui: ${url}`,
+    `Olá! Sou ${nome}, de ${curso} - ${instituicao}. Demonstre seu interesse nos convites de formatura da nossa turma aqui, sem compromisso: ${url}`,
   );
 
   return (

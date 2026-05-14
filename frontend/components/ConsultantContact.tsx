@@ -111,9 +111,19 @@ export default function ConsultantContact({
     setIsConsultantModalOpen(false);
   }
 
-  const whatsAppUrl = selectedConsultant
-    ? buildConsultantWhatsAppUrl(selectedConsultant)
-    : undefined;
+  // Atendimento centralizado da Alpha (substitui consultor sorteado na UI).
+  // O sorteio interno (lib/consultants) continua rodando para registro/banco,
+  // mas o usuário sempre vê e fala com o número geral da Alpha.
+  const ALPHA_CONTACT = {
+    name: "Alpha Convites",
+    phone: "554335428585",
+    displayPhone: "+55 43 3542-8585",
+  };
+
+  const whatsAppUrl =
+    "https://api.whatsapp.com/send/?phone=554335428585&text=" +
+    encodeURIComponent("Olá! Gostaria de mais informações sobre os convites.") +
+    "&type=phone_number&app_absent=0";
 
   const modal =
     isConsultantModalOpen && selectedConsultant ? (
@@ -149,32 +159,30 @@ export default function ConsultantContact({
               id="consultant-modal-title"
               className="mt-5 font-serif text-[24px] leading-tight tracking-premium-tight text-[#f5f5f5] sm:text-[27px]"
             >
-              Seu consultor Alpha
+              Fale com a Alpha
             </h2>
 
             <div className="mt-5 border border-white/10 bg-white/[0.03] p-4">
               <p className="text-[10px] uppercase tracking-[0.28em] text-white/45">
-                Consultor atribuído
+                Atendimento Alpha
               </p>
               <p className="mt-3 text-lg font-medium tracking-premium-wide text-white sm:text-xl">
-                {selectedConsultant.name}
+                {ALPHA_CONTACT.name}
               </p>
               <p className="mt-1.5 text-sm text-white/70">
-                {formatConsultantPhone(selectedConsultant.phone)}
+                {ALPHA_CONTACT.displayPhone}
               </p>
             </div>
 
-            {whatsAppUrl && (
-              <a
-                href={whatsAppUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-5 inline-flex min-h-11 w-full items-center justify-center border border-white/80 bg-white px-5 py-3 text-center text-[10px] uppercase tracking-[0.2em] text-ink transition-all duration-450 ease-premium hover:bg-bg-soft sm:min-h-12"
-                onClick={(event) => event.stopPropagation()}
-              >
-                Conversar pelo WhatsApp
-              </a>
-            )}
+            <a
+              href={whatsAppUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-5 inline-flex min-h-11 w-full items-center justify-center border border-white/80 bg-white px-5 py-3 text-center text-[10px] uppercase tracking-[0.2em] text-ink transition-all duration-450 ease-premium hover:bg-bg-soft sm:min-h-12"
+              onClick={(event) => event.stopPropagation()}
+            >
+              Conversar pelo WhatsApp
+            </a>
           </div>
         </div>
       </div>
@@ -189,7 +197,7 @@ export default function ConsultantContact({
         disabled={isLoadingConsultant}
         onClick={handleConsultantClick}
       >
-        Falar com um consultor
+        Falar com a Alpha
       </Button>
 
       {isMounted && modal ? createPortal(modal, document.body) : null}
