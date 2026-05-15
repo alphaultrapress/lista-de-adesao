@@ -11,7 +11,7 @@ interface BrandProps {
 const heights: Record<NonNullable<BrandProps["size"]>, number> = {
   sm: 36,
   md: 52,
-  lg: 78,
+  lg: 92,
 };
 
 export function Brand({
@@ -60,8 +60,8 @@ export function Footer() {
         <div className="footer-brand-column">
           <Brand size="lg" variant="light" href="" />
           <p>
-            Tecnologia premium para listas de adesão e relacionamento de turmas
-            de formatura.
+            Tecnologia premium para Lista de Interesse e relacionamento com
+            turmas de formatura
           </p>
         </div>
 
@@ -136,10 +136,10 @@ export function Footer() {
               </a>
             )}
             <a
-              href="mailto:contato@alphaconvites.com.br"
+              href="mailto:marketing@alphaeditora.com.br"
               className="premium-dark-link"
             >
-              contato@alphaconvites.com.br
+              marketing@alphaeditora.com.br
             </a>
           </nav>
         </div>

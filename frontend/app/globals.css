@@ -691,8 +691,18 @@ textarea::placeholder {
   }
 
   .premium-header .brand-lockup img {
-    height: 42px !important;
+    height: 76px !important;
     width: auto !important;
+  }
+
+  .premium-header-inner {
+    justify-content: center !important;
+  }
+
+  .premium-header-inner > a {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .tech-eyebrow {
@@ -1624,7 +1634,7 @@ textarea::placeholder {
     #0d0d0d 100%
   );
   color: var(--bg);
-  padding: 120px 1.5rem 70px;
+  padding: 84px 1.5rem 64px;
 }
 
 .footer-grid-layer,
@@ -1666,8 +1676,8 @@ textarea::placeholder {
   max-width: 1220px;
   margin: 0 auto;
   grid-template-columns: minmax(0, 1.18fr) minmax(180px, 0.42fr) minmax(260px, 0.55fr);
-  gap: clamp(4.25rem, 9vw, 8rem);
-  padding-bottom: 5.8rem;
+  gap: clamp(3.25rem, 7vw, 6rem);
+  padding-bottom: 4.25rem;
 }
 
 .footer-brand-column .brand-lockup img {
@@ -2389,5 +2399,376 @@ textarea::placeholder {
   .consultant-modal-overlay,
   .consultant-modal-panel {
     animation: none;
+  }
+}
+
+/* ============================================================
+   Reels — carrossel premium de vídeos verticais (estilo Cakto)
+   Fundo da seção: var(--bg-soft) = #f1f1ef
+   ============================================================ */
+
+.reels-carousel {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 0;
+  /* Fade lateral suave — vídeos somem nas bordas, sem corte seco */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.12) 6%,
+    #000 16%,
+    #000 84%,
+    rgba(0, 0, 0, 0.12) 94%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.12) 6%,
+    #000 16%,
+    #000 84%,
+    rgba(0, 0, 0, 0.12) 94%,
+    transparent 100%
+  );
+}
+
+.reels-track {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  width: max-content;
+  padding: 18px 26px;
+  /* Track com DUAS cópias da lista: -50% = uma cópia exata → loop invisível */
+  animation: reels-marquee 56s linear infinite;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Pausa o carrossel quando o ponteiro está sobre a área dos vídeos */
+.reels-carousel:hover .reels-track {
+  animation-play-state: paused;
+}
+
+.reel-card {
+  position: relative;
+  flex: 0 0 auto;
+  width: 264px;
+  aspect-ratio: 9 / 16;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  transition:
+    transform 280ms var(--ease-premium),
+    opacity 280ms var(--ease-premium),
+    box-shadow 280ms var(--ease-premium),
+    filter 280ms var(--ease-premium);
+}
+
+.reel-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reel-card-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.06) 0%,
+    rgba(0, 0, 0, 0.04) 55%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  transition: opacity 280ms var(--ease-premium);
+}
+
+/* Hover de qualquer card: os demais ficam apagados/translúcidos */
+.reels-carousel:hover .reel-card {
+  opacity: 0.45;
+  filter: saturate(0.7);
+}
+
+/* O card sob o cursor ganha destaque, zoom suave e sombra maior */
+.reels-carousel .reel-card:hover {
+  opacity: 1;
+  filter: none;
+  transform: scale(1.06);
+  z-index: 10;
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.26);
+}
+
+.reels-carousel .reel-card:hover .reel-card-shade {
+  opacity: 0.35;
+}
+
+@media (max-width: 768px) {
+  /* Mobile: sem animação automática — scroll horizontal por toque com snap.
+     Sem hover. Não gera overflow horizontal na página inteira. */
+  .reels-carousel {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    padding: 16px 0;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.18) 4%,
+      #000 12%,
+      #000 88%,
+      rgba(0, 0, 0, 0.18) 96%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.18) 4%,
+      #000 12%,
+      #000 88%,
+      rgba(0, 0, 0, 0.18) 96%,
+      transparent 100%
+    );
+  }
+
+  .reels-carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  .reels-track {
+    animation: none;
+    gap: 16px;
+    padding: 6px 18px;
+  }
+
+  .reel-card {
+    width: 70vw;
+    max-width: 240px;
+    scroll-snap-align: center;
+  }
+
+  /* No mobile não há loop automático — exibir só os 6 vídeos únicos */
+  .reel-card-clone {
+    display: none;
+  }
+
+  /* Sem destaque/escurecimento por hover no mobile */
+  .reels-carousel:hover .reel-card,
+  .reels-carousel .reel-card:hover {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  }
+}
+
+@keyframes reels-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reels-track {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Depoimentos — carrossel coverflow premium (prints reais)
+   Fundo da seção: var(--bg-soft) = #f1f1ef. Card translúcido,
+   sem bloco branco pesado. Imagens com object-fit: contain
+   (proporção real de cada print → nunca corta o texto).
+   ============================================================ */
+
+.testimonials-carousel {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 1100px;
+  overflow: hidden; /* contém os vizinhos transladados; sem overflow na página */
+  padding: 8px 0 4px;
+}
+
+/* Fade lateral premium — os cards laterais somem suavemente no fundo da
+   seção (var(--bg-soft) = #f1f1ef). Cobrem só a altura da stage (não os
+   dots), ficam abaixo do card ativo (z 30) e acima dos vizinhos, e não
+   bloqueiam clique/hover. */
+.testimonials-carousel::before,
+.testimonials-carousel::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  height: clamp(280px, 42vw, 420px);
+  width: clamp(110px, 14vw, 190px);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.testimonials-carousel::before {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    rgb(241, 241, 239) 0%,
+    rgba(241, 241, 239, 0.86) 38%,
+    rgba(241, 241, 239, 0) 100%
+  );
+}
+
+.testimonials-carousel::after {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    rgb(241, 241, 239) 0%,
+    rgba(241, 241, 239, 0.86) 38%,
+    rgba(241, 241, 239, 0) 100%
+  );
+}
+
+.testimonials-stage {
+  position: relative;
+  width: 100%;
+  /* Altura travada pela proporção do print mais alto (683x431) na largura
+     máxima do card → evita layout shift ao trocar de slide. */
+  height: clamp(280px, 42vw, 420px);
+}
+
+.testimonial-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(620px, 86vw);
+  margin-left: calc(min(620px, 86vw) / -2);
+  margin-top: calc(clamp(280px, 42vw, 420px) / -2);
+  height: clamp(280px, 42vw, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 600ms var(--ease-premium),
+    opacity 600ms var(--ease-premium),
+    filter 600ms var(--ease-premium);
+  will-change: transform, opacity;
+}
+
+.testimonial-card:not(.is-active) {
+  filter: saturate(0.85);
+}
+
+.testimonial-card-btn {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 22px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 10px 30px -16px rgba(15, 23, 42, 0.18);
+  cursor: pointer;
+  transition:
+    box-shadow 600ms var(--ease-premium),
+    background 600ms var(--ease-premium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.testimonial-card.is-active .testimonial-card-btn {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(15, 23, 42, 0.1);
+  box-shadow: 0 26px 60px -22px rgba(15, 23, 42, 0.3);
+  cursor: default;
+}
+
+.testimonial-card:not(.is-active) .testimonial-card-btn {
+  cursor: pointer;
+}
+
+.testimonial-img {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.testimonial-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.testimonial-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #d1d5db;
+  cursor: pointer;
+  transition:
+    background 350ms var(--ease-premium),
+    width 350ms var(--ease-premium);
+}
+
+.testimonial-dot:hover {
+  background: #b9a06a;
+}
+
+.testimonial-dot.is-active {
+  width: 26px;
+  background: #b91c2b;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .testimonials-carousel {
+    padding: 4px 0;
+  }
+
+  /* Mobile mostra só 1 card por vez — fade lateral desnecessário e
+     atrapalharia a leitura do card único. */
+  .testimonials-carousel::before,
+  .testimonials-carousel::after {
+    display: none;
+  }
+
+  .testimonials-stage {
+    height: clamp(220px, 64vw, 340px);
+  }
+
+  .testimonial-card {
+    width: 90vw;
+    margin-left: -45vw;
+    margin-top: calc(clamp(220px, 64vw, 340px) / -2);
+    height: clamp(220px, 64vw, 340px);
+  }
+
+  /* No mobile só o card ativo aparece — vizinhos transladados sairiam da
+     viewport e gerariam overflow horizontal. Swipe troca o slide. */
+  .testimonial-card:not(.is-active) {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  .testimonial-dots {
+    margin-top: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-card {
+    transition: opacity 200ms linear;
   }
 }

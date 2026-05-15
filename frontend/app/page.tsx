@@ -44,9 +44,10 @@ export default function LandingPage() {
             </h1>
 
             <p className="hero-description fade-up fade-up-d2">
-              Há mais de 50 anos a Alpha transforma histórias em memórias.
-              Representantes de turma criam aqui a lista oficial para receber
-              propostas personalizadas, sem compromisso.
+              Há mais de 50 anos, a Alpha transforma histórias em memórias 
+              <br />
+              Preencha a Lista de Interesse Alpha e descubra possibilidades
+              exclusivas para os convites da sua turma.
             </p>
           </div>
 
@@ -73,7 +74,7 @@ export default function LandingPage() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                Para representantes
+                Faça seu cadastro
               </span>
 
               <h2 className="hero-cta-title">
@@ -83,13 +84,13 @@ export default function LandingPage() {
               </h2>
 
               <p className="hero-cta-text">
-                Cadastre a turma, gere o link oficial e acompanhe quem
-                demonstrou interesse — tudo em um ambiente premium e simples.
+                Crie a lista da sua turma, gere o link oficial e descubra as
+                possibilidades — tudo em um ambiente premium e simples.
               </p>
 
               <div className="hero-cta-actions">
                 <Link href="/cadastro" className="hero-btn-primary group">
-                  <span>Sou representante</span>
+                  <span>Primeiro acesso</span>
                   <svg
                     width="14"
                     height="14"
@@ -107,7 +108,7 @@ export default function LandingPage() {
                   </svg>
                 </Link>
                 <Link href="/login" className="hero-btn-secondary group">
-                  <span>Login</span>
+                  <span>Já tenho conta</span>
                   <svg
                     width="14"
                     height="14"
@@ -141,7 +142,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-bg-ice py-20 md:py-24">
+      <section className="relative overflow-hidden bg-bg-ice py-14 md:py-20">
         <div className="absolute inset-0 bg-grid-tech bg-[length:48px_48px] opacity-30 pointer-events-none" />
         <div className="relative mx-auto max-w-4xl px-6 text-center fade-up">
           <span className="tech-eyebrow mx-auto">
@@ -154,21 +155,21 @@ export default function LandingPage() {
               transformando histórias em memórias.
             </span>
           </h2>
-          <p className="mx-auto mt-7 max-w-2xl leading-relaxed text-text-secondary md:text-lg">
+          <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-text-secondary md:text-lg">
             A Alpha acompanha momentos especiais através de convites que unem
             tradição, sofisticação e acabamentos exclusivos.
           </p>
 
           <div
             aria-hidden
-            className="mx-auto mt-12 h-px w-24"
+            className="mx-auto mt-8 h-px w-24"
             style={{
               background:
                 "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
             }}
           />
 
-          <dl className="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-4 md:gap-10">
+          <dl className="mx-auto mt-9 grid max-w-3xl grid-cols-3 gap-4 md:gap-10">
             {[
               { value: "50+", label: "anos transformando histórias em memórias" },
               { value: "30+", label: "anos sob a segunda geração" },
@@ -189,9 +190,9 @@ export default function LandingPage() {
 
       <section
         id="como-funciona"
-        className="relative mx-auto max-w-6xl px-6 py-20 md:py-24"
+        className="relative mx-auto max-w-6xl px-6 py-14 md:py-20"
       >
-        <div className="mb-14 text-center fade-up md:mb-16">
+        <div className="mb-10 text-center fade-up md:mb-12">
           <span className="tech-eyebrow mx-auto">
             <span className="dot" />
             Simples e sem compromisso
@@ -252,7 +253,7 @@ export default function LandingPage() {
           </div>
         </ol>
 
-        <div className="relative mx-auto mt-16 max-w-3xl border border-line bg-bg-ice px-7 py-6 md:mt-20 md:px-10 md:py-7">
+        <div className="relative mx-auto mt-12 max-w-3xl border border-line bg-bg-ice px-7 py-6 md:mt-14 md:px-10 md:py-7">
           <span
             aria-hidden
             className="absolute left-0 top-1/2 h-10 w-px -translate-y-1/2"
@@ -272,8 +273,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="relative mx-auto max-w-6xl px-6 py-20 md:py-24">
-        <div className="mb-14 text-center fade-up">
+      <section className="relative mx-auto max-w-6xl px-6 py-14 md:py-20">
+        <div className="mb-10 text-center fade-up md:mb-12">
           <span className="tech-eyebrow mx-auto">
             <span className="dot" />
             Diferenciais Alpha
@@ -296,10 +297,10 @@ export default function LandingPage() {
           {[
             "Mais de 50 anos de história",
             "Acabamentos premium e personalizados",
-            "Turmas atendidas em todo o Brasil",
+            "Turmas atendidas em todo o território nacional e países vizinhos",
             "Convite online e soluções complementares",
             "Atendimento especializado para formandos",
-            "Projetos com percepção de exclusividade",
+            "Projetos exclusivos e personalizados para cada turma",
           ].map((title, index) => (
             <li
               key={title}

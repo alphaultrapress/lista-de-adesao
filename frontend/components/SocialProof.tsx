@@ -1,55 +1,21 @@
 import { SOCIAL } from "@/lib/social";
+import TestimonialsCarousel from "./TestimonialsCarousel";
 
 // =====================================================================
 // PROVA SOCIAL — vídeos reais (autoplay, mute, loop, sem controles)
 // ---------------------------------------------------------------------
-// Vídeos servidos diretamente de /public/Videos:
-//   - /Videos/1.mp4  → vídeo horizontal (banner cinemático)
-//   - /Videos/2.mp4  → reel vertical
-//   - /Videos/3.mp4  → reel vertical
-//   - /Videos/4.mp4  → reel vertical
-//
-// Para trocar os depoimentos placeholder, edite o array `testimonials`.
+// 6 reels verticais (9:16) servidos de /public/Videos/1.mp4 .. 6.mp4,
+// exibidos em carrossel premium contínuo (.reels-carousel em globals.css).
+// Os depoimentos reais (prints) ficam em <TestimonialsCarousel />.
 // =====================================================================
 
-const reels = ["/Videos/2.mp4", "/Videos/3.mp4", "/Videos/4.mp4"];
-
-type Testimonial = {
-  quote: string;
-  author: string;
-  context: string;
-  institution: string;
-};
-
-const testimonials: Testimonial[] = [
-  {
-    quote:
-      "A experiência com a Alpha foi impecável do começo ao fim. Cada detalhe do convite reforçou o quanto esse momento era único para a nossa turma.",
-    author: "Mariana Lopes",
-    context: "Medicina · Turma 2025",
-    institution: "UEL — Universidade Estadual de Londrina",
-  },
-  {
-    quote:
-      "Os acabamentos surpreenderam todo mundo. Recebemos elogios de familiares e professores — virou parte da memória da nossa formatura.",
-    author: "Gabriel Henrique",
-    context: "Medicina · Turma 2024",
-    institution: "PUCPR — Pontifícia Universidade Católica do Paraná",
-  },
-  {
-    quote:
-      "A Alpha conseguiu transformar a identidade da nossa turma em um convite elegante, emocionante e cheio de significado.",
-    author: "Isabela Martins",
-    context: "Medicina · Turma 2025",
-    institution: "UP — Universidade Positivo",
-  },
-  {
-    quote:
-      "Desde o atendimento até a entrega, sentimos cuidado em cada etapa. O convite ficou à altura de tudo que vivemos na faculdade.",
-    author: "Rafael Moreira",
-    context: "Medicina · Turma 2024",
-    institution: "UEM — Universidade Estadual de Maringá",
-  },
+const reels = [
+  "/Videos/1.mp4",
+  "/Videos/2.mp4",
+  "/Videos/3.mp4",
+  "/Videos/4.mp4",
+  "/Videos/5.mp4",
+  "/Videos/6.mp4",
 ];
 
 type AutoVideoProps = {
@@ -81,11 +47,11 @@ function AutoVideo({ src, className = "", preload = "metadata" }: AutoVideoProps
 
 export default function SocialProof() {
   return (
-    <section className="relative bg-bg-soft py-20 md:py-24">
+    <section className="relative bg-bg-soft py-14 md:py-20">
       <div className="absolute inset-0 bg-grid-tech bg-[length:48px_48px] opacity-25 pointer-events-none" />
 
       <div className="relative mx-auto max-w-6xl px-6">
-        <div className="mb-12 text-center fade-up md:mb-16">
+        <div className="mb-10 text-center fade-up md:mb-12">
           <span className="tech-eyebrow mx-auto">
             <span className="dot" />
             Turmas reais
@@ -104,75 +70,28 @@ export default function SocialProof() {
           />
         </div>
 
-        {/* Reels verticais (2.mp4, 3.mp4, 4.mp4) — desktop em linha, mobile em scroll horizontal */}
-        <div className="-mx-6 px-6 md:mx-0 md:px-0">
-          <ul
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {reels.map((src) => (
-              <li
-                key={src}
-                className="group relative w-[68%] shrink-0 snap-center rounded-xl shadow-[0_18px_50px_-18px_rgba(10,10,10,0.28)] transition-[transform,box-shadow] duration-[350ms] ease-premium hover:scale-[1.03] hover:shadow-[0_28px_70px_-18px_rgba(10,10,10,0.34)] active:scale-[1.02] md:w-auto"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(218,185,105,0.85) 0%, rgba(165,130,70,0.45) 35%, rgba(255,230,160,0.75) 60%, rgba(120,88,35,0.55) 100%)",
-                  padding: "1.5px",
-                }}
-              >
-                <div className="relative overflow-hidden rounded-[10px] bg-ink">
-                  <div className="relative w-full" style={{ aspectRatio: "9 / 16" }}>
-                    <AutoVideo
-                      src={src}
-                      preload="metadata"
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute inset-0 opacity-100 transition-opacity duration-[350ms] ease-premium group-hover:opacity-30 group-active:opacity-40"
-                      style={{
-                        background:
-                          "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.22) 100%)",
-                      }}
-                    />
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Vídeo horizontal (1.mp4) — centralizado, largura contida para não poluir */}
-        <div className="mt-10 flex justify-center md:mt-14">
-          <div
-            className="group relative w-full max-w-3xl rounded-xl shadow-[0_22px_60px_-18px_rgba(10,10,10,0.32)] transition-[transform,box-shadow] duration-[350ms] ease-premium hover:scale-[1.025] hover:shadow-[0_32px_80px_-18px_rgba(10,10,10,0.4)] active:scale-[1.015]"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(218,185,105,0.85) 0%, rgba(165,130,70,0.45) 35%, rgba(255,230,160,0.75) 60%, rgba(120,88,35,0.55) 100%)",
-              padding: "1.5px",
-            }}
-          >
-            <div className="relative overflow-hidden rounded-[10px] bg-ink">
-              <div className="relative w-full" style={{ aspectRatio: "16 / 9" }}>
-                <AutoVideo
-                  src="/Videos/1.mp4"
-                  preload="auto"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
+        {/* Carrossel premium de reels verticais — desktop: trilho automático contínuo
+            (pausa no hover, destaca o vídeo sob o cursor e apaga os demais);
+            mobile: scroll horizontal natural com snap. Degradê nas laterais. */}
+        <div className="reels-carousel" aria-label="Vídeos de turmas reais">
+          <div className="reels-track">
+            {[...reels, ...reels].map((src, i) => {
+              const isClone = i >= reels.length;
+              return (
                 <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 opacity-100 transition-opacity duration-[350ms] ease-premium group-hover:opacity-25 group-active:opacity-40"
-                  style={{
-                    background:
-                      "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.22) 100%)",
-                  }}
-                />
-              </div>
-            </div>
+                  className={`reel-card${isClone ? " reel-card-clone" : ""}`}
+                  key={`${src}-${i}`}
+                  aria-hidden={isClone}
+                >
+                  <AutoVideo src={src} preload="metadata" className="reel-video" />
+                  <div className="reel-card-shade" aria-hidden />
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="mt-20 mb-12 text-center fade-up md:mt-24 md:mb-14">
+        <div className="mt-12 mb-10 text-center fade-up md:mt-16 md:mb-12">
           <span className="tech-eyebrow mx-auto">
             <span className="dot" />
             Depoimentos
@@ -195,41 +114,11 @@ export default function SocialProof() {
           </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 md:gap-6">
-          {testimonials.map((t, i) => (
-            <blockquote
-              key={i}
-              className="relative border border-line bg-bg-white p-7 md:p-8"
-            >
-              <span
-                aria-hidden
-                className="absolute left-7 top-0 h-px w-8"
-                style={{ background: "#C9A961" }}
-              />
-              <span
-                aria-hidden
-                className="font-serif text-5xl leading-none text-gray-300"
-              >
-                &ldquo;
-              </span>
-              <p className="mt-1 font-serif text-lg italic leading-relaxed text-text-primary md:text-xl">
-                {t.quote}
-              </p>
-              <footer className="mt-6 space-y-1 text-[10.5px] uppercase leading-relaxed tracking-premium-wide text-text-tertiary md:text-[11px]">
-                <div>
-                  <span className="text-text-secondary">{t.author}</span>
-                  <span className="mx-2 text-text-tertiary/60">·</span>
-                  <span>{t.context}</span>
-                </div>
-                <div className="text-text-tertiary/85">{t.institution}</div>
-              </footer>
-            </blockquote>
-          ))}
-        </div>
+        <TestimonialsCarousel />
 
         {SOCIAL.instagram && (
           <div
-            className="mx-auto mt-16 max-w-4xl overflow-hidden rounded-2xl"
+            className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-2xl"
             style={{
               background:
                 "linear-gradient(135deg, #FFFFFF 0%, #F7F4EF 100%)",
