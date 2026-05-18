@@ -160,7 +160,7 @@ export default function AdesaoPublicaPage() {
   if (loading) {
     return (
       <main className="page-canvas min-h-screen bg-bg flex items-center justify-center">
-        <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
+        <p className="text-sm text-[#0A0A0A] tracking-premium-wide uppercase">
           Carregando
         </p>
       </main>
@@ -180,7 +180,7 @@ export default function AdesaoPublicaPage() {
             <h1 className="font-serif text-4xl tracking-premium-tight text-text-primary">
               Turma não encontrada
             </h1>
-            <p className="mt-5 leading-relaxed text-text-secondary">
+            <p className="mt-5 leading-relaxed text-[#3A3A3A]">
               Verifique o link recebido ou peça ao representante da sua turma
               para enviá-lo novamente.
             </p>
@@ -222,7 +222,7 @@ export default function AdesaoPublicaPage() {
               <h1 className="font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
                 Recebemos seu
                 <br />
-                <span className="italic font-light text-gray-500">interesse.</span>
+                <span className="italic font-light text-[#C41230]">interesse.</span>
               </h1>
               <Image
                 src="/logos/logo-dark.png"
@@ -233,7 +233,7 @@ export default function AdesaoPublicaPage() {
                 className="h-auto w-[120px] md:w-[150px]"
               />
             </div>
-            <p className="mt-6 leading-relaxed text-text-secondary">
+            <p className="mt-6 leading-relaxed text-[#3A3A3A]">
               Nossa equipe entrará em contato em breve para apresentar as
               possibilidades de convites para a sua turma, sem compromisso.
             </p>
@@ -248,19 +248,22 @@ export default function AdesaoPublicaPage() {
     <main className="page-canvas min-h-screen bg-bg">
       <PremiumHeader compact centeredBrand brandSize="lg" />
 
-      <section className="relative mx-auto max-w-3xl px-6 pb-20 pt-36 md:pt-44">
-        <div className="absolute left-1/2 top-10 h-[380px] w-[680px] -translate-x-1/2 glow-crimson-soft opacity-60 pointer-events-none" />
-        <div className="absolute inset-x-0 top-0 h-[460px] bg-grid-light opacity-50 pointer-events-none" />
-
-        <div className="relative mb-20 text-center fade-up">
+      <section className="relative flex flex-col items-center justify-center min-h-[90vh] px-6 pb-20 pt-36 md:pt-44 overflow-hidden">
+        {/* Background Hero Image with Fade In */}
+        <div className="absolute inset-0 z-0 animate-[fadeIn_1.5s_ease-in-out_forwards] opacity-0" style={{ animationDelay: '0.2s' }}>
+          <Image src="/images/hero.png" alt="Convite Premium" fill className="object-cover" priority />
+          <div className="absolute inset-0 bg-gradient-to-b from-bg/90 via-bg/60 to-bg" />
+        </div>
+        
+        <div className="relative z-10 mb-20 text-center fade-up">
           <span className="tech-eyebrow">
             <span className="dot" />
             Lista de interesse da turma
           </span>
 
-          <h1 className="mt-8 font-serif text-[2.6rem] leading-[1.04] tracking-premium-tight text-text-primary md:text-6xl">
+          <h1 className="mt-8 font-serif text-[2.6rem] leading-[1.04] tracking-premium-tight text-text-primary md:text-6xl drop-shadow-md">
             Sua turma merece um{" "}
-            <span className="italic font-light text-gray-500">
+            <span className="italic font-light text-[#C41230]">
               convite inesquecível.
             </span>
           </h1>
@@ -270,18 +273,18 @@ export default function AdesaoPublicaPage() {
             className="mx-auto mt-9 h-px w-24 md:w-32"
             style={{
               background:
-                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
+                "linear-gradient(90deg, transparent 0%, #C41230 50%, transparent 100%)",
             }}
           />
 
-          <p className="mt-9 font-serif text-lg italic text-text-secondary md:text-xl">
+          <p className="mt-9 font-serif text-lg italic text-[#C41230] md:text-xl">
             Turma de {turma?.course_name}
           </p>
-          <p className="mt-3 text-[11px] uppercase tracking-premium-widest text-text-tertiary">
+          <p className="mt-3 text-[11px] uppercase tracking-premium-widest text-[#0A0A0A]">
             {turma?.institution_name} · {turma?.graduation_year}
           </p>
 
-          <p className="mx-auto mt-10 max-w-xl leading-relaxed text-text-secondary md:text-lg">
+          <p className="mx-auto mt-10 max-w-xl leading-relaxed text-[#3A3A3A] md:text-lg">
             Conheça os convites, acabamentos e possibilidades que a Alpha
             prepara para turmas de todo o Brasil.
           </p>
@@ -333,7 +336,7 @@ export default function AdesaoPublicaPage() {
             </a>
           </div>
 
-          <ul className="mx-auto mt-12 grid max-w-2xl grid-cols-2 gap-x-6 gap-y-3 text-[11px] uppercase tracking-premium-wide text-text-tertiary md:flex md:flex-wrap md:justify-center md:gap-x-8">
+          <ul className="mx-auto mt-12 grid max-w-2xl grid-cols-2 gap-x-6 gap-y-3 text-[11px] uppercase tracking-premium-wide text-[#0A0A0A] md:flex md:flex-wrap md:justify-center md:gap-x-8">
             {[
               "Modelos exclusivos",
               "Acabamentos premium",
@@ -347,7 +350,7 @@ export default function AdesaoPublicaPage() {
                 <span
                   aria-hidden
                   className="inline-block h-1 w-1 rotate-45"
-                  style={{ background: "#C9A961" }}
+                  style={{ background: "#C41230" }}
                 />
                 <span>{item}</span>
               </li>
@@ -366,11 +369,11 @@ export default function AdesaoPublicaPage() {
           </span>
           <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
             Há mais de 50 anos{" "}
-            <span className="italic font-light text-gray-500">
+            <span className="italic font-light text-[#C41230]">
               transformando histórias em memórias.
             </span>
           </h2>
-          <p className="mx-auto mt-7 max-w-2xl leading-relaxed text-text-secondary md:text-lg">
+          <p className="mx-auto mt-7 max-w-2xl leading-relaxed text-[#3A3A3A] md:text-lg">
             A Alpha acompanha momentos especiais através de convites que unem
             tradição, sofisticação e acabamentos exclusivos.
           </p>
@@ -380,7 +383,7 @@ export default function AdesaoPublicaPage() {
             className="mx-auto mt-12 h-px w-24"
             style={{
               background:
-                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
+                "linear-gradient(90deg, transparent 0%, #C41230 50%, transparent 100%)",
             }}
           />
 
@@ -394,94 +397,12 @@ export default function AdesaoPublicaPage() {
                 <dt className="font-serif text-4xl leading-none tracking-premium-tight text-text-primary md:text-6xl">
                   {item.value}
                 </dt>
-                <dd className="mt-3 max-w-[14rem] text-[11px] uppercase leading-relaxed tracking-premium-wide text-text-tertiary md:text-xs">
+                <dd className="mt-3 max-w-[14rem] text-[11px] uppercase leading-relaxed tracking-premium-wide text-[#0A0A0A] md:text-xs">
                   {item.label}
                 </dd>
               </div>
             ))}
           </dl>
-        </div>
-      </section>
-
-      <section className="relative mx-auto max-w-6xl px-6 py-20 md:py-24">
-        <div className="mb-14 text-center fade-up md:mb-16">
-          <span className="tech-eyebrow mx-auto">
-            <span className="dot" />
-            Simples e sem compromisso
-          </span>
-          <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            Como{" "}
-            <span className="italic font-light text-gray-500">funciona?</span>
-          </h2>
-          <div
-            aria-hidden
-            className="mx-auto mt-8 h-px w-24"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
-            }}
-          />
-        </div>
-
-        <ol className="relative mx-auto max-w-5xl">
-          <div
-            aria-hidden
-            className="absolute left-7 top-7 bottom-7 w-px md:hidden"
-            style={{
-              background:
-                "linear-gradient(180deg, transparent 0%, #C9A961 12%, #C9A961 88%, transparent 100%)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="absolute left-[10%] right-[10%] top-7 hidden h-px md:block"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, #C9A961 12%, #C9A961 88%, transparent 100%)",
-            }}
-          />
-
-          <div className="grid gap-10 md:grid-cols-4 md:gap-6">
-            {[
-              "Compartilhe o link com sua turma",
-              "Cada interessado preenche rapidamente",
-              "Nossa equipe analisa o interesse da turma",
-              "Entramos em contato com possibilidades e condições especiais",
-            ].map((step, index) => (
-              <li
-                key={step}
-                className="relative flex items-start gap-5 md:flex-col md:items-center md:gap-6 md:text-center"
-              >
-                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-line-strong bg-bg-white shadow-[0_4px_20px_rgba(10,10,10,0.04)]">
-                  <span className="font-serif text-xl italic text-text-primary">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <p className="pt-2 text-[15px] leading-relaxed text-text-secondary md:max-w-[14rem] md:pt-0 md:text-base">
-                  {step}
-                </p>
-              </li>
-            ))}
-          </div>
-        </ol>
-
-        <div className="relative mx-auto mt-16 max-w-3xl border border-line bg-bg-ice px-7 py-6 md:mt-20 md:px-10 md:py-7">
-          <span
-            aria-hidden
-            className="absolute left-0 top-1/2 h-10 w-px -translate-y-1/2"
-            style={{ background: "#C9A961" }}
-          />
-          <div className="flex items-center gap-5">
-            <span
-              aria-hidden
-              className="hidden h-2 w-2 rotate-45 shrink-0 md:inline-block"
-              style={{ background: "#C9A961" }}
-            />
-            <p className="font-serif text-lg italic leading-relaxed text-text-primary md:text-xl">
-              Turmas com maior número de interessados podem receber condições
-              especiais e projetos personalizados.
-            </p>
-          </div>
         </div>
       </section>
 
@@ -493,19 +414,19 @@ export default function AdesaoPublicaPage() {
           </span>
           <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
             Por que conhecer a{" "}
-            <span className="italic font-light text-gray-500">Alpha?</span>
+            <span className="italic font-light text-[#C41230]">Alpha?</span>
           </h2>
           <div
             aria-hidden
             className="mx-auto mt-8 h-px w-24"
             style={{
               background:
-                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
+                "linear-gradient(90deg, transparent 0%, #C41230 50%, transparent 100%)",
             }}
           />
         </div>
 
-        <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 fade-up fade-up-d1">
           {[
             "Mais de 50 anos de história",
             "Acabamentos premium e personalizados",
@@ -513,25 +434,35 @@ export default function AdesaoPublicaPage() {
             "Convite online e soluções complementares",
             "Atendimento especializado para formandos",
             "Projetos com percepção de exclusividade",
-          ].map((title, index) => (
-            <li
-              key={title}
-              className="group relative border border-line bg-bg-white p-7 transition-all duration-450 ease-premium hover:border-line-strong"
-            >
-              <span
-                aria-hidden
-                className="absolute left-7 top-0 h-px w-8"
-                style={{ background: "#C9A961" }}
-              />
-              <span className="block font-serif text-lg italic text-text-tertiary">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-5 font-sans text-base leading-snug text-text-primary md:text-lg">
-                {title}
-              </h3>
-            </li>
+          ].map((title, i) => (
+            <div key={i} className="group relative p-10 bg-bg-white/70 backdrop-blur-md border border-[rgba(0,0,0,0.05)] shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-2 hover:shadow-[0_24px_48px_rgba(196,18,48,0.08)] hover:border-[rgba(196,18,48,0.2)] hover:bg-bg-white rounded-[4px]">
+
+              {/* Linha Tecnológica Animada (Topo) */}
+              <div className="absolute top-0 left-0 w-0 h-[2px] bg-gradient-to-r from-[#C41230] to-[#ff4d6a] transition-all duration-700 ease-out group-hover:w-full"></div>
+
+              {/* Efeito Glow Interno */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[rgba(196,18,48,0.03)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+
+              {/* Número Grande (Watermark no fundo) */}
+              <div className="absolute bottom-2 right-4 font-serif text-[90px] leading-[0.8] text-[#0A0A0A] opacity-[0.02] italic font-light group-hover:opacity-[0.05] group-hover:text-[#C41230] transition-all duration-700 pointer-events-none transform group-hover:scale-105">
+                0{i+1}
+              </div>
+
+              <div className="relative z-10">
+                {/* Número Reduzido Elegante */}
+                <div className="mb-6 flex items-center gap-4">
+                  <span className="font-serif text-[26px] text-[#C41230] italic font-light leading-none">0{i+1}</span>
+                  <div className="h-[1px] w-8 bg-[#C41230]/30 group-hover:w-16 group-hover:bg-[#C41230]/60 transition-all duration-700 ease-out"></div>
+                </div>
+
+                {/* Título do Diferencial */}
+                <h3 className="font-sans text-[18px] md:text-[20px] font-medium text-[#0A0A0A] leading-snug tracking-tight transition-colors duration-500">
+                  {title}
+                </h3>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
 
       <SocialProof />
@@ -544,11 +475,11 @@ export default function AdesaoPublicaPage() {
           </span>
           <h2 className="mt-7 font-serif text-3xl leading-[1.1] tracking-premium-tight text-text-primary md:text-4xl">
             Vamos conversar sobre a{" "}
-            <span className="italic font-light text-gray-500">
+            <span className="italic font-light text-[#C41230]">
               sua formatura.
             </span>
           </h2>
-          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-text-secondary">
+          <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-[#3A3A3A]">
             Poucos campos, sem compromisso. Nossa equipe entra em contato pelo
             WhatsApp para apresentar as possibilidades.
           </p>
@@ -557,9 +488,14 @@ export default function AdesaoPublicaPage() {
         <form
           id="interesse"
           onSubmit={handleSubmit}
-          className="card-hover space-y-6 p-6 md:p-9 scroll-mt-28"
+          className="relative card-hover space-y-6 p-6 md:p-9 scroll-mt-28 overflow-hidden rounded-2xl border border-line/50"
           noValidate
         >
+          {/* Form Background Texture */}
+          <div className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-multiply">
+            <Image src="/images/form-bg.png" alt="Background Texture" fill className="object-cover" />
+          </div>
+          <div className="relative z-10 space-y-6">
           <CpfInput
             value={form.cpf}
             onChange={(v) => set("cpf", v)}
@@ -622,13 +558,14 @@ export default function AdesaoPublicaPage() {
             {submitting ? "Enviando" : "Quero demonstrar interesse"}
           </Button>
 
-          <p className="text-center text-xs leading-relaxed text-text-tertiary">
+          <p className="text-center text-xs leading-relaxed text-[#3A3A3A]">
             Sem compromisso · Gratuito · Seus dados são tratados com
             confidencialidade pela Alpha Convites.
           </p>
+          </div>
         </form>
 
-        <p className="mx-auto mt-6 max-w-md text-center text-[11px] uppercase tracking-premium-wide text-text-tertiary">
+        <p className="mx-auto mt-6 max-w-md text-center text-[11px] uppercase tracking-premium-wide text-[#0A0A0A]">
           Turma de {turma?.course_name} · {turma?.institution_name} ·{" "}
           {turma?.graduation_year}
         </p>

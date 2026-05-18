@@ -253,9 +253,10 @@ export default function AdminDashboardPage() {
               </thead>
               <tbody className="divide-y divide-line">
                 {filteredRepresentatives.map((representative) => (
-                  <tr key={representative.id}>
-                    <td className="py-4 pr-4 text-text-primary">
-                      {representative.name}
+                  <tr key={representative.id} className="group transition-colors duration-300 hover:bg-bg-ice relative">
+                    <td className="py-4 pr-4 text-text-primary relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-wine opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                      <span className="pl-4">{representative.name}</span>
                     </td>
                     <td className="py-4 pr-4 text-text-secondary">
                       {representative.course_name}

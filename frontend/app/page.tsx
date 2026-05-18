@@ -1,13 +1,49 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import SocialProof from "@/components/SocialProof";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
+
+function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number, suffix?: string, prefix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          let start = 0;
+          const duration = 2000;
+          const increment = end / (duration / 16);
+          const timer = setInterval(() => {
+            start += increment;
+            if (start >= end) {
+              setCount(end);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(start));
+            }
+          }, 16);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [end]);
+
+  return <span ref={ref}>{prefix}{count}{suffix}</span>;
+}
 
 export default function LandingPage() {
   return (
-    <main className="page-canvas min-h-screen bg-bg">
+    <main className="page-canvas min-h-screen bg-[#0A0A0A] selection:bg-[#C41230] selection:text-white">
       <PremiumHeader
         actions={[
           { href: "/login", label: "Login" },
@@ -15,318 +51,299 @@ export default function LandingPage() {
         ]}
       />
 
-      <section id="inicio" className="hero-premium">
-        <div className="hero-grid-layer" />
-        <div className="hero-noise-layer cinematic-noise" />
-        <div className="hero-light hero-light-main" />
-        <div className="hero-light hero-light-side" />
-        <div className="hero-line hero-line-a" />
-        <div className="hero-line hero-line-b" />
+      {/* HERO SECTION — vídeo autoplay/loop simples (sem scroll-scrubbing) */}
+      <section
+        className="relative w-full"
+        style={{ height: "100vh", overflow: "hidden", background: "#0A0A0A" }}
+      >
+        <video
+          src="/social-proof/hero-familia.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "center top",
+          }}
+        />
+        {/* Overlay: mobile escurece mais (texto sobre foto clara);
+            desktop mantém o degradê lateral original. */}
+        <div
+          className="pointer-events-none absolute inset-0 [background:linear-gradient(to_bottom,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.65)_45%,rgba(0,0,0,0.85)_100%)] md:[background:linear-gradient(to_right,rgba(0,0,0,0.75)_0%,rgba(0,0,0,0.3)_100%)]"
+        />
 
-        <div className="hero-content">
-          <div className="hero-copy-block">
-            <div className="fade-up">
-              <span className="tech-eyebrow">
-                <span className="dot" />
-                Convites premium para formaturas
-              </span>
-            </div>
+        {/* Conteúdo do Hero — alinhado à esquerda.
+            Mobile: padding lateral menor e largura total;
+            md+: padding-left 80px e max-width 600px (desktop intacto). */}
+        <div
+          className="absolute inset-0 z-10 flex flex-col justify-center px-6 md:pl-20 md:pr-0 md:max-w-[600px]"
+        >
+          <div className="fade-up flex flex-col items-start text-left">
+            <span
+              className="inline-flex items-center gap-2 text-[#E8455F] md:text-[#C41230] font-sans font-semibold uppercase"
+              style={{ fontSize: "11px", letterSpacing: "0.2em", marginBottom: "16px", textShadow: "0 1px 6px rgba(0,0,0,0.6)" }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E8455F] md:bg-[#C41230]"></span>
+              CONVITES PREMIUM PARA FORMATURAS
+            </span>
 
             <h1
-              className="hero-title fade-up fade-up-d1"
-              style={{ maxWidth: "18ch" }}
+              className="font-serif text-white leading-[1.08] md:leading-[1.05] tracking-tight font-semibold text-[clamp(34px,9vw,44px)] md:text-[clamp(48px,6vw,88px)] [text-shadow:0_2px_12px_rgba(0,0,0,0.55)] md:[text-shadow:none]"
             >
-              Sua turma merece um
-              <br />
-              <span style={{ whiteSpace: "normal" }}>
-                convite inesquecível.
-              </span>
+              Sua turma<br />
+              merece um convite<br />
+              <span className="italic text-[#E8455F] md:text-[#C41230] font-semibold">inesquecível.</span>
             </h1>
 
-            <p className="hero-description fade-up fade-up-d2">
-              Há mais de 50 anos, a Alpha transforma histórias em memórias 
-              <br />
-              Preencha a Lista de Interesse Alpha e descubra possibilidades
-              exclusivas para os convites da sua turma.
-            </p>
-          </div>
-
-          <div className="hero-banner-wrap fade-up fade-up-d3">
-            <div className="hero-banner-surface" aria-hidden>
-              <div className="hero-banner-ambient" aria-hidden />
-              <div className="hero-banner-vignette" aria-hidden />
-            </div>
-
-            <div className="hero-cta-panel">
-              <span className="hero-cta-eyebrow">
-                <svg
-                  width="18"
-                  height="10"
-                  viewBox="0 0 18 10"
-                  fill="none"
-                  aria-hidden
-                >
-                  <path
-                    d="M1 5h2l1.5-3.5L7 8.5l2-7L11 9l1.5-4L14 5h3"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Faça seu cadastro
-              </span>
-
-              <h2 className="hero-cta-title">
-                Sua lista,
-                <br />
-                sua turma<span className="dot-crimson">.</span>
-              </h2>
-
-              <p className="hero-cta-text">
-                Crie a lista da sua turma, gere o link oficial e descubra as
-                possibilidades — tudo em um ambiente premium e simples.
-              </p>
-
-              <div className="hero-cta-actions">
-                <Link href="/cadastro" className="hero-btn-primary group">
-                  <span>Primeiro acesso</span>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    className="transition-transform duration-450 ease-premium group-hover:translate-x-1"
-                  >
-                    <path
-                      d="M5 12h14M13 6l6 6-6 6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </Link>
-                <Link href="/login" className="hero-btn-secondary group">
-                  <span>Já tenho conta</span>
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    className="transition-transform duration-450 ease-premium group-hover:translate-x-1"
-                  >
-                    <path
-                      d="M5 12h14M13 6l6 6-6 6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </Link>
-              </div>
-            </div>
-
-            <Image
-              src="/images/Modelo-IA.png"
-              alt="Formando segurando convite premium da Alpha"
-              width={1600}
-              height={1600}
-              priority
-              quality={100}
-              sizes="(max-width: 900px) 92vw, 60vw"
-              className="hero-banner-img"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="relative overflow-hidden bg-bg-ice py-14 md:py-20">
-        <div className="absolute inset-0 bg-grid-tech bg-[length:48px_48px] opacity-30 pointer-events-none" />
-        <div className="relative mx-auto max-w-4xl px-6 text-center fade-up">
-          <span className="tech-eyebrow mx-auto">
-            <span className="dot" />
-            Nossa história
-          </span>
-          <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            Há mais de 50 anos{" "}
-            <span className="italic font-light text-gray-500">
-              transformando histórias em memórias.
-            </span>
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-text-secondary md:text-lg">
-            A Alpha acompanha momentos especiais através de convites que unem
-            tradição, sofisticação e acabamentos exclusivos.
-          </p>
-
-          <div
-            aria-hidden
-            className="mx-auto mt-8 h-px w-24"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
-            }}
-          />
-
-          <dl className="mx-auto mt-9 grid max-w-3xl grid-cols-3 gap-4 md:gap-10">
-            {[
-              { value: "50+", label: "anos transformando histórias em memórias" },
-              { value: "30+", label: "anos sob a segunda geração" },
-              { value: "Brasil", label: "turmas atendidas em todo o país" },
-            ].map((item) => (
-              <div key={item.label} className="flex flex-col items-center">
-                <dt className="font-serif text-4xl leading-none tracking-premium-tight text-text-primary md:text-6xl">
-                  {item.value}
-                </dt>
-                <dd className="mt-3 max-w-[14rem] text-[11px] uppercase leading-relaxed tracking-premium-wide text-text-tertiary md:text-xs">
-                  {item.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
-
-      <section
-        id="como-funciona"
-        className="relative mx-auto max-w-6xl px-6 py-14 md:py-20"
-      >
-        <div className="mb-10 text-center fade-up md:mb-12">
-          <span className="tech-eyebrow mx-auto">
-            <span className="dot" />
-            Simples e sem compromisso
-          </span>
-          <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            Como{" "}
-            <span className="italic font-light text-gray-500">funciona?</span>
-          </h2>
-          <div
-            aria-hidden
-            className="mx-auto mt-8 h-px w-24"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
-            }}
-          />
-        </div>
-
-        <ol className="relative mx-auto max-w-5xl">
-          <div
-            aria-hidden
-            className="absolute left-7 top-7 bottom-7 w-px md:hidden"
-            style={{
-              background:
-                "linear-gradient(180deg, transparent 0%, #C9A961 12%, #C9A961 88%, transparent 100%)",
-            }}
-          />
-          <div
-            aria-hidden
-            className="absolute left-[10%] right-[10%] top-7 hidden h-px md:block"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, #C9A961 12%, #C9A961 88%, transparent 100%)",
-            }}
-          />
-
-          <div className="grid gap-10 md:grid-cols-4 md:gap-6">
-            {[
-              "Compartilhe o link com sua turma",
-              "Cada interessado preenche rapidamente",
-              "Nossa equipe analisa o interesse da turma",
-              "Entramos em contato com possibilidades e condições especiais",
-            ].map((step, index) => (
-              <li
-                key={step}
-                className="relative flex items-start gap-5 md:flex-col md:items-center md:gap-6 md:text-center"
-              >
-                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-line-strong bg-bg-white shadow-[0_4px_20px_rgba(10,10,10,0.04)]">
-                  <span className="font-serif text-xl italic text-text-primary">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <p className="pt-2 text-[15px] leading-relaxed text-text-secondary md:max-w-[14rem] md:pt-0 md:text-base">
-                  {step}
-                </p>
-              </li>
-            ))}
-          </div>
-        </ol>
-
-        <div className="relative mx-auto mt-12 max-w-3xl border border-line bg-bg-ice px-7 py-6 md:mt-14 md:px-10 md:py-7">
-          <span
-            aria-hidden
-            className="absolute left-0 top-1/2 h-10 w-px -translate-y-1/2"
-            style={{ background: "#C9A961" }}
-          />
-          <div className="flex items-center gap-5">
-            <span
-              aria-hidden
-              className="hidden h-2 w-2 rotate-45 shrink-0 md:inline-block"
-              style={{ background: "#C9A961" }}
-            />
-            <p className="font-serif text-lg italic leading-relaxed text-text-primary md:text-xl">
-              Turmas com maior número de interessados podem receber condições
-              especiais e projetos personalizados.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative mx-auto max-w-6xl px-6 py-14 md:py-20">
-        <div className="mb-10 text-center fade-up md:mb-12">
-          <span className="tech-eyebrow mx-auto">
-            <span className="dot" />
-            Diferenciais Alpha
-          </span>
-          <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            Por que conhecer a{" "}
-            <span className="italic font-light text-gray-500">Alpha?</span>
-          </h2>
-          <div
-            aria-hidden
-            className="mx-auto mt-8 h-px w-24"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, #C9A961 50%, transparent 100%)",
-            }}
-          />
-        </div>
-
-        <ul className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            "Mais de 50 anos de história",
-            "Acabamentos premium e personalizados",
-            "Turmas atendidas em todo o território nacional e países vizinhos",
-            "Convite online e soluções complementares",
-            "Atendimento especializado para formandos",
-            "Projetos exclusivos e personalizados para cada turma",
-          ].map((title, index) => (
-            <li
-              key={title}
-              className="group relative border border-line bg-bg-white p-7 transition-all duration-450 ease-premium hover:border-line-strong"
+            <p
+              className="font-sans text-sm md:text-lg leading-relaxed max-w-full md:max-w-[420px] mt-4 text-white/85 md:text-[#aaa] [text-shadow:0_1px_8px_rgba(0,0,0,0.5)] md:[text-shadow:none]"
             >
-              <span
-                aria-hidden
-                className="absolute left-7 top-0 h-px w-8"
-                style={{ background: "#C9A961" }}
-              />
-              <span className="block font-serif text-lg italic text-text-tertiary">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-5 font-sans text-base leading-snug text-text-primary md:text-lg">
-                {title}
-              </h3>
-            </li>
-          ))}
-        </ul>
+              Crie a lista da sua turma, gere o link oficial e descubra as possibilidades — tudo em um ambiente premium e simples.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-start justify-start w-full sm:w-auto mt-8">
+              <Link href="/cadastro" className="group relative inline-flex items-center justify-center h-12 px-8 bg-[#C41230] text-white font-sans text-[11px] uppercase tracking-[0.15em] font-semibold transition-colors duration-300 hover:bg-[#A50F28] rounded-[2px]">
+                <span>PRIMEIRO ACESSO &rarr;</span>
+              </Link>
+              <Link href="/login" className="group relative inline-flex items-center justify-center h-12 px-8 border border-white text-white font-sans text-[11px] uppercase tracking-[0.15em] font-semibold transition-colors duration-300 hover:bg-white hover:text-[#0A0A0A] rounded-[2px]">
+                <span>JÁ TENHO CONTA &rarr;</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div style={{
+          position: 'absolute',
+          bottom: '40px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(255,255,255,0.08)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '12px',
+          padding: '12px 24px',
+          color: 'white',
+          fontFamily: 'var(--font-inter), sans-serif',
+          fontSize: '13px',
+          zIndex: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          whiteSpace: 'nowrap'
+        }}>
+          ⭐ <span className="font-semibold">4.9</span> <span className="text-white/40">·</span> <span className="text-[#A1A1A1] text-[11px] uppercase tracking-wider font-medium">+6.000 turmas atendidas</span>
+        </div>
+      </section>
+
+      {/* NOSSA HISTÓRIA */}
+      <section className="py-24 md:py-32 bg-[#0A0A0A] text-white relative border-t border-[rgba(255,255,255,0.08)]">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 text-center fade-up">
+            {[
+              { end: 6, prefix: "+", suffix: " mil", label: "TURMAS ATENDIDAS" },
+              { end: 50, prefix: "+", suffix: " anos", label: "DE HISTÓRIA" },
+              { end: 30, prefix: "+", suffix: " anos", label: "COM A 2ª GERAÇÃO" },
+            ].map((stat, i) => (
+              <div key={i} className={`flex flex-col items-center py-8 ${i !== 2 ? 'md:border-r md:border-[rgba(255,255,255,0.1)]' : ''}`}>
+                <h3 className="font-serif text-white mb-2 leading-none" style={{ fontSize: "clamp(64px, 8vw, 120px)" }}>
+                  <AnimatedCounter end={stat.end} prefix={stat.prefix} suffix={stat.suffix} />
+                </h3>
+                <div className="w-[40px] h-[2px] bg-[#C41230] my-3"></div>
+                <p className="font-sans text-[11px] uppercase tracking-[0.15em] text-[#6B6B6B] font-semibold">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* COMO FUNCIONA */}
+      <section className="py-24 md:py-32 bg-bg-soft relative overflow-hidden border-t border-[rgba(0,0,0,0.08)]">
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-20 md:mb-28 fade-up">
+            <span className="inline-flex items-center gap-2 text-[#C41230] font-sans text-[11px] uppercase tracking-[0.15em] mb-6 font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C41230]"></span>
+              O PROCESSO
+            </span>
+            <h2 className="font-serif text-4xl md:text-5xl text-[#0A0A0A] font-semibold tracking-tight">
+              Como funciona?
+            </h2>
+          </div>
+
+          <div className="relative mb-28 fade-up fade-up-d1">
+            {/* Linha conectora principal (passa no meio dos ícones) */}
+            <div className="absolute top-[48px] left-[12%] right-[12%] hidden md:block z-0">
+              <div className="absolute inset-0 h-[1px] bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.1)] to-transparent"></div>
+              {/* Ponto de luz animado percorrendo a linha */}
+              <div 
+                className="absolute top-[-0.5px] h-[2px] bg-gradient-to-r from-transparent via-[#C41230] to-transparent opacity-80"
+                style={{
+                  width: "40%",
+                  animation: "moving-light 4s cubic-bezier(0.4, 0, 0.2, 1) infinite"
+                }}
+              ></div>
+              <style>{`
+                @keyframes moving-light {
+                  0% { left: -40%; opacity: 0; }
+                  20% { opacity: 1; }
+                  80% { opacity: 1; }
+                  100% { left: 100%; opacity: 0; }
+                }
+              `}</style>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-8 relative z-10">
+              {[
+                { 
+                  desc: "Compartilhe o link com sua turma.",
+                  icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-7 h-7">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                    </svg>
+                  )
+                },
+                { 
+                  desc: "Cada interessado preenche o formulário.",
+                  icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-7 h-7">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                    </svg>
+                  )
+                },
+                { 
+                  desc: "Nossa equipe analisa a lista da turma.",
+                  icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-7 h-7">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M10.5 7v4.5m0 0H14m-3.5 0H7" opacity="0.4" />
+                    </svg>
+                  )
+                },
+                { 
+                  desc: "Entramos em contato com as condições.",
+                  icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-7 h-7">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M15 12a3 3 0 1 1-6 0" opacity="0.4" />
+                    </svg>
+                  )
+                }
+              ].map((step, i) => (
+                <div key={i} className="group flex flex-col items-center text-center relative">
+                  
+                  {/* Container do Ícone com número integrado */}
+                  <div className="relative mb-8">
+                    {/* Glow de fundo */}
+                    <div className="absolute inset-0 bg-[#C41230] rounded-full blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-700"></div>
+                    
+                    {/* Círculo Principal do Ícone */}
+                    <div className="w-24 h-24 rounded-full bg-white border border-[rgba(0,0,0,0.06)] shadow-[0_8px_24px_rgba(0,0,0,0.03)] flex items-center justify-center text-[#0A0A0A] relative z-10 transition-all duration-500 ease-out group-hover:-translate-y-2 group-hover:shadow-[0_20px_40px_rgba(196,18,48,0.12)] group-hover:border-[rgba(196,18,48,0.2)]">
+                      <div className="transform group-hover:scale-110 group-hover:text-[#C41230] transition-all duration-500">
+                        {step.icon}
+                      </div>
+                    </div>
+
+                    {/* Badge Elegante do Número */}
+                    <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-[#0A0A0A] text-white flex items-center justify-center border-4 border-bg-soft z-20 shadow-sm transition-colors duration-500 group-hover:bg-[#C41230]">
+                      <span className="font-serif text-[15px] italic font-light">0{i+1}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Descrição */}
+                  <p className="text-[16px] text-[#666666] leading-relaxed max-w-[220px] transition-colors duration-300 group-hover:text-[#0A0A0A] font-light">
+                    {step.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="max-w-2xl mx-auto py-8 px-10 border-l-[3px] border-[#C41230] fade-up fade-up-d2 bg-[rgba(0,0,0,0.04)]">
+            <p className="font-serif text-[22px] md:text-2xl text-[#0A0A0A] text-center leading-relaxed font-light">
+              Turmas com mais interessados recebem <span className="italic">condições especiais.</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* POR QUE ALPHA */}
+      <section className="py-24 md:py-32 bg-[#FAFAFA] relative border-t border-[rgba(0,0,0,0.08)] overflow-hidden">
+        {/* Grid de Fundo Tecnológico */}
+        <div 
+          className="absolute inset-0 pointer-events-none opacity-[0.03]"
+          style={{
+            backgroundImage: `linear-gradient(#0A0A0A 1px, transparent 1px), linear-gradient(90deg, #0A0A0A 1px, transparent 1px)`,
+            backgroundSize: '40px 40px'
+          }}
+        ></div>
+        
+        {/* Glow Central Sutil no Fundo */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#C41230] rounded-full blur-[140px] opacity-[0.04] pointer-events-none"></div>
+
+        <div className="max-w-6xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-24 fade-up">
+            {/* Tag elegante acima do título */}
+            <span className="inline-flex items-center justify-center gap-2 px-4 py-1.5 border border-[rgba(0,0,0,0.1)] bg-white/80 backdrop-blur-sm text-[#0A0A0A] font-sans text-[10px] uppercase tracking-[0.2em] mb-8 font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.02)] rounded-[2px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C41230] animate-[pulse_2s_ease-in-out_infinite]"></span>
+              DIFERENCIAIS ALPHA
+            </span>
+            
+            <h2 className="font-serif text-4xl md:text-[52px] text-[#0A0A0A] font-light tracking-tight">
+              Por que conhecer a <span className="text-[#C41230] italic font-medium">Alpha?</span>
+            </h2>
+            
+            {/* Linha divisória minimalista */}
+            <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C41230] to-transparent mx-auto mt-8 opacity-60"></div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 fade-up fade-up-d1">
+            {[
+              "Mais de 50 anos de história",
+              "Acabamentos premium e personalizados",
+              "Turmas atendidas em todo o Brasil",
+              "Convite online e soluções complementares",
+              "Atendimento especializado para formandos",
+              "Projetos com percepção de exclusividade",
+            ].map((title, i) => (
+              <div key={i} className="group relative p-10 bg-white/70 backdrop-blur-md border border-[rgba(0,0,0,0.05)] shadow-[0_8px_30px_rgba(0,0,0,0.02)] overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] hover:-translate-y-2 hover:shadow-[0_24px_48px_rgba(196,18,48,0.08)] hover:border-[rgba(196,18,48,0.2)] hover:bg-white rounded-[4px]">
+                
+                {/* Linha Tecnológica Animada (Topo) */}
+                <div className="absolute top-0 left-0 w-0 h-[2px] bg-gradient-to-r from-[#C41230] to-[#ff4d6a] transition-all duration-700 ease-out group-hover:w-full"></div>
+                
+                {/* Efeito Glow Interno */}
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[rgba(196,18,48,0.03)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                
+                {/* Número Grande (Watermark no fundo) */}
+                <div className="absolute bottom-2 right-4 font-serif text-[90px] leading-[0.8] text-[#0A0A0A] opacity-[0.02] italic font-light group-hover:opacity-[0.05] group-hover:text-[#C41230] transition-all duration-700 pointer-events-none transform group-hover:scale-105">
+                  0{i+1}
+                </div>
+
+                <div className="relative z-10">
+                  {/* Número Reduzido Elegante */}
+                  <div className="mb-6 flex items-center gap-4">
+                    <span className="font-serif text-[26px] text-[#C41230] italic font-light leading-none">0{i+1}</span>
+                    <div className="h-[1px] w-8 bg-[#C41230]/30 group-hover:w-16 group-hover:bg-[#C41230]/60 transition-all duration-700 ease-out"></div>
+                  </div>
+                  
+                  {/* Título do Diferencial */}
+                  <h3 className="font-sans text-[18px] md:text-[20px] font-medium text-[#0A0A0A] leading-snug tracking-tight group-hover:text-[#0A0A0A] transition-colors duration-500">
+                    {title}
+                  </h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       <SocialProof />
-
       <AcabamentosShowcase />
-
       <Footer />
+      <WhatsAppFloat />
     </main>
   );
 }

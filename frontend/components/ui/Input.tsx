@@ -16,25 +16,26 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const inputId = id || rest.name;
   return (
     <div className="w-full">
-      {label && (
-        <label
-          htmlFor={inputId}
-          className="block mb-2 text-[10px] tracking-premium-widest uppercase text-text-tertiary font-medium"
-        >
-          {label}
-        </label>
-      )}
-      <div className="relative">
+      <div className="relative w-full">
         <input
           id={inputId}
           ref={ref}
-          className={`input-premium w-full bg-bg-ice border text-text-primary px-4 py-3.5 text-[15px] placeholder:text-text-tertiary/70 transition-all duration-250 ease-premium ${
+          placeholder={rest.placeholder || " "}
+          className={`peer input-premium w-full bg-bg-ice border text-text-primary px-4 pt-5 pb-2.5 text-[15px] placeholder-transparent focus:outline-none transition-all duration-250 ease-premium ${
             error
-              ? "border-wine"
-              : "border-line hover:border-line-strong"
+              ? "border-wine focus:border-wine"
+              : "border-line hover:border-line-strong focus:border-ink"
           } ${rightSlot ? "pr-12" : ""} ${className}`}
           {...rest}
         />
+        {label && (
+          <label
+            htmlFor={inputId}
+            className={`absolute left-4 top-1.5 text-[10px] tracking-premium-widest uppercase font-medium text-text-tertiary transition-all duration-250 ease-premium pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:uppercase peer-focus:tracking-premium-widest peer-focus:text-ink ${error ? "text-wine peer-focus:text-wine" : ""}`}
+          >
+            {label}
+          </label>
+        )}
         {rightSlot && (
           <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
             {rightSlot}

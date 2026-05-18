@@ -9,11 +9,11 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          DEFAULT: "#F7F7F5",
+          DEFAULT: "#F7F3EE",
           white: "#FFFFFF",
-          soft: "#F1F1EF",
-          ice: "#FBFBF9",
-          warm: "#F1F1EF",
+          soft: "#F7F3EE",
+          ice: "#F7F3EE",
+          warm: "#F7F3EE",
         },
         ink: {
           DEFAULT: "#0A0A0A",
@@ -33,9 +33,9 @@ const config: Config = {
         },
         text: {
           primary: "#0A0A0A",
-          secondary: "#5F5F5F",
+          secondary: "#6B6B6B",
           tertiary: "#8A8A8A",
-          inverse: "#F7F7F5",
+          inverse: "#FFFFFF",
         },
         line: {
           DEFAULT: "rgba(10,10,10,0.08)",
@@ -44,9 +44,9 @@ const config: Config = {
           inverseStrong: "rgba(255,255,255,0.14)",
         },
         crimson: {
-          DEFAULT: "#6E1414",
-          deep: "#5A1010",
-          rich: "#7A1C1C",
+          DEFAULT: "#C41230",
+          deep: "#A00D24",
+          rich: "#E61538",
         },
         wine: {
           DEFAULT: "#6E1414",
@@ -55,7 +55,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        serif: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"],
+        serif: ["var(--font-cormorant)", "Cormorant Garamond", "serif"],
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       letterSpacing: {

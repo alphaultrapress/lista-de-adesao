@@ -33,14 +33,21 @@ html {
 body {
   min-height: 100vh;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 15% 0%, rgba(110, 20, 20, 0.045), transparent 26rem),
-    linear-gradient(180deg, #ffffff 0%, #f7f7f5 42%, #f1f1ef 100%);
+  background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   font-feature-settings: "ss01", "cv11";
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
 }
 
 ::selection {
@@ -2403,67 +2410,68 @@ textarea::placeholder {
 }
 
 /* ============================================================
-   Reels — carrossel premium de vídeos verticais (estilo Cakto)
-   Fundo da seção: var(--bg-soft) = #f1f1ef
+   Reels — carrossel coverflow clean/tech de vídeos verticais.
+   Card central em destaque; vizinhos recuados, discretos e
+   desfocados (sem pilha). Clique no central alterna play/pause.
    ============================================================ */
 
-.reels-carousel {
+.reels-viewport {
   position: relative;
-  overflow: hidden;
-  padding: 28px 0;
-  /* Fade lateral suave — vídeos somem nas bordas, sem corte seco */
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(0, 0, 0, 0.12) 6%,
-    #000 16%,
-    #000 84%,
-    rgba(0, 0, 0, 0.12) 94%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(0, 0, 0, 0.12) 6%,
-    #000 16%,
-    #000 84%,
-    rgba(0, 0, 0, 0.12) 94%,
-    transparent 100%
-  );
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 8px 0 4px;
+  overflow: hidden; /* contém os cards transladados, sem overflow na página */
 }
 
-.reels-track {
-  display: flex;
-  align-items: center;
-  gap: 26px;
-  width: max-content;
-  padding: 18px 26px;
-  /* Track com DUAS cópias da lista: -50% = uma cópia exata → loop invisível */
-  animation: reels-marquee 56s linear infinite;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-/* Pausa o carrossel quando o ponteiro está sobre a área dos vídeos */
-.reels-carousel:hover .reels-track {
-  animation-play-state: paused;
+.reels-stage {
+  position: relative;
+  width: 100%;
+  height: clamp(370px, 58vw, 540px);
 }
 
 .reel-card {
-  position: relative;
-  flex: 0 0 auto;
-  width: 264px;
-  aspect-ratio: 9 / 16;
-  border-radius: 24px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(206px, 30vw, 304px);
+  height: clamp(366px, 53vw, 540px); /* 9:16 da largura do card */
+  margin-left: calc(clamp(206px, 30vw, 304px) / -2);
+  margin-top: calc(clamp(366px, 53vw, 540px) / -2);
+  border-radius: 22px;
   overflow: hidden;
-  background: #000;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  background: #0b0b0d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 16px 40px -12px rgba(15, 23, 42, 0.18);
   transition:
-    transform 280ms var(--ease-premium),
-    opacity 280ms var(--ease-premium),
-    box-shadow 280ms var(--ease-premium),
-    filter 280ms var(--ease-premium);
+    transform 520ms var(--ease-premium),
+    opacity 520ms var(--ease-premium),
+    box-shadow 520ms var(--ease-premium),
+    filter 520ms var(--ease-premium);
+  will-change: transform, opacity;
+}
+
+/* Card central: borda fina dourada + sombra cinematográfica (tech) */
+.reel-card.is-active {
+  border-color: rgba(201, 169, 97, 0.5);
+  box-shadow:
+    0 28px 70px -18px rgba(15, 23, 42, 0.34),
+    0 0 0 1px rgba(201, 169, 97, 0.18);
+}
+
+.reel-card.is-playing {
+  box-shadow:
+    0 36px 84px -16px rgba(15, 23, 42, 0.42),
+    0 0 0 1px rgba(201, 169, 97, 0.28);
+}
+
+/* Vizinhos: leve desfoque + dessaturação → leitura limpa do central */
+.reel-card:not(.is-active) {
+  filter: saturate(0.55) brightness(0.78) blur(1px);
+}
+
+.reel-card.is-dimmed {
+  filter: saturate(0.4) brightness(0.5) blur(2px);
 }
 
 .reel-video {
@@ -2480,104 +2488,256 @@ textarea::placeholder {
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.06) 0%,
-    rgba(0, 0, 0, 0.04) 55%,
-    rgba(0, 0, 0, 0.2) 100%
+    rgba(0, 0, 0, 0.04) 0%,
+    rgba(0, 0, 0, 0.02) 52%,
+    rgba(0, 0, 0, 0.16) 100%
   );
-  transition: opacity 280ms var(--ease-premium);
+  transition: opacity 320ms var(--ease-premium);
 }
 
-/* Hover de qualquer card: os demais ficam apagados/translúcidos */
-.reels-carousel:hover .reel-card {
-  opacity: 0.45;
-  filter: saturate(0.7);
+.reel-card.is-playing .reel-card-shade {
+  opacity: 0;
 }
 
-/* O card sob o cursor ganha destaque, zoom suave e sombra maior */
-.reels-carousel .reel-card:hover {
+/* Botão que cobre o card. No central: alterna play/pause.
+   Nos vizinhos: área transparente que traz o card pro centro. */
+.reel-overlay-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  transition: background 320ms var(--ease-premium);
+}
+
+.reel-card.is-active .reel-overlay-btn {
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.32) 0%,
+    rgba(0, 0, 0, 0.12) 46%,
+    rgba(0, 0, 0, 0.04) 100%
+  );
+}
+
+/* Tocando: overlay quase invisível, aparece só no hover (para pausar) */
+.reel-card.is-active .reel-overlay-btn.is-playing {
+  background: transparent;
+}
+
+.reel-card.is-active .reel-overlay-btn.is-playing .reel-ctrl-icon {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.reel-card.is-active .reel-overlay-btn.is-playing:hover {
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.34) 0%,
+    rgba(0, 0, 0, 0.1) 60%,
+    transparent 100%
+  );
+}
+
+.reel-card.is-active .reel-overlay-btn.is-playing:hover .reel-ctrl-icon {
   opacity: 1;
-  filter: none;
-  transform: scale(1.06);
-  z-index: 10;
-  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.26);
+  transform: scale(1);
 }
 
-.reels-carousel .reel-card:hover .reel-card-shade {
-  opacity: 0.35;
+.reel-ctrl-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+  transition:
+    transform 320ms var(--ease-premium),
+    opacity 320ms var(--ease-premium),
+    background 320ms var(--ease-premium);
+}
+
+.reel-card.is-active .reel-overlay-btn:hover .reel-ctrl-icon {
+  background: rgba(255, 255, 255, 0.26);
+  transform: scale(1.07);
+}
+
+/* Setas de navegação — vidro fosco minimalista */
+.reels-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #1a1a1a;
+  cursor: pointer;
+  box-shadow: 0 8px 24px -10px rgba(15, 23, 42, 0.3);
+  transition:
+    transform 250ms var(--ease-premium),
+    background 250ms var(--ease-premium);
+}
+
+.reels-arrow:hover {
+  background: #ffffff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.reels-arrow-prev {
+  left: 6px;
+}
+
+.reels-arrow-next {
+  right: 6px;
+}
+
+/* Dots */
+.reels-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 24px;
+}
+
+.reels-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #cfcfcf;
+  cursor: pointer;
+  transition:
+    background 350ms var(--ease-premium),
+    width 350ms var(--ease-premium);
+}
+
+.reels-dot:hover {
+  background: #b9a06a;
+}
+
+.reels-dot.is-active {
+  width: 24px;
+  background: var(--crimson);
+  cursor: default;
 }
 
 @media (max-width: 768px) {
-  /* Mobile: sem animação automática — scroll horizontal por toque com snap.
-     Sem hover. Não gera overflow horizontal na página inteira. */
-  .reels-carousel {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    scroll-snap-type: x mandatory;
-    padding: 16px 0;
-    -webkit-mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(0, 0, 0, 0.18) 4%,
-      #000 12%,
-      #000 88%,
-      rgba(0, 0, 0, 0.18) 96%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(0, 0, 0, 0.18) 4%,
-      #000 12%,
-      #000 88%,
-      rgba(0, 0, 0, 0.18) 96%,
-      transparent 100%
-    );
-  }
-
-  .reels-carousel::-webkit-scrollbar {
-    display: none;
-  }
-
-  .reels-track {
-    animation: none;
-    gap: 16px;
-    padding: 6px 18px;
+  .reels-stage {
+    height: clamp(400px, 130vw, 560px);
   }
 
   .reel-card {
-    width: 70vw;
-    max-width: 240px;
-    scroll-snap-align: center;
+    width: clamp(220px, 64vw, 320px);
+    height: clamp(391px, 114vw, 568px);
+    margin-left: calc(clamp(220px, 64vw, 320px) / -2);
+    margin-top: calc(clamp(391px, 114vw, 568px) / -2);
   }
 
-  /* No mobile não há loop automático — exibir só os 6 vídeos únicos */
-  .reel-card-clone {
-    display: none;
+  /* Mobile: sem blur nos vizinhos (custo de GPU), só recuo/opacidade */
+  .reel-card:not(.is-active) {
+    filter: saturate(0.6) brightness(0.8);
   }
 
-  /* Sem destaque/escurecimento por hover no mobile */
-  .reels-carousel:hover .reel-card,
-  .reels-carousel .reel-card:hover {
-    opacity: 1;
-    filter: none;
-    transform: none;
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  .reels-arrow {
+    width: 38px;
+    height: 38px;
   }
-}
 
-@keyframes reels-marquee {
-  from {
-    transform: translate3d(0, 0, 0);
+  .reels-arrow-prev {
+    left: 0;
   }
-  to {
-    transform: translate3d(-50%, 0, 0);
+
+  .reels-arrow-next {
+    right: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reels-track {
+  .reel-card {
+    transition: opacity 200ms linear;
+  }
+}
+
+/* ============================================================
+   Botão flutuante de WhatsApp — fixo, sempre visível
+   ============================================================ */
+
+.whatsapp-float {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  background: #25d366;
+  color: #ffffff;
+  box-shadow: 0 12px 30px -6px rgba(37, 211, 102, 0.55);
+  transition:
+    transform 280ms var(--ease-premium),
+    box-shadow 280ms var(--ease-premium);
+}
+
+.whatsapp-float::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 2px solid rgba(37, 211, 102, 0.35);
+  animation: whatsapp-pulse 2.4s ease-out infinite;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.07);
+  box-shadow: 0 16px 38px -6px rgba(37, 211, 102, 0.65);
+}
+
+@keyframes whatsapp-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .whatsapp-float {
+    right: 16px;
+    bottom: 16px;
+    width: 54px;
+    height: 54px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-float::before {
     animation: none;
   }
 }
@@ -2607,8 +2767,8 @@ textarea::placeholder {
   content: "";
   position: absolute;
   top: 8px;
-  height: clamp(280px, 42vw, 420px);
-  width: clamp(110px, 14vw, 190px);
+  height: clamp(220px, 32vw, 330px);
+  width: clamp(90px, 12vw, 160px);
   z-index: 20;
   pointer-events: none;
 }
@@ -2638,17 +2798,17 @@ textarea::placeholder {
   width: 100%;
   /* Altura travada pela proporção do print mais alto (683x431) na largura
      máxima do card → evita layout shift ao trocar de slide. */
-  height: clamp(280px, 42vw, 420px);
+  height: clamp(220px, 32vw, 330px);
 }
 
 .testimonial-card {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: min(620px, 86vw);
-  margin-left: calc(min(620px, 86vw) / -2);
-  margin-top: calc(clamp(280px, 42vw, 420px) / -2);
-  height: clamp(280px, 42vw, 420px);
+  width: min(500px, 84vw);
+  margin-left: calc(min(500px, 84vw) / -2);
+  margin-top: calc(clamp(220px, 32vw, 330px) / -2);
+  height: clamp(220px, 32vw, 330px);
   display: flex;
   align-items: center;
   justify-content: center;

@@ -15,6 +15,28 @@ export default function AdesoesCard({ representativeId, curso }: Props) {
   >([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [displayCount, setDisplayCount] = useState(0);
+
+  useEffect(() => {
+    if (count === 0) {
+      setDisplayCount(0);
+      return;
+    }
+    let startTimestamp: number | null = null;
+    const duration = 1500; // 1.5 seconds
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // ease out expo
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setDisplayCount(Math.floor(easeProgress * count));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }, [count]);
 
   async function load() {
     setLoading(true);
@@ -57,7 +79,7 @@ export default function AdesoesCard({ representativeId, curso }: Props) {
     >
       <div className="mb-8 flex items-baseline gap-3">
         <span className="font-serif text-6xl tracking-premium-tight text-text-primary">
-          {count}
+          {displayCount}
         </span>
         <span className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
           adesões
