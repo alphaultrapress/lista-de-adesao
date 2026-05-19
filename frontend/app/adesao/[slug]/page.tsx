@@ -256,14 +256,23 @@ export default function AdesaoPublicaPage() {
         </div>
         
         <div className="relative z-10 mb-20 text-center fade-up">
-          <span className="tech-eyebrow">
+          <span
+            className="tech-eyebrow"
+            style={{ textShadow: "0 2px 10px rgba(0,0,0,0.15)" }}
+          >
             <span className="dot" />
             Lista de interesse da turma
           </span>
 
-          <h1 className="mt-8 font-serif text-[2.6rem] leading-[1.04] tracking-premium-tight text-text-primary md:text-6xl drop-shadow-md">
+          <h1
+            className="mt-8 font-serif text-[2.6rem] leading-[1.04] tracking-premium-tight text-text-primary md:text-6xl"
+            style={{ textShadow: "0 10px 40px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.2)" }}
+          >
             Sua turma merece um{" "}
-            <span className="italic font-light text-[#C41230]">
+            <span
+              className="italic font-light text-[#C41230]"
+              style={{ textShadow: "0 10px 40px rgba(196,18,48,0.4), 0 4px 12px rgba(196,18,48,0.25)" }}
+            >
               convite inesquecível.
             </span>
           </h1>
@@ -274,17 +283,27 @@ export default function AdesaoPublicaPage() {
             style={{
               background:
                 "linear-gradient(90deg, transparent 0%, #C41230 50%, transparent 100%)",
+              boxShadow: "0 4px 12px rgba(196,18,48,0.3)"
             }}
           />
 
-          <p className="mt-9 font-serif text-lg italic text-[#C41230] md:text-xl">
+          <p
+            className="mt-9 font-serif text-lg italic text-[#C41230] md:text-xl"
+            style={{ textShadow: "0 8px 30px rgba(196,18,48,0.4), 0 4px 10px rgba(196,18,48,0.2)" }}
+          >
             Turma de {turma?.course_name}
           </p>
-          <p className="mt-3 text-[11px] uppercase tracking-premium-widest text-[#0A0A0A]">
+          <p
+            className="mt-3 text-[11px] uppercase tracking-premium-widest text-[#0A0A0A]"
+            style={{ textShadow: "0 4px 24px rgba(255,255,255,1), 0 2px 10px rgba(255,255,255,1)" }}
+          >
             {turma?.institution_name} · {turma?.graduation_year}
           </p>
 
-          <p className="mx-auto mt-10 max-w-xl leading-relaxed text-[#3A3A3A] md:text-lg">
+          <p
+            className="mx-auto mt-10 max-w-xl leading-relaxed text-[#3A3A3A] md:text-lg"
+            style={{ textShadow: "0 4px 24px rgba(255,255,255,1), 0 2px 10px rgba(255,255,255,1)" }}
+          >
             Conheça os convites, acabamentos e possibilidades que a Alpha
             prepara para turmas de todo o Brasil.
           </p>

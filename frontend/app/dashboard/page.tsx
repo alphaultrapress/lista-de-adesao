@@ -120,8 +120,8 @@ export default function DashboardPage() {
 
       <AcabamentosShowcase />
 
-      <section className="relative mx-auto max-w-6xl px-6 pb-20">
-        <div className="cta-consultor relative flex flex-col items-start justify-between gap-8 overflow-hidden p-10 text-text-inverse md:flex-row md:items-center md:p-14">
+      <section className="relative mx-auto max-w-6xl px-6 pt-16 pb-28 md:pt-20 md:pb-32">
+        <div className="cta-consultor relative flex flex-col items-start justify-between gap-8 overflow-hidden rounded-[6px] p-10 text-text-inverse md:flex-row md:items-center md:p-14">
           <div className="cta-grid pointer-events-none absolute inset-0" />
           <div className="cta-glow-tr pointer-events-none absolute inset-0" />
           <div className="cta-glow-bc pointer-events-none absolute inset-0" />

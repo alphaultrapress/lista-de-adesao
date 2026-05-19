@@ -136,7 +136,7 @@ export default function LandingPage() {
           gap: '8px',
           whiteSpace: 'nowrap'
         }}>
-          ⭐ <span className="font-semibold">4.9</span> <span className="text-white/40">·</span> <span className="text-[#A1A1A1] text-[11px] uppercase tracking-wider font-medium">+6.000 turmas atendidas</span>
+          ⭐ <span className="font-semibold">5.0</span> <span className="text-white/40">·</span> <span className="text-[#A1A1A1] text-[11px] uppercase tracking-wider font-medium">+6.000 turmas atendidas</span>
         </div>
       </section>
 

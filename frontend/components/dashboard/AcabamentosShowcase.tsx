@@ -21,7 +21,7 @@ const trilho = [...acabamentos, ...acabamentos];
 
 export default function AcabamentosShowcase() {
   return (
-    <section className="relative overflow-hidden bg-[#0A0A0A] py-14 md:py-16">
+    <section className="relative overflow-hidden bg-[#0A0A0A] pt-14 pb-20 md:pt-16 md:pb-28">
       <div className="absolute inset-0 bg-grid-tech bg-[length:48px_48px] opacity-20 pointer-events-none" />
       <div className="absolute left-1/2 top-1/2 h-[420px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-radial-crimson opacity-60 blur-3xl pointer-events-none" />
 
