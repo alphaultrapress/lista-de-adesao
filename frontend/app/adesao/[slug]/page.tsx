@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Footer } from "@/components/Brand";
@@ -11,9 +11,42 @@ import CpfInput from "@/components/forms/CpfInput";
 import PhoneInput from "@/components/forms/PhoneInput";
 import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 import SocialProof from "@/components/SocialProof";
+import GalleryCarousel from "@/components/GalleryCarousel";
 import { SOCIAL } from "@/lib/social";
 import { supabase, PublicRepresentative } from "@/lib/supabase";
 import { isValidCpf, isValidPhoneBr, onlyDigits } from "@/lib/cpf";
+
+function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number, suffix?: string, prefix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          let start = 0;
+          const duration = 2000;
+          const increment = end / (duration / 16);
+          const timer = setInterval(() => {
+            start += increment;
+            if (start >= end) {
+              setCount(end);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(start));
+            }
+          }, 16);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [end]);
+
+  return <span ref={ref}>{prefix}{count}{suffix}</span>;
+}
 
 export default function AdesaoPublicaPage() {
   const params = useParams<{ slug: string }>();
@@ -591,49 +624,128 @@ export default function AdesaoPublicaPage() {
 
       </section>
 
-      <section className="relative overflow-hidden bg-bg-ice py-20 md:py-24">
-        <div className="absolute inset-0 bg-grid-tech bg-[length:48px_48px] opacity-30 pointer-events-none" />
-        <div className="relative mx-auto max-w-4xl px-6 text-center fade-up">
+      {/* ============================================================
+          FORMULÁRIO REPLICADO — logo após o hero, captura rápida
+          ============================================================ */}
+      <section className="relative mx-auto max-w-2xl px-6 pb-16 pt-8 md:pt-12">
+        <div className="mb-8 text-center fade-up">
           <span className="tech-eyebrow mx-auto">
             <span className="dot" />
-            Nossa história
+            Seu contato
           </span>
-          <h2 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            Há mais de 50 anos{" "}
+          <h2 className="mt-6 font-serif text-3xl leading-[1.1] tracking-premium-tight text-text-primary md:text-4xl">
+            Vamos conversar sobre a{" "}
             <span className="italic font-light text-[#C41230]">
-              transformando histórias em memórias.
+              sua formatura.
             </span>
           </h2>
-          <p className="mx-auto mt-7 max-w-2xl leading-relaxed text-[#3A3A3A] md:text-lg">
-            A Alpha acompanha momentos especiais através de convites que unem
-            tradição, sofisticação e acabamentos exclusivos.
+          <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-[#3A3A3A]">
+            Poucos campos, sem compromisso. Nossa equipe entra em contato pelo
+            WhatsApp para apresentar as possibilidades.
           </p>
+        </div>
 
-          <div
-            aria-hidden
-            className="mx-auto mt-12 h-px w-24"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, #C41230 50%, transparent 100%)",
-            }}
-          />
+        <form
+          id="interesse"
+          onSubmit={handleSubmit}
+          className="relative card-hover space-y-6 p-6 md:p-9 scroll-mt-28 overflow-hidden rounded-2xl border border-line/50"
+          noValidate
+        >
+          <div className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-multiply">
+            <Image src="/images/form-bg.png" alt="Background Texture" fill className="object-cover" />
+          </div>
+          <div className="relative z-10 space-y-6">
+            <CpfInput
+              value={form.cpf}
+              onChange={(v) => set("cpf", v)}
+              onResolved={(d) => {
+                if (d.nome) set("nome", d.nome);
+                if (d.data_nascimento) {
+                  set("data_nascimento", d.data_nascimento);
+                }
+              }}
+              error={errors.cpf}
+              required
+            />
+            <Input
+              label="Seu nome"
+              name="nome"
+              value={form.nome}
+              onChange={(e) => set("nome", e.target.value)}
+              error={errors.nome}
+              required
+            />
+            <div className="grid gap-6 md:grid-cols-2">
+              <PhoneInput
+                label="Seu WhatsApp"
+                value={form.whatsapp}
+                onChange={(v) => set("whatsapp", v)}
+                error={errors.whatsapp}
+                required
+              />
+              <Input
+                label="Seu e-mail"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={form.email}
+                onChange={(e) => set("email", e.target.value)}
+                error={errors.email}
+                required
+              />
+            </div>
+            <Input
+              label="Data de nascimento"
+              name="data_nascimento"
+              type="date"
+              value={form.data_nascimento}
+              onChange={(e) => set("data_nascimento", e.target.value)}
+              error={errors.data_nascimento}
+              required
+            />
+            {topError && (
+              <div className="border border-wine/30 bg-wine/5 px-4 py-3 text-sm text-wine">
+                {topError}
+              </div>
+            )}
+            <Button type="submit" loading={submitting} fullWidth>
+              {submitting ? "Enviando" : "Quero demonstrar interesse"}
+            </Button>
+            <p className="text-center text-xs leading-relaxed text-[#3A3A3A]">
+              Sem compromisso · Gratuito · Seus dados são tratados com
+              confidencialidade pela Alpha Convites.
+            </p>
+          </div>
+        </form>
+      </section>
 
-          <dl className="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-4 md:gap-10">
+      {/* NOSSA HISTÓRIA — bloco preto idêntico à landing (+6 mil / +50 anos / +30 anos) */}
+      <section className="py-24 md:py-32 bg-[#0A0A0A] text-white relative border-t border-[rgba(255,255,255,0.08)]">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 text-center fade-up items-start">
             {[
-              { value: "50+", label: "anos transformando histórias em memórias" },
-              { value: "30+", label: "anos sob a segunda geração" },
-              { value: "Brasil", label: "turmas atendidas em todo o país" },
-            ].map((item) => (
-              <div key={item.label} className="flex flex-col items-center">
-                <dt className="font-serif text-4xl leading-none tracking-premium-tight text-text-primary md:text-6xl">
-                  {item.value}
-                </dt>
-                <dd className="mt-3 max-w-[14rem] text-[11px] uppercase leading-relaxed tracking-premium-wide text-[#0A0A0A] md:text-xs">
-                  {item.label}
-                </dd>
+              { end: 6, prefix: "+", suffix: "mil", label: "TURMAS ATENDIDAS" },
+              { end: 50, prefix: "+", suffix: "anos", label: "DE HISTÓRIA" },
+              { end: 30, prefix: "+", suffix: "anos", label: "COM A 2ª GERAÇÃO" },
+            ].map((stat, i) => (
+              <div key={i} className={`flex flex-col items-center justify-start py-8 ${i !== 2 ? 'md:border-r md:border-[rgba(255,255,255,0.1)]' : ''}`}>
+                <h3
+                  className="font-serif text-white leading-none flex items-baseline gap-2 md:gap-3 whitespace-nowrap"
+                  style={{ fontSize: "clamp(64px, 8vw, 120px)" }}
+                >
+                  <AnimatedCounter end={stat.end} prefix={stat.prefix} />
+                  <span
+                    className="font-serif italic font-light text-white/70"
+                    style={{ fontSize: "clamp(20px, 2vw, 28px)", letterSpacing: "0.01em" }}
+                  >
+                    {stat.suffix}
+                  </span>
+                </h3>
+                <div className="w-[40px] h-[2px] bg-[#C41230] mt-5 mb-4"></div>
+                <p className="font-sans text-[11px] uppercase tracking-[0.15em] text-[#6B6B6B] font-semibold">{stat.label}</p>
               </div>
             ))}
-          </dl>
+          </div>
         </div>
       </section>
 
@@ -697,6 +809,7 @@ export default function AdesaoPublicaPage() {
       </section>
 
       <SocialProof />
+      <GalleryCarousel />
 
       <section className="relative mx-auto max-w-2xl px-6 pb-20 pt-20 md:pt-24">
         <div className="mb-10 text-center fade-up">
@@ -717,7 +830,7 @@ export default function AdesaoPublicaPage() {
         </div>
 
         <form
-          id="interesse"
+          id="interesse-final"
           onSubmit={handleSubmit}
           className="relative card-hover space-y-6 p-6 md:p-9 scroll-mt-28 overflow-hidden rounded-2xl border border-line/50"
           noValidate

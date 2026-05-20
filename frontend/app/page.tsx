@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import SocialProof from "@/components/SocialProof";
+import GalleryCarousel from "@/components/GalleryCarousel";
 import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 
 function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number, suffix?: string, prefix?: string }) {
@@ -84,11 +85,36 @@ export default function LandingPage() {
         >
           <div className="fade-up flex flex-col items-start text-left">
             <span
-              className="inline-flex items-center gap-2 text-[#E8455F] md:text-[#C41230] font-sans font-semibold uppercase"
-              style={{ fontSize: "11px", letterSpacing: "0.2em", marginBottom: "16px", textShadow: "0 1px 6px rgba(0,0,0,0.6)" }}
+              className="inline-flex items-center gap-3 font-sans font-semibold uppercase"
+              style={{
+                fontSize: "10.5px",
+                letterSpacing: "0.34em",
+                marginBottom: "24px",
+                padding: "8px 18px 8px 14px",
+                color: "#FFFFFF",
+                background:
+                  "linear-gradient(135deg, rgba(196,18,48,0.18) 0%, rgba(196,18,48,0.06) 100%)",
+                border: "1px solid rgba(232,69,95,0.55)",
+                borderRadius: "999px",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                boxShadow:
+                  "0 0 0 1px rgba(232,69,95,0.12), 0 8px 24px rgba(196,18,48,0.18), inset 0 1px 0 rgba(255,255,255,0.08)",
+                textShadow: "0 1px 10px rgba(0,0,0,0.7)",
+              }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E8455F] md:bg-[#C41230]"></span>
-              CONVITES PREMIUM PARA FORMATURAS
+              {/* Diamante crimson com glow */}
+              <span
+                aria-hidden
+                className="inline-block h-[5px] w-[5px] rotate-45"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #FF6B85 0%, #C41230 100%)",
+                  boxShadow:
+                    "0 0 8px rgba(232,69,95,0.8), 0 0 14px rgba(196,18,48,0.45)",
+                }}
+              />
+              <span>Convites premium para formaturas</span>
             </span>
 
             <h1
@@ -96,13 +122,67 @@ export default function LandingPage() {
             >
               Sua turma<br />
               merece um convite<br />
-              <span className="italic text-[#E8455F] md:text-[#C41230] font-semibold">inesquecível.</span>
+              <span className="relative inline-block italic font-semibold text-white align-baseline">
+                {/* Brush stroke SVG — pincelada vermelha angular atrás do texto */}
+                <svg
+                  aria-hidden
+                  viewBox="0 0 600 130"
+                  preserveAspectRatio="none"
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: "-3%",
+                    right: "-3%",
+                    top: "-4%",
+                    width: "106%",
+                    height: "120%",
+                    zIndex: 0,
+                    filter: "drop-shadow(0 8px 24px rgba(196,18,48,0.45))",
+                  }}
+                >
+                  <defs>
+                    <linearGradient id="brushGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#8E0A22" />
+                      <stop offset="45%" stopColor="#C41230" />
+                      <stop offset="100%" stopColor="#8E0A22" />
+                    </linearGradient>
+                    <filter id="brushNoise">
+                      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="3" />
+                      <feDisplacementMap in="SourceGraphic" scale="3" />
+                    </filter>
+                  </defs>
+                  {/* Pincelada principal — path angular irregular */}
+                  <path
+                    d="M 8 28 Q 50 18, 120 22 T 280 24 Q 360 20, 440 26 T 590 30 L 595 95 Q 520 102, 440 98 T 280 100 Q 180 104, 100 98 T 6 95 Z"
+                    fill="url(#brushGrad)"
+                    filter="url(#brushNoise)"
+                  />
+                  {/* Risco superior fino, simulando pincel arrastado */}
+                  <path
+                    d="M 12 24 Q 150 16, 300 20 T 588 26"
+                    stroke="#C41230"
+                    strokeWidth="1.5"
+                    strokeOpacity="0.6"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span
+                  className="relative px-2"
+                  style={{
+                    zIndex: 1,
+                    textShadow:
+                      "0 2px 12px rgba(0,0,0,0.55), 0 0 24px rgba(255,255,255,0.15)",
+                  }}
+                >
+                  inesquecível.
+                </span>
+              </span>
             </h1>
 
             <p
               className="font-sans text-sm md:text-lg leading-relaxed max-w-full md:max-w-[420px] mt-4 text-white/85 md:text-[#aaa] [text-shadow:0_1px_8px_rgba(0,0,0,0.5)] md:[text-shadow:none]"
             >
-              Crie a lista da sua turma, gere o link oficial e descubra as possibilidades — tudo em um ambiente premium e simples.
+              Crie a lista da sua turma, gere o link oficial e descubra as possibilidades tudo em um ambiente premium e simples.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-start justify-start w-full sm:w-auto mt-8">
@@ -142,17 +222,26 @@ export default function LandingPage() {
       {/* NOSSA HISTÓRIA */}
       <section className="py-24 md:py-32 bg-[#0A0A0A] text-white relative border-t border-[rgba(255,255,255,0.08)]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 text-center fade-up">
+          <div className="grid grid-cols-1 md:grid-cols-3 text-center fade-up items-start">
             {[
-              { end: 6, prefix: "+", suffix: " mil", label: "TURMAS ATENDIDAS" },
-              { end: 50, prefix: "+", suffix: " anos", label: "DE HISTÓRIA" },
-              { end: 30, prefix: "+", suffix: " anos", label: "COM A 2ª GERAÇÃO" },
+              { end: 6, prefix: "+", suffix: "mil", label: "TURMAS ATENDIDAS" },
+              { end: 50, prefix: "+", suffix: "anos", label: "DE HISTÓRIA" },
+              { end: 30, prefix: "+", suffix: "anos", label: "COM A 2ª GERAÇÃO" },
             ].map((stat, i) => (
-              <div key={i} className={`flex flex-col items-center py-8 ${i !== 2 ? 'md:border-r md:border-[rgba(255,255,255,0.1)]' : ''}`}>
-                <h3 className="font-serif text-white mb-2 leading-none" style={{ fontSize: "clamp(64px, 8vw, 120px)" }}>
-                  <AnimatedCounter end={stat.end} prefix={stat.prefix} suffix={stat.suffix} />
+              <div key={i} className={`flex flex-col items-center justify-start py-8 ${i !== 2 ? 'md:border-r md:border-[rgba(255,255,255,0.1)]' : ''}`}>
+                <h3
+                  className="font-serif text-white leading-none flex items-baseline gap-2 md:gap-3 whitespace-nowrap"
+                  style={{ fontSize: "clamp(64px, 8vw, 120px)" }}
+                >
+                  <AnimatedCounter end={stat.end} prefix={stat.prefix} />
+                  <span
+                    className="font-serif italic font-light text-white/70"
+                    style={{ fontSize: "clamp(20px, 2vw, 28px)", letterSpacing: "0.01em" }}
+                  >
+                    {stat.suffix}
+                  </span>
                 </h3>
-                <div className="w-[40px] h-[2px] bg-[#C41230] my-3"></div>
+                <div className="w-[40px] h-[2px] bg-[#C41230] mt-5 mb-4"></div>
                 <p className="font-sans text-[11px] uppercase tracking-[0.15em] text-[#6B6B6B] font-semibold">{stat.label}</p>
               </div>
             ))}
@@ -340,6 +429,7 @@ export default function LandingPage() {
       </section>
 
       <SocialProof />
+      <GalleryCarousel />
       <AcabamentosShowcase />
       <Footer />
     </main>
