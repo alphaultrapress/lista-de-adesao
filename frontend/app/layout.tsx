@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,7 +36,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${cormorant.variable}`}>
-      <body className="bg-bg font-sans text-text-primary">{children}</body>
+      <body className="bg-bg font-sans text-text-primary">
+        {children}
+        <WhatsAppFloat />
+      </body>
     </html>
   );
 }

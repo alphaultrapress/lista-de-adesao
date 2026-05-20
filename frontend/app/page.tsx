@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import SocialProof from "@/components/SocialProof";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
 import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 
 function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number, suffix?: string, prefix?: string }) {
@@ -343,7 +342,6 @@ export default function LandingPage() {
       <SocialProof />
       <AcabamentosShowcase />
       <Footer />
-      <WhatsAppFloat />
     </main>
   );
 }
