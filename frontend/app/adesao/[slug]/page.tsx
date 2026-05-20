@@ -248,72 +248,302 @@ export default function AdesaoPublicaPage() {
     <main className="page-canvas min-h-screen bg-bg">
       <PremiumHeader compact centeredBrand brandSize="lg" />
 
-      <section className="relative flex flex-col items-center justify-center min-h-[90vh] px-6 pb-20 pt-36 md:pt-44 overflow-hidden">
-        {/* Background Hero Image with Fade In */}
-        <div className="absolute inset-0 z-0 animate-[fadeIn_1.5s_ease-in-out_forwards] opacity-0" style={{ animationDelay: '0.2s' }}>
-          <Image src="/images/hero.png" alt="Convite Premium" fill className="object-cover" priority />
-          <div className="absolute inset-0 bg-gradient-to-b from-bg/90 via-bg/60 to-bg" />
+      <section className="relative flex flex-col items-center justify-center min-h-[100vh] px-6 pb-24 pt-36 md:pt-48 overflow-hidden">
+        {/* Background Hero Image with cinematic fade-in + slow zoom */}
+        <div
+          className="absolute inset-0 z-0 opacity-0 animate-[heroReveal_1.8s_cubic-bezier(0.22,0.61,0.36,1)_forwards]"
+          style={{ animationDelay: '0.15s' }}
+        >
+          <Image
+            src="/images/hero.png"
+            alt="Convite Premium"
+            fill
+            className="object-cover scale-105 animate-[heroZoom_18s_ease-out_forwards]"
+            priority
+          />
+
+          {/* Layer 1 — strong cream/white overlay for legibility on light theme */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(250,247,242,0.82) 0%, rgba(250,247,242,0.7) 35%, rgba(250,247,242,0.8) 70%, rgba(250,247,242,0.95) 100%)",
+            }}
+          />
+
+          {/* Layer 2 — central soft halo to ground the typography (cinematic spotlight inverso) */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse 60% 55% at 50% 50%, rgba(250,247,242,0.55) 0%, rgba(250,247,242,0.15) 70%, transparent 100%)",
+            }}
+          />
+
+          {/* Layer 3 — subtle warm gold tint */}
+          <div
+            className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-40"
+            style={{
+              background:
+                "radial-gradient(ellipse at 50% 50%, rgba(212,175,110,0.25) 0%, transparent 70%)",
+            }}
+          />
+
+          {/* Layer 4 — bottom fade into the page background */}
+          <div className="absolute inset-x-0 bottom-0 h-[30%] bg-gradient-to-b from-transparent to-bg pointer-events-none" />
         </div>
-        
-        <div className="relative z-10 mb-20 text-center fade-up">
+
+        {/* Floating luxury particles */}
+        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+          {[
+            { l: "12%", t: "22%", d: "0s", s: "3px" },
+            { l: "78%", t: "18%", d: "1.4s", s: "2px" },
+            { l: "22%", t: "68%", d: "2.6s", s: "2px" },
+            { l: "85%", t: "62%", d: "0.7s", s: "3px" },
+            { l: "55%", t: "12%", d: "3.2s", s: "2px" },
+            { l: "42%", t: "78%", d: "1.9s", s: "3px" },
+          ].map((p, i) => (
+            <span
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                left: p.l,
+                top: p.t,
+                width: p.s,
+                height: p.s,
+                background: "radial-gradient(circle, rgba(212,175,110,0.9) 0%, rgba(212,175,110,0) 70%)",
+                boxShadow: "0 0 8px rgba(212,175,110,0.6)",
+                animation: `heroParticle 7s ease-in-out ${p.d} infinite`,
+              }}
+            />
+          ))}
+        </div>
+
+        <style jsx>{`
+          @keyframes heroReveal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes heroZoom {
+            from { transform: scale(1.08); }
+            to { transform: scale(1.0); }
+          }
+          @keyframes heroParticle {
+            0%, 100% { opacity: 0; transform: translateY(0) scale(0.8); }
+            50% { opacity: 1; transform: translateY(-12px) scale(1); }
+          }
+          @keyframes shimmerLine {
+            0%, 100% { opacity: 0.55; }
+            50% { opacity: 1; }
+          }
+        `}</style>
+
+        <div className="relative z-10 mb-16 w-full max-w-3xl text-center fade-up">
+
+          {/* Eyebrow with refined gold accent */}
           <span
-            className="tech-eyebrow"
-            style={{ textShadow: "0 2px 10px rgba(0,0,0,0.15)" }}
+            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full backdrop-blur-md"
+            style={{
+              background: "rgba(255,255,255,0.85)",
+              border: "1px solid rgba(212,175,110,0.5)",
+              boxShadow: "0 6px 24px rgba(20,15,10,0.1), inset 0 0 0 1px rgba(255,255,255,0.6)",
+            }}
           >
-            <span className="dot" />
-            Lista de interesse da turma
+            <span
+              className="inline-block h-1 w-1 rotate-45"
+              style={{
+                background: "linear-gradient(135deg, #D4AF6E 0%, #B8923E 100%)",
+                boxShadow: "0 0 6px rgba(212,175,110,0.6)",
+              }}
+            />
+            <span
+              className="font-sans text-[10px] uppercase font-semibold text-[#1A1410]"
+              style={{ letterSpacing: "0.28em" }}
+            >
+              Lista de interesse da turma
+            </span>
           </span>
 
+          {/* Cinematic headline */}
           <h1
-            className="mt-8 font-serif text-[2.6rem] leading-[1.04] tracking-premium-tight text-text-primary md:text-6xl"
-            style={{ textShadow: "0 10px 40px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.2)" }}
+            className="mt-10 font-serif font-normal"
+            style={{
+              fontSize: "clamp(2.4rem, 6vw, 4.75rem)",
+              lineHeight: "1.02",
+              letterSpacing: "-0.025em",
+              color: "#0A0805",
+              textShadow:
+                "0 2px 0 rgba(255,253,248,0.95), 0 -1px 0 rgba(255,253,248,0.9), 1px 0 0 rgba(255,253,248,0.9), -1px 0 0 rgba(255,253,248,0.9), 0 6px 24px rgba(255,253,248,0.8), 0 12px 40px rgba(20,15,10,0.12)",
+            }}
           >
-            Sua turma merece um{" "}
+            Sua turma merece um
+            <br />
             <span
-              className="italic font-light text-[#C41230]"
-              style={{ textShadow: "0 10px 40px rgba(196,18,48,0.4), 0 4px 12px rgba(196,18,48,0.25)" }}
+              className="italic"
+              style={{
+                color: "#8E0A22",
+                fontWeight: 500,
+                letterSpacing: "-0.02em",
+                textShadow:
+                  "0 2px 0 rgba(255,253,248,0.95), 0 -1px 0 rgba(255,253,248,0.9), 1px 0 0 rgba(255,253,248,0.9), -1px 0 0 rgba(255,253,248,0.9), 0 6px 24px rgba(255,253,248,0.85), 0 10px 32px rgba(142,10,34,0.18)",
+              }}
             >
               convite inesquecível.
             </span>
           </h1>
 
+          {/* Gold + crimson shimmering divider */}
           <div
             aria-hidden
-            className="mx-auto mt-9 h-px w-24 md:w-32"
+            className="mx-auto mt-10 flex items-center justify-center gap-3"
+          >
+            <span
+              className="h-px w-16 md:w-24"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent 0%, rgba(212,175,110,0.7) 100%)",
+              }}
+            />
+            <span
+              className="inline-block h-1.5 w-1.5 rotate-45"
+              style={{
+                background: "linear-gradient(135deg, #D4AF6E 0%, #C41230 100%)",
+                boxShadow: "0 0 12px rgba(196,18,48,0.4)",
+                animation: "shimmerLine 3s ease-in-out infinite",
+              }}
+            />
+            <span
+              className="h-px w-16 md:w-24"
+              style={{
+                background:
+                  "linear-gradient(90deg, rgba(212,175,110,0.7) 0%, transparent 100%)",
+              }}
+            />
+          </div>
+
+          {/* Editorial plaque — turma + instituição com hierarquia única e refinada */}
+          <div className="mt-12 flex flex-col items-center">
+
+            {/* Linha decorativa superior com ornamento central */}
+            <div aria-hidden className="flex items-center gap-3 mb-5 opacity-80">
+              <span
+                className="h-px w-10"
+                style={{ background: "linear-gradient(90deg, transparent 0%, #B8923E 100%)" }}
+              />
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M8 1 L9.5 6.5 L15 8 L9.5 9.5 L8 15 L6.5 9.5 L1 8 L6.5 6.5 Z"
+                  fill="#B8923E"
+                  fillOpacity="0.85"
+                />
+              </svg>
+              <span
+                className="h-px w-10"
+                style={{ background: "linear-gradient(90deg, #B8923E 0%, transparent 100%)" }}
+              />
+            </div>
+
+            {/* Eyebrow minúsculo */}
+            <span
+              className="font-sans font-semibold uppercase mb-3"
+              style={{
+                fontSize: "9.5px",
+                letterSpacing: "0.42em",
+                color: "#8B6B3A",
+                textShadow: "0 1px 0 rgba(255,253,248,0.95), 0 2px 8px rgba(255,253,248,0.8)",
+              }}
+            >
+              Apresenta-se
+            </span>
+
+            {/* Course name — protagonista editorial */}
+            <h2
+              className="font-serif italic"
+              style={{
+                fontSize: "clamp(1.75rem, 3.2vw, 2.5rem)",
+                lineHeight: "1.05",
+                fontWeight: 400,
+                color: "#8E0A22",
+                letterSpacing: "-0.01em",
+                textShadow:
+                  "0 1px 0 rgba(255,253,248,0.95), 0 -1px 0 rgba(255,253,248,0.85), 1px 0 0 rgba(255,253,248,0.85), -1px 0 0 rgba(255,253,248,0.85), 0 6px 20px rgba(255,253,248,0.7)",
+              }}
+            >
+              Turma de {turma?.course_name}
+            </h2>
+
+            {/* Instituição · ano — tipografia editorial em linha única */}
+            <div
+              className="mt-4 flex items-center gap-3 font-sans font-semibold uppercase"
+              style={{
+                fontSize: "10px",
+                letterSpacing: "0.38em",
+                color: "#1A1410",
+                textShadow: "0 1px 0 rgba(255,253,248,0.95), 0 2px 10px rgba(255,253,248,0.85)",
+              }}
+            >
+              <span>{turma?.institution_name}</span>
+              <span
+                aria-hidden
+                className="inline-block h-1 w-1 rotate-45"
+                style={{
+                  background: "linear-gradient(135deg, #D4AF6E 0%, #8E0A22 100%)",
+                }}
+              />
+              <span>{turma?.graduation_year}</span>
+            </div>
+          </div>
+
+          {/* Description — editorial pura, sem caixa, com halo forte */}
+          <p
+            className="mx-auto mt-12 max-w-[520px] font-serif md:text-[17px]"
             style={{
-              background:
-                "linear-gradient(90deg, transparent 0%, #C41230 50%, transparent 100%)",
-              boxShadow: "0 4px 12px rgba(196,18,48,0.3)"
+              color: "#1A1410",
+              fontWeight: 400,
+              lineHeight: "1.75",
+              letterSpacing: "0.005em",
+              textShadow:
+                "0 1px 0 rgba(255,253,248,0.95), 0 -1px 0 rgba(255,253,248,0.9), 1px 0 0 rgba(255,253,248,0.9), -1px 0 0 rgba(255,253,248,0.9), 0 4px 16px rgba(255,253,248,0.9), 0 8px 28px rgba(255,253,248,0.7)",
             }}
-          />
-
-          <p
-            className="mt-9 font-serif text-lg italic text-[#C41230] md:text-xl"
-            style={{ textShadow: "0 8px 30px rgba(196,18,48,0.4), 0 4px 10px rgba(196,18,48,0.2)" }}
-          >
-            Turma de {turma?.course_name}
-          </p>
-          <p
-            className="mt-3 text-[11px] uppercase tracking-premium-widest text-[#0A0A0A]"
-            style={{ textShadow: "0 4px 24px rgba(255,255,255,1), 0 2px 10px rgba(255,255,255,1)" }}
-          >
-            {turma?.institution_name} · {turma?.graduation_year}
-          </p>
-
-          <p
-            className="mx-auto mt-10 max-w-xl leading-relaxed text-[#3A3A3A] md:text-lg"
-            style={{ textShadow: "0 4px 24px rgba(255,255,255,1), 0 2px 10px rgba(255,255,255,1)" }}
           >
             Conheça os convites, acabamentos e possibilidades que a Alpha
             prepara para turmas de todo o Brasil.
           </p>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+          {/* CTA único — destaque máximo, matte black com brilho dourado */}
+          <div className="mt-12 flex justify-center">
             <a
               href="#interesse"
-              className="group inline-flex items-center justify-center gap-2 bg-ink px-7 py-3.5 text-sm uppercase tracking-premium-wide text-text-inverse transition-all duration-450 ease-premium hover:bg-ink-700"
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden px-12 py-[18px] text-[12px] uppercase font-semibold text-white transition-all duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] hover:-translate-y-[2px]"
+              style={{
+                letterSpacing: "0.26em",
+                background:
+                  "linear-gradient(135deg, #1A1410 0%, #0A0805 100%)",
+                border: "1px solid rgba(212,175,110,0.4)",
+                borderRadius: "3px",
+                boxShadow:
+                  "0 14px 40px rgba(20,15,10,0.4), 0 4px 12px rgba(20,15,10,0.2), inset 0 1px 0 rgba(212,175,110,0.15)",
+              }}
             >
-              <span>Quero demonstrar interesse</span>
+              {/* Gold shimmer sweep on hover */}
+              <span
+                aria-hidden
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(120deg, transparent 30%, rgba(212,175,110,0.22) 50%, transparent 70%)",
+                }}
+              />
+              {/* Subtle gold underline accent */}
+              <span
+                aria-hidden
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px w-0 group-hover:w-[60%] transition-all duration-700 ease-out pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent 0%, #D4AF6E 50%, transparent 100%)",
+                }}
+              />
+              <span className="relative">Quero demonstrar interesse</span>
               <svg
                 width="14"
                 height="14"
@@ -321,7 +551,7 @@ export default function AdesaoPublicaPage() {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.6"
-                className="transition-transform duration-450 ease-premium group-hover:translate-y-0.5"
+                className="relative transition-transform duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] group-hover:translate-y-1"
               >
                 <path
                   d="M12 5v14M6 13l6 6 6-6"
@@ -330,32 +560,10 @@ export default function AdesaoPublicaPage() {
                 />
               </svg>
             </a>
-            <a
-              href={SOCIAL.instagram ?? "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center justify-center gap-2 border border-line-strong bg-transparent px-7 py-3.5 text-sm uppercase tracking-premium-wide text-text-primary transition-all duration-450 ease-premium hover:border-ink hover:bg-ink hover:text-text-inverse"
-            >
-              <span>Conheça nosso Instagram</span>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                className="transition-transform duration-450 ease-premium group-hover:translate-x-0.5"
-              >
-                <path
-                  d="M7 17L17 7M9 7h8v8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </a>
           </div>
 
-          <ul className="mx-auto mt-12 grid max-w-2xl grid-cols-2 gap-x-6 gap-y-3 text-[11px] uppercase tracking-premium-wide text-[#0A0A0A] md:flex md:flex-wrap md:justify-center md:gap-x-8">
+          {/* Trust pills */}
+          <ul className="mx-auto mt-14 grid max-w-2xl grid-cols-2 gap-x-6 gap-y-3 text-[10.5px] uppercase font-medium text-[#2A1F12] md:flex md:flex-wrap md:justify-center md:gap-x-7">
             {[
               "Modelos exclusivos",
               "Acabamentos premium",
@@ -365,11 +573,15 @@ export default function AdesaoPublicaPage() {
               <li
                 key={item}
                 className="flex items-center justify-center gap-2"
+                style={{ letterSpacing: "0.22em" }}
               >
                 <span
                   aria-hidden
                   className="inline-block h-1 w-1 rotate-45"
-                  style={{ background: "#C41230" }}
+                  style={{
+                    background: "linear-gradient(135deg, #D4AF6E 0%, #C41230 100%)",
+                    boxShadow: "0 0 6px rgba(212,175,110,0.5)",
+                  }}
                 />
                 <span>{item}</span>
               </li>
