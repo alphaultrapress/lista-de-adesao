@@ -414,11 +414,11 @@ export default function AdesaoPublicaPage() {
             <span
               className="italic"
               style={{
-                color: "#8E0A22",
+                color: "#2A2A2D",
                 fontWeight: 500,
                 letterSpacing: "-0.02em",
                 textShadow:
-                  "0 2px 0 rgba(255,253,248,0.95), 0 -1px 0 rgba(255,253,248,0.9), 1px 0 0 rgba(255,253,248,0.9), -1px 0 0 rgba(255,253,248,0.9), 0 6px 24px rgba(255,253,248,0.85), 0 10px 32px rgba(142,10,34,0.18)",
+                  "0 2px 0 rgba(255,253,248,0.95), 0 -1px 0 rgba(255,253,248,0.9), 1px 0 0 rgba(255,253,248,0.9), -1px 0 0 rgba(255,253,248,0.9), 0 6px 24px rgba(255,253,248,0.85), 0 10px 32px rgba(42,42,45,0.18)",
               }}
             >
               convite inesquecível.

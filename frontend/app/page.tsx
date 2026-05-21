@@ -136,14 +136,14 @@ export default function LandingPage() {
                     width: "106%",
                     height: "120%",
                     zIndex: 0,
-                    filter: "drop-shadow(0 8px 24px rgba(196,18,48,0.45))",
+                    filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.55))",
                   }}
                 >
                   <defs>
                     <linearGradient id="brushGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#8E0A22" />
-                      <stop offset="45%" stopColor="#C41230" />
-                      <stop offset="100%" stopColor="#8E0A22" />
+                      <stop offset="0%" stopColor="#2A2A2D" />
+                      <stop offset="45%" stopColor="#54565B" />
+                      <stop offset="100%" stopColor="#2A2A2D" />
                     </linearGradient>
                     <filter id="brushNoise">
                       <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="3" />
@@ -159,7 +159,7 @@ export default function LandingPage() {
                   {/* Risco superior fino, simulando pincel arrastado */}
                   <path
                     d="M 12 24 Q 150 16, 300 20 T 588 26"
-                    stroke="#C41230"
+                    stroke="#54565B"
                     strokeWidth="1.5"
                     strokeOpacity="0.6"
                     fill="none"
@@ -186,7 +186,7 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-start justify-start w-full sm:w-auto mt-8">
-              <Link href="/cadastro" className="group relative inline-flex items-center justify-center h-12 px-8 bg-[#C41230] text-white font-sans text-[11px] uppercase tracking-[0.15em] font-semibold transition-colors duration-300 hover:bg-[#A50F28] rounded-[2px]">
+              <Link href="/cadastro" className="group relative inline-flex items-center justify-center h-12 px-8 bg-[#0A0A0A] text-white font-sans text-[11px] uppercase tracking-[0.15em] font-semibold transition-colors duration-300 hover:bg-[#1A1A1A] border border-white/10 rounded-[2px]">
                 <span>PRIMEIRO ACESSO &rarr;</span>
               </Link>
               <Link href="/login" className="group relative inline-flex items-center justify-center h-12 px-8 border border-white text-white font-sans text-[11px] uppercase tracking-[0.15em] font-semibold transition-colors duration-300 hover:bg-white hover:text-[#0A0A0A] rounded-[2px]">

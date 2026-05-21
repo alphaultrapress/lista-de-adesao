@@ -51,7 +51,7 @@ export default function PremiumHeader({
             <Link
               key={`${action.href}-${action.label}`}
               href={action.href}
-              className={action.emphasis ? "inline-flex items-center justify-center h-10 px-6 bg-[#C41230] text-white font-sans text-[11px] uppercase tracking-[0.15em] font-semibold transition-all duration-300 hover:bg-[#A50F28]" : "inline-flex items-center justify-center h-10 px-4 text-white/70 hover:text-white font-sans text-[11px] uppercase tracking-[0.15em] font-semibold transition-colors duration-300"}
+              className={action.emphasis ? "inline-flex items-center justify-center h-10 px-6 bg-[#2A2A2D] text-white font-sans text-[11px] uppercase tracking-[0.15em] font-semibold transition-all duration-300 hover:bg-[#1A1A1A] border border-white/10" : "inline-flex items-center justify-center h-10 px-4 text-white/70 hover:text-white font-sans text-[11px] uppercase tracking-[0.15em] font-semibold transition-colors duration-300"}
             >
               {action.label}
             </Link>
