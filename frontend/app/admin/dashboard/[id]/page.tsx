@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
@@ -11,8 +11,18 @@ import {
   supabase,
   Representative,
   Student,
+  META_CONVITES,
 } from "@/lib/supabase";
 import { formatCpf, formatDateBr, formatPhone } from "@/lib/format";
+
+function slugifyFile(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
 
 export default function AdminRepresentativePage() {
   const params = useParams<{ id: string }>();
@@ -24,6 +34,59 @@ export default function AdminRepresentativePage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
+  const [marcandoAtendido, setMarcandoAtendido] = useState(false);
+  const qrWrapperRef = useRef<HTMLDivElement>(null);
+
+  const totalConvites = useMemo(
+    () => students.reduce((sum, s) => sum + (s.qtd_convites || 0), 0),
+    [students],
+  );
+  const metaAtingida = totalConvites >= META_CONVITES;
+  const atendida = Boolean(representative?.contacted_at);
+
+  async function toggleAtendido() {
+    if (!representative) return;
+    setMarcandoAtendido(true);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) return;
+
+      const res = await fetch(
+        `/api/representatives/${representative.id}/contact`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ contacted: !atendida }),
+        },
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setRepresentative((current) =>
+          current ? { ...current, contacted_at: data.contacted_at } : current,
+        );
+      }
+    } finally {
+      setMarcandoAtendido(false);
+    }
+  }
+
+  function baixarQr() {
+    if (!representative) return;
+    const canvas = qrWrapperRef.current?.querySelector("canvas");
+    if (!canvas) return;
+    const filename = `qrcode-${slugifyFile(representative.course_name)}-${slugifyFile(representative.institution_name)}.png`;
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   useEffect(() => {
     if (!representativeId) return;
@@ -149,13 +212,86 @@ export default function AdminRepresentativePage() {
             <span className="dot" />
             Representante
           </span>
-          <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            {representative.name}
-          </h1>
+          <div className="mt-7 flex flex-wrap items-center gap-4">
+            <h1 className="font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
+              {representative.name}
+            </h1>
+            {atendida ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#5b7da3]/30 bg-[#5b7da3]/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#3a5a82]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#5b7da3]" />
+                Atendido
+              </span>
+            ) : metaAtingida ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0a7d3a]/30 bg-[#0a7d3a]/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#0a7d3a]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#0a7d3a] animate-pulse" />
+                Meta atingida
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg-soft px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
+                <span className="h-1.5 w-1.5 rounded-full bg-text-tertiary" />
+                Pendente
+              </span>
+            )}
+          </div>
           <p className="mt-5 text-text-secondary">
             {representative.course_name} · {representative.institution_name} ·{" "}
             {representative.graduation_year}
           </p>
+        </div>
+
+        {/* Resumo de convites + ação de atendimento */}
+        <div className="relative mb-6 grid gap-4 md:grid-cols-3 fade-up">
+          <div className="card-hover p-5">
+            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
+              Total de convites
+            </p>
+            <p
+              className={`mt-3 font-serif text-4xl tracking-premium-tight ${
+                metaAtingida ? "text-[#0a7d3a]" : "text-text-primary"
+              }`}
+            >
+              {totalConvites}
+              <span className="ml-2 text-base font-sans text-text-tertiary">
+                / {META_CONVITES}
+              </span>
+            </p>
+          </div>
+          <div className="card-hover p-5">
+            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
+              Alunos cadastrados
+            </p>
+            <p className="mt-3 font-serif text-4xl tracking-premium-tight text-text-primary">
+              {students.length}
+            </p>
+          </div>
+          <div className="card-hover flex flex-col justify-between p-5">
+            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
+              Ação
+            </p>
+            {metaAtingida ? (
+              <button
+                type="button"
+                onClick={toggleAtendido}
+                disabled={marcandoAtendido}
+                className={`mt-3 inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-[11px] uppercase tracking-premium-wide font-semibold transition-all duration-300 ${
+                  atendida
+                    ? "border-line bg-white text-text-secondary hover:border-text-primary hover:text-text-primary"
+                    : "border-[#0a7d3a] bg-[#0a7d3a] text-white hover:bg-[#13b85a]"
+                } disabled:opacity-50`}
+              >
+                {marcandoAtendido
+                  ? "Salvando…"
+                  : atendida
+                    ? "Desfazer atendimento"
+                    : "Marcar como atendido"}
+              </button>
+            ) : (
+              <p className="mt-3 text-xs text-text-tertiary">
+                Faltam {META_CONVITES - totalConvites} convite(s) para liberar o
+                atendimento.
+              </p>
+            )}
+          </div>
         </div>
 
         {error && (
@@ -221,7 +357,10 @@ export default function AdminRepresentativePage() {
           </div>
 
           <div className="card-hover flex flex-col items-center justify-center p-8 text-center">
-            <div className="border border-line bg-white/80 p-4 shadow-[0_24px_42px_-34px_rgba(10,10,10,0.42)]">
+            <div
+              ref={qrWrapperRef}
+              className="border border-line bg-white/80 p-4 shadow-[0_24px_42px_-34px_rgba(10,10,10,0.42)]"
+            >
               <QRCodeCanvas
                 value={adesaoUrl}
                 size={180}
@@ -233,6 +372,26 @@ export default function AdminRepresentativePage() {
             <p className="mt-5 text-[10px] uppercase tracking-premium-widest text-text-tertiary">
               QR Code da turma
             </p>
+            <button
+              type="button"
+              onClick={baixarQr}
+              className="group mt-4 inline-flex items-center gap-1.5 border border-line bg-white px-3 py-2 text-[10px] uppercase tracking-premium-widest text-text-secondary transition-all duration-300 hover:border-text-primary hover:text-text-primary"
+            >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform duration-300 group-hover:translate-y-[1px]"
+              >
+                <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
+              </svg>
+              Baixar QR Code
+            </button>
           </div>
         </div>
 
@@ -247,14 +406,14 @@ export default function AdminRepresentativePage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left text-sm">
+            <table className="w-full min-w-[860px] text-left text-sm">
               <thead>
                 <tr className="border-b border-line text-[10px] uppercase tracking-premium-widest text-text-tertiary">
                   <th className="py-3 pr-4 font-medium">CPF</th>
                   <th className="py-3 pr-4 font-medium">Nome</th>
-                  <th className="py-3 pr-4 font-medium">Data nascimento</th>
                   <th className="py-3 pr-4 font-medium">Email</th>
                   <th className="py-3 pr-4 font-medium">Celular</th>
+                  <th className="py-3 pr-4 font-medium text-right">Convites</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -267,13 +426,13 @@ export default function AdminRepresentativePage() {
                       {student.full_name}
                     </td>
                     <td className="py-4 pr-4 text-text-secondary">
-                      {formatDateBr(student.birth_date)}
-                    </td>
-                    <td className="py-4 pr-4 text-text-secondary">
                       {student.email}
                     </td>
                     <td className="py-4 pr-4 text-text-secondary">
                       {formatPhone(student.phone)}
+                    </td>
+                    <td className="py-4 pr-4 text-right font-medium text-text-primary">
+                      {student.qtd_convites}
                     </td>
                   </tr>
                 ))}

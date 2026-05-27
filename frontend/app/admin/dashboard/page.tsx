@@ -11,6 +11,7 @@ import {
   supabase,
   Representative,
   Student,
+  META_CONVITES,
 } from "@/lib/supabase";
 import { formatDateBr, formatDateTimeBr } from "@/lib/format";
 
@@ -80,6 +81,14 @@ export default function AdminDashboardPage() {
   const studentsByRepresentative = useMemo(() => {
     return students.reduce<Record<string, number>>((acc, student) => {
       acc[student.representative_id] = (acc[student.representative_id] || 0) + 1;
+      return acc;
+    }, {});
+  }, [students]);
+
+  const convitesByRepresentative = useMemo(() => {
+    return students.reduce<Record<string, number>>((acc, student) => {
+      acc[student.representative_id] =
+        (acc[student.representative_id] || 0) + (student.qtd_convites || 0);
       return acc;
     }, {});
   }, [students]);
@@ -239,50 +248,96 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="mt-8 overflow-x-auto">
-            <table className="w-full min-w-[920px] text-left text-sm">
+            <table className="w-full min-w-[1040px] text-left text-sm">
               <thead>
                 <tr className="border-b border-line text-[10px] uppercase tracking-premium-widest text-text-tertiary">
                   <th className="py-3 pr-4 font-medium">Representante</th>
                   <th className="py-3 pr-4 font-medium">Curso</th>
                   <th className="py-3 pr-4 font-medium">Instituicao</th>
                   <th className="py-3 pr-4 font-medium">Ano</th>
+                  <th className="py-3 pr-4 font-medium">Convites</th>
                   <th className="py-3 pr-4 font-medium">Adesoes</th>
-                  <th className="py-3 pr-4 font-medium">Cadastro</th>
+                  <th className="py-3 pr-4 font-medium">Status</th>
                   <th className="py-3 text-right font-medium">Acao</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {filteredRepresentatives.map((representative) => (
-                  <tr key={representative.id} className="group transition-colors duration-300 hover:bg-bg-ice relative">
-                    <td className="py-4 pr-4 text-text-primary relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-wine opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      <span className="pl-4">{representative.name}</span>
-                    </td>
-                    <td className="py-4 pr-4 text-text-secondary">
-                      {representative.course_name}
-                    </td>
-                    <td className="py-4 pr-4 text-text-secondary">
-                      {representative.institution_name}
-                    </td>
-                    <td className="py-4 pr-4 text-text-secondary">
-                      {representative.graduation_year}
-                    </td>
-                    <td className="py-4 pr-4 text-text-primary">
-                      {studentsByRepresentative[representative.id] || 0}
-                    </td>
-                    <td className="py-4 pr-4 text-text-secondary">
-                      {formatDateBr(representative.created_at)}
-                    </td>
-                    <td className="py-4 text-right">
-                      <Link
-                        href={`/admin/dashboard/${representative.id}`}
-                        className="btn-secondary-tech inline-flex"
-                      >
-                        Visualizar
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                {filteredRepresentatives.map((representative) => {
+                  const totalConvites =
+                    convitesByRepresentative[representative.id] || 0;
+                  const adesoes =
+                    studentsByRepresentative[representative.id] || 0;
+                  const metaAtingida = totalConvites >= META_CONVITES;
+                  const atendida = Boolean(representative.contacted_at);
+
+                  return (
+                    <tr
+                      key={representative.id}
+                      className="group transition-colors duration-300 hover:bg-bg-ice relative"
+                    >
+                      <td className="py-4 pr-4 text-text-primary relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-wine opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                        <span className="pl-4">{representative.name}</span>
+                      </td>
+                      <td className="py-4 pr-4 text-text-secondary">
+                        {representative.course_name}
+                      </td>
+                      <td className="py-4 pr-4 text-text-secondary">
+                        {representative.institution_name}
+                      </td>
+                      <td className="py-4 pr-4 text-text-secondary">
+                        {representative.graduation_year}
+                      </td>
+                      <td className="py-4 pr-4">
+                        <span
+                          className={`font-medium ${
+                            metaAtingida
+                              ? "text-[#0a7d3a]"
+                              : "text-text-primary"
+                          }`}
+                        >
+                          {totalConvites}
+                        </span>
+                        <span className="ml-1 text-xs text-text-tertiary">
+                          / {META_CONVITES}
+                        </span>
+                      </td>
+                      <td className="py-4 pr-4 text-text-primary">{adesoes}</td>
+                      <td className="py-4 pr-4">
+                        {atendida ? (
+                          <span
+                            className="inline-flex items-center gap-1.5 rounded-full border border-[#5b7da3]/30 bg-[#5b7da3]/8 px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-[#3a5a82]"
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#5b7da3]" />
+                            Atendido
+                          </span>
+                        ) : metaAtingida ? (
+                          <span
+                            className="inline-flex items-center gap-1.5 rounded-full border border-[#0a7d3a]/30 bg-[#0a7d3a]/8 px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-[#0a7d3a]"
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#0a7d3a] animate-pulse" />
+                            Meta atingida
+                          </span>
+                        ) : (
+                          <span
+                            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg-soft px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-text-tertiary"
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full bg-text-tertiary" />
+                            Pendente
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 text-right">
+                        <Link
+                          href={`/admin/dashboard/${representative.id}`}
+                          className="btn-secondary-tech inline-flex"
+                        >
+                          Visualizar
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
 

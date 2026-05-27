@@ -21,11 +21,15 @@ create table if not exists public.representatives (
   consultant_name   text,
   consultant_phone  text,
   meta_notified_at  timestamptz,
+  contacted_at      timestamptz,
   created_at        timestamptz not null default now()
 );
 
 alter table public.representatives
   add column if not exists meta_notified_at timestamptz;
+
+alter table public.representatives
+  add column if not exists contacted_at timestamptz;
 
 alter table public.representatives
   add column if not exists consultant_name text;
@@ -285,6 +289,13 @@ create policy "representatives_update_own"
   to authenticated
   using (user_id = auth.uid())
   with check (user_id = auth.uid());
+
+drop policy if exists "representatives_update_admin" on public.representatives;
+create policy "representatives_update_admin"
+  on public.representatives for update
+  to authenticated
+  using (public.is_admin())
+  with check (public.is_admin());
 
 drop policy if exists "students_insert_public" on public.students;
 drop policy if exists "students_select_owner_or_admin" on public.students;
