@@ -14,15 +14,7 @@ import {
   META_CONVITES,
 } from "@/lib/supabase";
 import { formatCpf, formatDateBr, formatPhone } from "@/lib/format";
-
-function slugifyFile(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
+import { buildQrPosterBlob, slugifyFile } from "@/lib/qrPoster";
 
 export default function AdminRepresentativePage() {
   const params = useParams<{ id: string }>();
@@ -75,17 +67,35 @@ export default function AdminRepresentativePage() {
     }
   }
 
-  function baixarQr() {
+  async function baixarQr() {
     if (!representative) return;
-    const canvas = qrWrapperRef.current?.querySelector("canvas");
+    const canvas = qrWrapperRef.current?.querySelector(
+      "canvas",
+    ) as HTMLCanvasElement | null;
     if (!canvas) return;
-    const filename = `qrcode-${slugifyFile(representative.course_name)}-${slugifyFile(representative.institution_name)}.png`;
+
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      (typeof window !== "undefined" ? window.location.origin : "");
+    const adesaoUrl = `${appUrl}/adesao/${representative.slug}`;
+
+    const blob = await buildQrPosterBlob({
+      qrCanvas: canvas,
+      curso: representative.course_name,
+      instituicao: representative.institution_name,
+      url: adesaoUrl,
+    });
+    if (!blob) return;
+
+    const filename = `convite-${slugifyFile(representative.course_name)}-${slugifyFile(representative.institution_name)}.png`;
+    const objectUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = canvas.toDataURL("image/png");
+    link.href = objectUrl;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
   }
 
   useEffect(() => {
