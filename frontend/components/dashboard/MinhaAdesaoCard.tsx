@@ -62,6 +62,9 @@ export default function MinhaAdesaoCard({
 
       if (updErr) throw updErr;
 
+      // Notifica outros componentes do dashboard para recarregar o total
+      window.dispatchEvent(new CustomEvent("adesoes:refresh"));
+
       // Dispara checagem de meta caso a alteração tenha levado a turma a 30+
       fetch("/api/notify-meta", {
         method: "POST",

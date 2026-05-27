@@ -46,18 +46,12 @@ export default function AdesoesCard({ representativeId, curso }: Props) {
       .from("students")
       .select("id, full_name, created_at, qtd_convites", { count: "exact" })
       .eq("representative_id", representativeId)
-      .order("created_at", { ascending: false })
-      .limit(20);
+      .order("created_at", { ascending: false });
     const rows = (data as StudentRow[]) || [];
-    setList(rows);
+    setList(rows.slice(0, 20));
     setCount(count || 0);
-
-    const { data: allConvites } = await supabase
-      .from("students")
-      .select("qtd_convites")
-      .eq("representative_id", representativeId);
-    const total = (allConvites || []).reduce(
-      (sum, r: any) => sum + (r.qtd_convites || 0),
+    const total = rows.reduce(
+      (sum, r) => sum + (r.qtd_convites || 0),
       0,
     );
     setTotalConvites(total);
@@ -79,8 +73,14 @@ export default function AdesoesCard({ representativeId, curso }: Props) {
         () => load(),
       )
       .subscribe();
+
+    // Evento global para forçar reload (ex.: após o representante salvar a própria quantidade).
+    const onRefresh = () => load();
+    window.addEventListener("adesoes:refresh", onRefresh);
+
     return () => {
       supabase.removeChannel(channel);
+      window.removeEventListener("adesoes:refresh", onRefresh);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [representativeId]);

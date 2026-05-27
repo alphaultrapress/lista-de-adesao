@@ -38,8 +38,13 @@ export default function MetaBanner({ representativeId }: Props) {
         () => load(),
       )
       .subscribe();
+
+    const onRefresh = () => load();
+    window.addEventListener("adesoes:refresh", onRefresh);
+
     return () => {
       supabase.removeChannel(channel);
+      window.removeEventListener("adesoes:refresh", onRefresh);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [representativeId]);
