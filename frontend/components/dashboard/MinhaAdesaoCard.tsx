@@ -55,12 +55,18 @@ export default function MinhaAdesaoCard({
 
     setSaving(true);
     try {
-      const { error: updErr } = await supabase
+      const { data: updated, error: updErr } = await supabase
         .from("students")
         .update({ qtd_convites: parsed })
-        .eq("id", studentId);
+        .eq("id", studentId)
+        .select("id");
 
       if (updErr) throw updErr;
+      if (!updated || updated.length === 0) {
+        throw new Error(
+          "Sem permissão para atualizar. Atualize a página e tente novamente.",
+        );
+      }
 
       // Notifica outros componentes do dashboard para recarregar o total
       window.dispatchEvent(new CustomEvent("adesoes:refresh"));
