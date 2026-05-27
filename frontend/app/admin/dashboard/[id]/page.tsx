@@ -264,7 +264,7 @@ export default function AdminRepresentativePage() {
               {students.length}
             </p>
           </div>
-          <div className="card-hover flex flex-col justify-between p-5">
+          <div className="card-hover flex flex-col p-5">
             <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
               Ação
             </p>
@@ -273,12 +273,26 @@ export default function AdminRepresentativePage() {
                 type="button"
                 onClick={toggleAtendido}
                 disabled={marcandoAtendido}
-                className={`mt-3 inline-flex items-center justify-center gap-2 border px-4 py-2.5 text-[11px] uppercase tracking-premium-wide font-semibold transition-all duration-300 ${
+                className={`mt-auto self-start inline-flex items-center justify-center gap-2 rounded-[3px] px-5 py-2.5 text-[11px] uppercase tracking-premium-wide font-semibold transition-all duration-300 ${
                   atendida
-                    ? "border-line bg-white text-text-secondary hover:border-text-primary hover:text-text-primary"
-                    : "border-[#0a7d3a] bg-[#0a7d3a] text-white hover:bg-[#13b85a]"
+                    ? "border border-line bg-white text-text-secondary hover:border-text-primary hover:text-text-primary"
+                    : "bg-[#0a7d3a] text-white shadow-[0_8px_20px_-8px_rgba(10,125,58,0.45)] hover:bg-[#13b85a] hover:shadow-[0_12px_24px_-8px_rgba(19,184,90,0.55)] hover:-translate-y-[1px]"
                 } disabled:opacity-50`}
               >
+                {!atendida && !marcandoAtendido && (
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M5 12l5 5L20 7" />
+                  </svg>
+                )}
                 {marcandoAtendido
                   ? "Salvando…"
                   : atendida
