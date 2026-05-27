@@ -20,8 +20,12 @@ create table if not exists public.representatives (
   slug              text not null unique,
   consultant_name   text,
   consultant_phone  text,
+  meta_notified_at  timestamptz,
   created_at        timestamptz not null default now()
 );
+
+alter table public.representatives
+  add column if not exists meta_notified_at timestamptz;
 
 alter table public.representatives
   add column if not exists consultant_name text;
@@ -50,9 +54,13 @@ create table if not exists public.students (
   birth_date         date not null,
   phone              text not null,
   email              text not null,
+  qtd_convites       integer not null default 1 check (qtd_convites >= 0),
   created_at         timestamptz not null default now(),
   constraint students_unique_cpf_per_representative unique (representative_id, cpf)
 );
+
+alter table public.students
+  add column if not exists qtd_convites integer not null default 1;
 
 create index if not exists idx_students_representative_id
   on public.students (representative_id);

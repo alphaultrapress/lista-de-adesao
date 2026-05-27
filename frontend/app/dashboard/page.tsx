@@ -8,6 +8,8 @@ import ConsultantContact from "@/components/ConsultantContact";
 import LinkCard from "@/components/dashboard/LinkCard";
 import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 import AdesoesCard from "@/components/dashboard/AdesoesCard";
+import MinhaAdesaoCard from "@/components/dashboard/MinhaAdesaoCard";
+import MetaBanner from "@/components/dashboard/MetaBanner";
 import {
   signOutAndClearSession,
   supabase,
@@ -104,6 +106,8 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        <MetaBanner representativeId={representative.id} />
+
         <div className="grid gap-6 lg:grid-cols-2">
           <LinkCard
             url={adesaoUrl}
@@ -114,6 +118,13 @@ export default function DashboardPage() {
           <AdesoesCard
             representativeId={representative.id}
             curso={representative.course_name}
+          />
+        </div>
+
+        <div className="mt-6">
+          <MinhaAdesaoCard
+            representativeId={representative.id}
+            representativeEmail={representative.email}
           />
         </div>
       </section>

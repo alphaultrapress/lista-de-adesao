@@ -76,8 +76,11 @@ export type Representative = {
   slug: string;
   consultant_name?: string | null;
   consultant_phone?: string | null;
+  meta_notified_at?: string | null;
   created_at: string;
 };
+
+export const META_CONVITES = 30;
 
 export type PublicRepresentative = Pick<
   Representative,
@@ -92,6 +95,7 @@ export type Student = {
   birth_date: string;
   phone: string;
   email: string;
+  qtd_convites: number;
   created_at: string;
 };
 

@@ -61,6 +61,7 @@ export default function AdesaoPublicaPage() {
     data_nascimento: "",
     whatsapp: "",
     email: "",
+    qtd_convites: "1",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -129,10 +130,13 @@ export default function AdesaoPublicaPage() {
     const e: Record<string, string> = {};
     if (!isValidCpf(form.cpf)) e.cpf = "CPF inválido.";
     if (!form.nome.trim()) e.nome = "Informe seu nome completo.";
-    if (!form.data_nascimento) e.data_nascimento = "Informe a data.";
     if (!isValidPhoneBr(form.whatsapp)) e.whatsapp = "Celular inválido.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       e.email = "E-mail inválido.";
+    }
+    const qtd = parseInt(form.qtd_convites, 10);
+    if (!qtd || qtd < 1) {
+      e.qtd_convites = "Informe uma quantidade válida.";
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -144,13 +148,15 @@ export default function AdesaoPublicaPage() {
     if (!validate() || !turma) return;
     setSubmitting(true);
     try {
+      const qtdConvites = Math.max(1, parseInt(form.qtd_convites, 10) || 1);
       const { error } = await supabase.from("students").insert({
         representative_id: turma.id,
         cpf: onlyDigits(form.cpf),
         full_name: form.nome.trim(),
-        birth_date: form.data_nascimento,
+        birth_date: form.data_nascimento || null,
         phone: onlyDigits(form.whatsapp),
         email: form.email.trim().toLowerCase(),
+        qtd_convites: qtdConvites,
       });
 
       if (error?.code === "23505") {
@@ -166,11 +172,12 @@ export default function AdesaoPublicaPage() {
           slug_origem: slug,
           cpf: onlyDigits(form.cpf),
           nome: form.nome.trim(),
-          data_nascimento: form.data_nascimento,
+          data_nascimento: form.data_nascimento || null,
           whatsapp: onlyDigits(form.whatsapp),
           email: form.email.trim().toLowerCase(),
           qtd_luxo: 0,
           qtd_simples: 0,
+          qtd_convites: qtdConvites,
           tem_fotos: "nao_sei",
           observacoes: null,
         });
@@ -178,6 +185,13 @@ export default function AdesaoPublicaPage() {
       } else if (error) {
         throw error;
       }
+
+      // Dispara verificação de meta (fire-and-forget — não bloqueia UX)
+      fetch("/api/notify-meta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ representative_id: turma.id }),
+      }).catch(() => {});
 
       setSuccess(true);
     } catch (err: any) {
@@ -695,12 +709,16 @@ export default function AdesaoPublicaPage() {
               />
             </div>
             <Input
-              label="Data de nascimento"
-              name="data_nascimento"
-              type="date"
-              value={form.data_nascimento}
-              onChange={(e) => set("data_nascimento", e.target.value)}
-              error={errors.data_nascimento}
+              label="Quantos convites você deseja?"
+              name="qtd_convites"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={form.qtd_convites}
+              onChange={(e) =>
+                set("qtd_convites", e.target.value.replace(/\D/g, "").slice(0, 4))
+              }
+              hint="Quantidade aproximada de convites. Você pode ajustar depois com a equipe."
+              error={errors.qtd_convites}
               required
             />
             {topError && (
@@ -883,12 +901,16 @@ export default function AdesaoPublicaPage() {
           </div>
 
           <Input
-            label="Data de nascimento"
-            name="data_nascimento"
-            type="date"
-            value={form.data_nascimento}
-            onChange={(e) => set("data_nascimento", e.target.value)}
-            error={errors.data_nascimento}
+            label="Quantos convites você deseja?"
+            name="qtd_convites"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={form.qtd_convites}
+            onChange={(e) =>
+              set("qtd_convites", e.target.value.replace(/\D/g, "").slice(0, 2))
+            }
+            hint="Quantidade aproximada de convites. Você pode ajustar depois com a equipe."
+            error={errors.qtd_convites}
             required
           />
 

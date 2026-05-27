@@ -10,11 +10,13 @@ import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import CpfInput from "@/components/forms/CpfInput";
 import PhoneInput from "@/components/forms/PhoneInput";
+import Autocomplete from "@/components/forms/Autocomplete";
 import { signOutAndClearSession, supabase } from "@/lib/supabase";
-import { isValidCpf, isValidPhoneBr } from "@/lib/cpf";
+import { isValidCpf, isValidPhoneBr, onlyDigits } from "@/lib/cpf";
 import { buildTurmaSlug } from "@/lib/slugify";
 import { UFS, fetchMunicipios, Municipio } from "@/lib/ibge";
 import { getStoredConsultant } from "@/lib/consultants";
+import { CURSOS_COMUNS } from "@/lib/cursos";
 
 const SEMESTRES = ["2026.1", "2026.2", "2027.1", "2027.2", "2028.1", "2028.2"];
 const DUPLICATE_EMAIL_MESSAGE = "Este e-mail já está cadastrado.";
@@ -69,13 +71,25 @@ export default function CadastroPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      const user = data.session?.user;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const sessionUser = sessionData.session?.user;
 
-      if (!user) {
+      if (!sessionUser) {
         setCheckingSession(false);
         return;
       }
+
+      // Valida a sessão consultando o servidor — se o user foi apagado
+      // do auth.users, getUser() falha e a gente limpa a sessão zumbi.
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userData.user) {
+        await signOutAndClearSession();
+        setExistingUserId(null);
+        setCheckingSession(false);
+        return;
+      }
+
+      const user = userData.user;
 
       const { data: representative, error } = await supabase
         .from("representatives")
@@ -133,7 +147,6 @@ export default function CadastroPage() {
       e.email = "E-mail inválido.";
     }
     if (!isValidPhoneBr(form.whatsapp)) e.whatsapp = "WhatsApp inválido.";
-    if (!form.data_nascimento) e.data_nascimento = "Informe a data.";
     if (!form.curso.trim()) e.curso = "Informe o curso.";
     if (!form.instituicao.trim()) e.instituicao = "Informe a instituição.";
     if (!form.estado) e.estado = "Selecione o estado.";
@@ -202,6 +215,7 @@ export default function CadastroPage() {
       );
       const assignedConsultant = getStoredConsultant();
       let insertErr: any = null;
+      let createdRepresentativeId: string | null = null;
 
       for (let attempt = 0; attempt < 5; attempt += 1) {
         const slug = attempt === 0 ? baseSlug : `${baseSlug}-${attempt + 1}`;
@@ -220,14 +234,19 @@ export default function CadastroPage() {
           representativePayload.consultant_phone = assignedConsultant.phone;
         }
 
-        const { error } = await supabase
+        const { data: inserted, error } = await supabase
           .from("representatives")
-          .insert(representativePayload);
+          .insert(representativePayload)
+          .select("id")
+          .single();
 
         insertErr = error;
-        if (!error) break;
-        if (assignedConsultant && error.code === "PGRST204") {
-          const { error: fallbackError } = await supabase
+        if (!error && inserted) {
+          createdRepresentativeId = inserted.id;
+          break;
+        }
+        if (assignedConsultant && error?.code === "PGRST204") {
+          const { data: fallbackInserted, error: fallbackError } = await supabase
             .from("representatives")
             .insert({
               user_id: userId,
@@ -237,17 +256,44 @@ export default function CadastroPage() {
               institution_name: form.instituicao.trim(),
               graduation_year: form.semestre,
               slug,
-            });
+            })
+            .select("id")
+            .single();
 
           insertErr = fallbackError;
-          if (!fallbackError) break;
-          if (fallbackError.code !== "23505") throw fallbackError;
+          if (!fallbackError && fallbackInserted) {
+            createdRepresentativeId = fallbackInserted.id;
+            break;
+          }
+          if (fallbackError && fallbackError.code !== "23505") throw fallbackError;
           continue;
         }
-        if (error.code !== "23505") throw error;
+        if (error && error.code !== "23505") throw error;
       }
 
       if (insertErr) throw insertErr;
+
+      // Insere o representante automaticamente na lista de adesões da própria turma.
+      // Não bloqueia o cadastro se falhar (ex.: CPF inválido) — só loga.
+      if (createdRepresentativeId) {
+        const cpfDigits = onlyDigits(form.cpf);
+        const phoneDigits = onlyDigits(form.whatsapp);
+        const { error: studentErr } = await supabase.from("students").insert({
+          representative_id: createdRepresentativeId,
+          cpf: cpfDigits,
+          full_name: form.nome.trim(),
+          birth_date: form.data_nascimento || null,
+          phone: phoneDigits,
+          email: normalizedEmail,
+          qtd_convites: 1,
+        });
+        if (studentErr) {
+          console.warn(
+            "[cadastro] falha ao inserir representante na lista:",
+            studentErr,
+          );
+        }
+      }
 
       router.push("/dashboard");
     } catch (err: any) {
@@ -256,10 +302,16 @@ export default function CadastroPage() {
         return;
       }
 
+      console.error("[cadastro] erro completo:", err);
+      const detail = [err?.message, err?.details, err?.hint, err?.code]
+        .filter(Boolean)
+        .join(" · ");
       setTopError(
         err?.code === "42P01"
           ? "O banco ainda precisa receber o schema novo. Execute o arquivo supabase/schema.sql no Supabase."
-          : "Não foi possível criar a conta. Tente novamente.",
+          : detail
+            ? `Erro: ${detail}`
+            : "Não foi possível criar a conta. Tente novamente.",
       );
     } finally {
       setSubmitting(false);
@@ -338,25 +390,14 @@ export default function CadastroPage() {
             required
           />
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <Input
-              label="Nome completo"
-              name="nome"
-              value={form.nome}
-              onChange={(e) => set("nome", e.target.value)}
-              error={errors.nome}
-              required
-            />
-            <Input
-              label="Data de nascimento"
-              name="data_nascimento"
-              type="date"
-              value={form.data_nascimento}
-              onChange={(e) => set("data_nascimento", e.target.value)}
-              error={errors.data_nascimento}
-              required
-            />
-          </div>
+          <Input
+            label="Nome completo"
+            name="nome"
+            value={form.nome}
+            onChange={(e) => set("nome", e.target.value)}
+            error={errors.nome}
+            required
+          />
 
           <div className="grid gap-6 md:grid-cols-2">
             <Input
@@ -378,22 +419,31 @@ export default function CadastroPage() {
             />
           </div>
 
-          <Input
+          <Autocomplete
             label="Curso de graduação"
             name="curso"
             value={form.curso}
-            onChange={(e) => set("curso", e.target.value)}
+            onChange={(v) => set("curso", v)}
+            options={CURSOS_COMUNS}
             placeholder="Ex: Medicina"
             error={errors.curso}
             required
           />
 
-          <Input
+          <Autocomplete
             label="Instituição de ensino"
             name="instituicao"
             value={form.instituicao}
-            onChange={(e) => set("instituicao", e.target.value)}
-            placeholder="Ex: FIMCA"
+            onChange={(v) => set("instituicao", v)}
+            fetchOptions={async (q) => {
+              const res = await fetch(
+                `/api/instituicoes?q=${encodeURIComponent(q)}`,
+              );
+              if (!res.ok) return [];
+              const data = await res.json();
+              return Array.isArray(data?.results) ? data.results : [];
+            }}
+            placeholder="Ex: FIMCA, USP, UFRJ…"
             error={errors.instituicao}
             required
           />
