@@ -344,10 +344,7 @@ export default function AdesoesCard({ representativeId, curso }: Props) {
                       </span>
                     )}
                   </p>
-                  <p className="text-xs text-text-tertiary">
-                    {curso} · {s.qtd_convites}{" "}
-                    {s.qtd_convites === 1 ? "convite" : "convites"}
-                  </p>
+                  <p className="text-xs text-text-tertiary">{curso}</p>
                 </div>
 
                 {manage ? (
@@ -409,9 +406,14 @@ export default function AdesoesCard({ representativeId, curso }: Props) {
                     </div>
                   )
                 ) : (
-                  <span className="shrink-0 text-[11px] tabular-nums text-text-tertiary">
-                    {timeAgo(s.created_at)}
-                  </span>
+                  <div className="shrink-0 text-right">
+                    <p className="text-sm font-semibold tabular-nums text-[#0A0A0A]">
+                      {s.qtd_convites}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wider text-text-tertiary">
+                      {s.qtd_convites === 1 ? "convite" : "convites"}
+                    </p>
+                  </div>
                 )}
               </li>
             ))}
