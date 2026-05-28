@@ -117,26 +117,43 @@ export async function POST(
     )
     .join("\n");
 
+  const [anoStr, semStr] = String(rep.graduation_year || "").split(".");
+  const semestreTxt =
+    semStr === "1"
+      ? "Primeiro Semestre"
+      : semStr === "2"
+        ? "Segundo Semestre"
+        : "";
+
   const comments = [
-    `Turma: ${rep.course_name} — ${rep.institution_name} (${rep.graduation_year})`,
-    `Representante: ${rep.name} <${rep.email}>`,
+    "=== LISTA DE ADESÃO — ALPHA CONVITES ===",
+    `Origem do Lead: Lista de Adesão`,
+    `Fonte: Marketing`,
+    "",
+    `Curso: ${rep.course_name}`,
+    `Faculdade: ${rep.institution_name}`,
+    anoStr ? `Ano de formatura: ${anoStr}` : null,
+    semestreTxt ? `Semestre: ${semestreTxt}` : null,
+    "",
+    `Representante: ${rep.name}`,
+    `E-mail: ${rep.email}`,
     consultorNome
       ? `Consultor: ${consultorNome} ${consultorPhone ? `(${consultorPhone})` : ""}`
       : null,
-    `Total de convites: ${total}`,
-    `Total de adesoes: ${(students || []).length}`,
     "",
-    "Lista de adesoes:",
+    `TOTAL DE CONVITES DESEJADOS: ${total}`,
+    `Total de adesões: ${(students || []).length}`,
+    "",
+    "--- Lista de adesões ---",
     studentsTxt,
   ]
-    .filter(Boolean)
+    .filter((l) => l !== null)
     .join("\n");
 
   const fields: Record<string, any> = {
-    TITLE: `Lista de Adesao — ${rep.course_name} / ${rep.institution_name}`,
+    TITLE: `Lista de Adesão — ${rep.course_name} / ${rep.institution_name}`,
     NAME: rep.name,
     EMAIL: [{ VALUE: rep.email, VALUE_TYPE: "WORK" }],
-    SOURCE_ID: "WEB",
     COMMENTS: comments,
     OPPORTUNITY: total,
     CURRENCY_ID: "BRL",
