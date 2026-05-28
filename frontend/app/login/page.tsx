@@ -84,7 +84,7 @@ export default function LoginPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Nao foi possivel verificar seu acesso.",
+          : "Não foi possível verificar seu acesso.",
       );
 
       if (fromSession) {
@@ -128,7 +128,7 @@ export default function LoginPage() {
     );
 
     if (resetError) {
-      setError("Nao foi possivel enviar o e-mail. Tente novamente.");
+      setError("Não foi possível enviar o e-mail. Tente novamente.");
       return;
     }
 

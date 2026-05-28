@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
 
     if (adminError || !admin) {
       await signOutAndClearSession();
-      setError("Este usuario nao possui permissao administrativa.");
+      setError("Este usuário não possui permissão administrativa.");
       return;
     }
 

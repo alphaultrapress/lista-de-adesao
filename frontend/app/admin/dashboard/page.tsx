@@ -230,7 +230,7 @@ export default function AdminDashboardPage() {
               placeholder="Curso"
             />
             <Input
-              label="Busca por instituicao"
+              label="Busca por instituição"
               value={institutionSearch}
               onChange={(e) => setInstitutionSearch(e.target.value)}
               placeholder="Instituição"
