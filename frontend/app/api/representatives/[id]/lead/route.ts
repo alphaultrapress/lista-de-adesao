@@ -58,15 +58,35 @@ export async function POST(
   const { data: rep, error: repErr } = await admin
     .from("representatives")
     .select(
-      "id, name, email, course_name, institution_name, graduation_year, slug, consultant_name, consultant_phone, lead_created_at",
+      "id, name, email, course_name, institution_name, graduation_year, slug, lead_created_at",
     )
     .eq("id", representativeId)
     .maybeSingle();
   if (repErr || !rep) {
     return NextResponse.json(
-      { ok: false, error: "representative not found" },
+      {
+        ok: false,
+        error: repErr ? `DB: ${repErr.message}` : "representative not found",
+      },
       { status: 404 },
     );
+  }
+
+  // consultor é opcional — busca em separado para nao quebrar se a coluna nao existir
+  let consultorNome: string | null = null;
+  let consultorPhone: string | null = null;
+  try {
+    const { data: c } = await admin
+      .from("representatives")
+      .select("consultant_name, consultant_phone")
+      .eq("id", representativeId)
+      .maybeSingle();
+    if (c) {
+      consultorNome = (c as any).consultant_name ?? null;
+      consultorPhone = (c as any).consultant_phone ?? null;
+    }
+  } catch {
+    // coluna nao existe neste banco — segue sem consultor
   }
 
   const { data: students } = await admin
@@ -100,8 +120,8 @@ export async function POST(
   const comments = [
     `Turma: ${rep.course_name} — ${rep.institution_name} (${rep.graduation_year})`,
     `Representante: ${rep.name} <${rep.email}>`,
-    rep.consultant_name
-      ? `Consultor: ${rep.consultant_name} ${rep.consultant_phone ? `(${rep.consultant_phone})` : ""}`
+    consultorNome
+      ? `Consultor: ${consultorNome} ${consultorPhone ? `(${consultorPhone})` : ""}`
       : null,
     `Total de convites: ${total}`,
     `Total de adesoes: ${(students || []).length}`,
