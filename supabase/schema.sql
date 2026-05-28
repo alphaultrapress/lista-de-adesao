@@ -22,6 +22,7 @@ create table if not exists public.representatives (
   consultant_phone  text,
   meta_notified_at  timestamptz,
   contacted_at      timestamptz,
+  lead_created_at   timestamptz,
   created_at        timestamptz not null default now()
 );
 
@@ -30,6 +31,9 @@ alter table public.representatives
 
 alter table public.representatives
   add column if not exists contacted_at timestamptz;
+
+alter table public.representatives
+  add column if not exists lead_created_at timestamptz;
 
 alter table public.representatives
   add column if not exists consultant_name text;

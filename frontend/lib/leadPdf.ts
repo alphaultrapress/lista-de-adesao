@@ -1,0 +1,141 @@
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { formatCpf, formatPhone } from "./format";
+
+export type LeadPdfParams = {
+  curso: string;
+  instituicao: string;
+  ano: string;
+  representanteNome: string;
+  representanteEmail: string;
+  consultorNome?: string | null;
+  students: Array<{
+    full_name: string;
+    cpf: string;
+    email: string;
+    phone: string;
+    qtd_convites: number;
+  }>;
+};
+
+export function downloadLeadPdf(params: LeadPdfParams) {
+  const {
+    curso,
+    instituicao,
+    ano,
+    representanteNome,
+    representanteEmail,
+    consultorNome,
+    students,
+  } = params;
+
+  const total = students.reduce((s, x) => s + (x.qtd_convites || 0), 0);
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const W = doc.internal.pageSize.getWidth();
+
+  // Cabeçalho
+  doc.setFillColor(10, 8, 5);
+  doc.rect(0, 0, W, 90, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("times", "italic");
+  doc.setFontSize(26);
+  doc.text("Alpha Convites", 40, 45);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(212, 175, 110);
+  doc.text("LISTA DE ADESÃO · LEAD COMERCIAL", 40, 65);
+
+  // Título da turma
+  doc.setTextColor(20, 15, 10);
+  doc.setFont("times", "bolditalic");
+  doc.setFontSize(20);
+  doc.text(`Turma de ${curso}`, 40, 130);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.setTextColor(80, 80, 80);
+  doc.text(`${instituicao} · ${ano}`, 40, 150);
+
+  // Bloco representante
+  doc.setDrawColor(220, 215, 205);
+  doc.line(40, 168, W - 40, 168);
+  doc.setFontSize(9);
+  doc.setTextColor(140, 107, 58);
+  doc.text("REPRESENTANTE", 40, 188);
+  doc.setTextColor(20, 15, 10);
+  doc.setFontSize(12);
+  doc.text(representanteNome, 40, 206);
+  doc.setFontSize(10);
+  doc.setTextColor(80, 80, 80);
+  doc.text(representanteEmail, 40, 222);
+  if (consultorNome) {
+    doc.text(`Consultor: ${consultorNome}`, 40, 238);
+  }
+
+  // Métricas
+  const metricsY = consultorNome ? 262 : 246;
+  doc.setFontSize(9);
+  doc.setTextColor(140, 107, 58);
+  doc.text("TOTAL DE CONVITES", W - 220, metricsY);
+  doc.text("TOTAL DE ADESÕES", W - 110, metricsY);
+  doc.setFont("times", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(10, 125, 58);
+  doc.text(String(total), W - 220, metricsY + 26);
+  doc.setTextColor(20, 15, 10);
+  doc.text(String(students.length), W - 110, metricsY + 26);
+
+  // Tabela de alunos
+  autoTable(doc, {
+    startY: metricsY + 50,
+    head: [["#", "Nome", "CPF", "E-mail", "WhatsApp", "Convites"]],
+    body: students.map((s, i) => [
+      String(i + 1),
+      s.full_name,
+      formatCpf(s.cpf),
+      s.email,
+      formatPhone(s.phone),
+      String(s.qtd_convites),
+    ]),
+    styles: {
+      font: "helvetica",
+      fontSize: 9,
+      cellPadding: 6,
+      textColor: [40, 40, 40],
+    },
+    headStyles: {
+      fillColor: [26, 20, 16],
+      textColor: [255, 255, 255],
+      fontSize: 9,
+      halign: "left",
+    },
+    alternateRowStyles: { fillColor: [248, 245, 240] },
+    columnStyles: {
+      0: { cellWidth: 28, halign: "center" },
+      5: { halign: "center" },
+    },
+    margin: { left: 40, right: 40 },
+  });
+
+  // Rodapé
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    const H = doc.internal.pageSize.getHeight();
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(
+      `Alpha Convites · gerado em ${new Date().toLocaleDateString("pt-BR")}`,
+      40,
+      H - 24,
+    );
+    doc.text(`Página ${i} de ${pageCount}`, W - 90, H - 24);
+  }
+
+  const slug = `${curso}-${instituicao}`
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  doc.save(`lead-${slug}.pdf`);
+}

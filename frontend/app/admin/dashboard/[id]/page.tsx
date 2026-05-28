@@ -15,6 +15,8 @@ import {
 } from "@/lib/supabase";
 import { formatCpf, formatDateBr, formatPhone } from "@/lib/format";
 import { buildQrPosterBlob, slugifyFile } from "@/lib/qrPoster";
+import { downloadLeadPdf } from "@/lib/leadPdf";
+import LeadSuccessModal from "@/components/admin/LeadSuccessModal";
 
 export default function AdminRepresentativePage() {
   const params = useParams<{ id: string }>();
@@ -27,6 +29,10 @@ export default function AdminRepresentativePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
   const [marcandoAtendido, setMarcandoAtendido] = useState(false);
+  const [gerandoLead, setGerandoLead] = useState(false);
+  const [leadError, setLeadError] = useState<string | undefined>();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [leadId, setLeadId] = useState<number | undefined>();
   const qrWrapperRef = useRef<HTMLDivElement>(null);
 
   const totalConvites = useMemo(
@@ -35,6 +41,63 @@ export default function AdminRepresentativePage() {
   );
   const metaAtingida = totalConvites >= META_CONVITES;
   const atendida = Boolean(representative?.contacted_at);
+  const leadCriado = Boolean(representative?.lead_created_at);
+
+  async function gerarLead() {
+    if (!representative) return;
+    setGerandoLead(true);
+    setLeadError(undefined);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) return;
+
+      const res = await fetch(
+        `/api/representatives/${representative.id}/lead`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Falha ao gerar lead.");
+      }
+      setLeadId(data.leadId);
+      setModalOpen(true);
+      setRepresentative((current) =>
+        current
+          ? { ...current, lead_created_at: new Date().toISOString() }
+          : current,
+      );
+    } catch (err: any) {
+      setLeadError(err?.message || "Não foi possível gerar o lead.");
+    } finally {
+      setGerandoLead(false);
+    }
+  }
+
+  function baixarLeadPdf() {
+    if (!representative) return;
+    downloadLeadPdf({
+      curso: representative.course_name,
+      instituicao: representative.institution_name,
+      ano: representative.graduation_year,
+      representanteNome: representative.name,
+      representanteEmail: representative.email,
+      consultorNome: representative.consultant_name,
+      students: students.map((s) => ({
+        full_name: s.full_name,
+        cpf: s.cpf,
+        email: s.email,
+        phone: s.phone,
+        qtd_convites: s.qtd_convites,
+      })),
+    });
+  }
 
   async function toggleAtendido() {
     if (!representative) return;
@@ -279,36 +342,51 @@ export default function AdminRepresentativePage() {
               Ação
             </p>
             {metaAtingida ? (
-              <button
-                type="button"
-                onClick={toggleAtendido}
-                disabled={marcandoAtendido}
-                className={`mt-auto self-start inline-flex items-center justify-center gap-2 rounded-[3px] px-5 py-2.5 text-[11px] uppercase tracking-premium-wide font-semibold transition-all duration-300 ${
-                  atendida
-                    ? "border border-line bg-white text-text-secondary hover:border-text-primary hover:text-text-primary"
-                    : "bg-[#0a7d3a] text-white shadow-[0_8px_20px_-8px_rgba(10,125,58,0.45)] hover:bg-[#13b85a] hover:shadow-[0_12px_24px_-8px_rgba(19,184,90,0.55)] hover:-translate-y-[1px]"
-                } disabled:opacity-50`}
-              >
-                {!atendida && !marcandoAtendido && (
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+              <div className="mt-auto flex flex-col gap-2.5">
+                <button
+                  type="button"
+                  onClick={toggleAtendido}
+                  disabled={marcandoAtendido}
+                  className={`self-start inline-flex items-center justify-center gap-2 rounded-[3px] px-5 py-2.5 text-[11px] uppercase tracking-premium-wide font-semibold transition-all duration-300 ${
+                    atendida
+                      ? "border border-line bg-white text-text-secondary hover:border-text-primary hover:text-text-primary"
+                      : "bg-[#0a7d3a] text-white shadow-[0_8px_20px_-8px_rgba(10,125,58,0.45)] hover:bg-[#13b85a] hover:shadow-[0_12px_24px_-8px_rgba(19,184,90,0.55)] hover:-translate-y-[1px]"
+                  } disabled:opacity-50`}
+                >
+                  {!atendida && !marcandoAtendido && (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 12l5 5L20 7" />
+                    </svg>
+                  )}
+                  {marcandoAtendido
+                    ? "Salvando…"
+                    : atendida
+                      ? "Desfazer atendimento"
+                      : "Marcar como atendido"}
+                </button>
+
+                {atendida && (
+                  <button
+                    type="button"
+                    onClick={leadCriado ? () => setModalOpen(true) : gerarLead}
+                    disabled={gerandoLead}
+                    className="self-start inline-flex items-center justify-center gap-2 rounded-[3px] bg-[#1A1410] px-5 py-2.5 text-[11px] uppercase tracking-premium-wide font-semibold text-white shadow-[0_8px_20px_-8px_rgba(20,15,10,0.5)] transition-all duration-300 hover:bg-black hover:-translate-y-[1px] disabled:opacity-50"
                   >
-                    <path d="M5 12l5 5L20 7" />
-                  </svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+                    </svg>
+                    {gerandoLead
+                      ? "Enviando…"
+                      : leadCriado
+                        ? "Ver lead enviado"
+                        : "Gerar lead no Bitrix"}
+                  </button>
                 )}
-                {marcandoAtendido
-                  ? "Salvando…"
-                  : atendida
-                    ? "Desfazer atendimento"
-                    : "Marcar como atendido"}
-              </button>
+
+                {leadError && (
+                  <p className="text-xs text-wine">{leadError}</p>
+                )}
+              </div>
             ) : (
               <p className="mt-3 text-xs text-text-tertiary">
                 Faltam {META_CONVITES - totalConvites} convite(s) para liberar o
@@ -473,6 +551,13 @@ export default function AdminRepresentativePage() {
           </div>
         </div>
       </section>
+
+      <LeadSuccessModal
+        open={modalOpen}
+        leadId={leadId}
+        onClose={() => setModalOpen(false)}
+        onDownloadPdf={baixarLeadPdf}
+      />
 
       <Footer />
     </main>

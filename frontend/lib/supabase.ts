@@ -78,6 +78,7 @@ export type Representative = {
   consultant_phone?: string | null;
   meta_notified_at?: string | null;
   contacted_at?: string | null;
+  lead_created_at?: string | null;
   created_at: string;
 };
 

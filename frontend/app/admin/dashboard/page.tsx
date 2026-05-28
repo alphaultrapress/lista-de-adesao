@@ -157,19 +157,9 @@ export default function AdminDashboardPage() {
         <div className="absolute inset-x-0 top-0 h-[420px] bg-grid-light opacity-50 pointer-events-none" />
 
         <div className="relative mb-12 fade-up">
-          <span className="tech-eyebrow">
-            <span className="dot" />
-            Painel administrativo
-          </span>
-          <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            Representantes e
-            <br />
-            <span className="italic font-light text-gray-500">alunos.</span>
+          <h1 className="font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
+            Painel <span className="italic font-light text-gray-500">administrativo.</span>
           </h1>
-          <p className="mt-5 max-w-2xl leading-relaxed text-text-secondary">
-            Acompanhe as turmas cadastradas, os links ativos e as adesoes reais
-            recebidas pelo formulario publico.
-          </p>
         </div>
 
         {error && (
