@@ -150,6 +150,29 @@ export async function POST(
     .filter((l) => l !== null)
     .join("\n");
 
+  // Mapeamento dos campos customizados (IDs das opcoes no Bitrix)
+  const ANO_MAP: Record<string, number> = {
+    "2025": 759,
+    "2026": 761,
+    "2027": 10834,
+    "2028": 10844,
+    "2029": 11700,
+  };
+  const SEM_MAP: Record<string, number> = { "1": 739, "2": 741 };
+
+  // Campos definitivos. Aplicados via UPDATE porque o crm.lead.add tem um
+  // handler interno no Bitrix que limpa fonte/canal/campos customizados.
+  const finalFields: Record<string, any> = {
+    SOURCE_ID: "WEBFORM", // Fonte = Marketing
+    UF_CRM_1531223348: 11718, // Canal de Entrada = Lista de Adesão
+    UF_CRM_1515146531: rep.course_name, // Curso
+    UF_CRM_1515146539: rep.institution_name, // Faculdade
+    UF_CRM_1633712858: total, // Quantidade desejada
+  };
+  if (assignedBy) finalFields.ASSIGNED_BY_ID = Number(assignedBy);
+  if (anoStr && ANO_MAP[anoStr]) finalFields.UF_CRM_1515147878 = ANO_MAP[anoStr];
+  if (semStr && SEM_MAP[semStr]) finalFields.UF_CRM_1515147809 = SEM_MAP[semStr];
+
   const fields: Record<string, any> = {
     TITLE: `Lista de Adesão — ${rep.course_name} / ${rep.institution_name}`,
     NAME: rep.name,
@@ -158,12 +181,12 @@ export async function POST(
     OPPORTUNITY: total,
     CURRENCY_ID: "BRL",
   };
-  if (assignedBy) fields.ASSIGNED_BY_ID = Number(assignedBy);
 
-  const url = bitrixWebhook.replace(/\/$/, "") + "/crm.lead.add.json";
+  const base = bitrixWebhook.replace(/\/$/, "");
   let leadId: number | undefined;
   try {
-    const res = await fetch(url, {
+    // 1) Cria o lead
+    const res = await fetch(`${base}/crm.lead.add.json`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fields, params: { REGISTER_SONET_EVENT: "Y" } }),
@@ -179,6 +202,13 @@ export async function POST(
       );
     }
     leadId = Number(json.result);
+
+    // 2) Atualiza com os campos definitivos (sobrescreve o que o handler limpou)
+    await fetch(`${base}/crm.lead.update.json`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: leadId, fields: finalFields }),
+    });
   } catch (err: any) {
     return NextResponse.json(
       { ok: false, error: String(err?.message || err) },
