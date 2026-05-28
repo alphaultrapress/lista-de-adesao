@@ -124,130 +124,14 @@ export default function LinkCard({
               target="_blank"
               rel="noreferrer"
               aria-label="Compartilhar no WhatsApp"
-              className="group relative inline-flex items-center gap-3 overflow-hidden px-6 py-[14px] text-[11px] font-semibold uppercase text-white transition-all duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] hover:-translate-y-[2px]"
-              style={{
-                letterSpacing: "0.22em",
-                background:
-                  "linear-gradient(135deg, #128C7E 0%, #25D366 55%, #1FAE56 100%)",
-                border: "1px solid rgba(255,255,255,0.22)",
-                borderRadius: "3px",
-                boxShadow:
-                  "0 12px 32px -10px rgba(37,211,102,0.55), 0 4px 12px rgba(18,140,126,0.28), inset 0 1px 0 rgba(255,255,255,0.18)",
-              }}
+              className="inline-flex items-center gap-3 rounded-[4px] border border-line bg-white px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-text-primary transition-all duration-300 hover:border-[#25D366] hover:-translate-y-[1px]"
             >
-              {/* Halo pulsante atrás do botão */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -inset-1 -z-10 opacity-70"
-                style={{
-                  background:
-                    "radial-gradient(60% 60% at 50% 50%, rgba(37,211,102,0.45) 0%, transparent 70%)",
-                  filter: "blur(14px)",
-                  animation: "waHalo 3.2s ease-in-out infinite",
-                }}
-              />
-
-              {/* Linha de scan tecnológica horizontal */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 top-1/2 h-px -translate-y-1/2 opacity-60"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%)",
-                  animation: "waScan 4s linear infinite",
-                }}
-              />
-
-              {/* Shimmer diagonal no hover */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                style={{
-                  background:
-                    "linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.32) 50%, transparent 70%)",
-                  transform: "translateX(-100%)",
-                  animation: "waShimmer 1.4s ease-in-out infinite",
-                }}
-              />
-
-              {/* Ícone WhatsApp com micro-animação */}
-              <span
-                aria-hidden
-                className="relative flex h-7 w-7 items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-[8deg]"
-                style={{
-                  background: "rgba(255,255,255,0.16)",
-                  borderRadius: "999px",
-                  boxShadow:
-                    "inset 0 0 0 1px rgba(255,255,255,0.28), 0 0 12px rgba(255,255,255,0.18)",
-                }}
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z" />
-                </svg>
-              </span>
-
-              <span className="relative">Compartilhar no WhatsApp</span>
-
-              {/* Seta indicando ação externa */}
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="relative transition-transform duration-500 group-hover:translate-x-1"
-              >
-                <path d="M5 12h14M13 5l7 7-7 7" />
+              <svg width="45" height="45" viewBox="0 0 24 24" fill="#25D366">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z" />
               </svg>
-
-              {/* Borda inferior animada (acabamento luxo) */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute bottom-0 left-1/2 h-px w-0 -translate-x-1/2 transition-all duration-700 ease-out group-hover:w-[80%]"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.85) 50%, transparent 100%)",
-                }}
-              />
+              Compartilhar no WhatsApp
             </a>
           </div>
-
-          <style jsx>{`
-            @keyframes waHalo {
-              0%, 100% {
-                opacity: 0.5;
-                transform: scale(1);
-              }
-              50% {
-                opacity: 0.85;
-                transform: scale(1.06);
-              }
-            }
-            @keyframes waScan {
-              0% {
-                transform: translateX(-100%) translateY(-50%);
-              }
-              100% {
-                transform: translateX(100%) translateY(-50%);
-              }
-            }
-            @keyframes waShimmer {
-              0% {
-                transform: translateX(-100%);
-              }
-              100% {
-                transform: translateX(100%);
-              }
-            }
-          `}</style>
         </div>
 
         <div className="mx-auto flex flex-col items-center gap-3 md:mx-0">

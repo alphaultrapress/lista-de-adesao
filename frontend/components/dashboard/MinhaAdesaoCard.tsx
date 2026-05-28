@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Card from "../ui/Card";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
 import { supabase } from "@/lib/supabase";
@@ -87,36 +86,59 @@ export default function MinhaAdesaoCard({
     }
   }
 
+  const shell =
+    "relative overflow-hidden rounded-2xl border border-black/[0.06] p-6 md:p-8";
+  const shellStyle = {
+    background:
+      "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%)",
+    backdropFilter: "blur(12px)",
+    boxShadow:
+      "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -16px rgba(0,0,0,0.08)",
+  } as const;
+
   if (loading) {
     return (
-      <Card title="Sua adesão" subtitle="Carregando…">
-        <p className="text-sm text-text-tertiary">Buscando seus dados…</p>
-      </Card>
+      <div className={shell} style={shellStyle}>
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-text-tertiary">
+          Sua participação
+        </p>
+        <p className="mt-4 text-sm text-text-tertiary">Carregando…</p>
+      </div>
     );
   }
 
   return (
-    <Card
-      title="Sua adesão"
-      subtitle="Você já está na lista. Ajuste abaixo quantos convites pretende."
-    >
-      <div className="grid items-end gap-5 md:grid-cols-[1fr,auto]">
-        <Input
-          label="Quantos convites você deseja?"
-          name="qtd_convites"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={qtd}
-          onChange={(e) =>
-            setQtd(e.target.value.replace(/\D/g, "").slice(0, 4))
-          }
-          hint="Quantidade aproximada de convites. Você pode ajustar quando quiser."
-          error={error}
-        />
-        <Button onClick={handleSave} loading={saving} type="button">
-          {savedFeedback ? "Salvo ✓" : saving ? "Salvando…" : "Salvar"}
-        </Button>
+    <div className={shell} style={shellStyle}>
+      <div className="relative">
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-text-tertiary">
+          Sua participação
+        </p>
+        <h3 className="mt-3 font-serif text-2xl leading-tight tracking-tight text-[#0A0A0A]">
+          Você faz parte da turma.
+        </h3>
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#3a3a3a]">
+          Quantos convites você pretende ter? Pode ajustar quando quiser.
+        </p>
+
+        <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <Input
+              label="Quantos convites você pretende?"
+              name="qtd_convites"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={qtd}
+              onChange={(e) =>
+                setQtd(e.target.value.replace(/\D/g, "").slice(0, 4))
+              }
+              error={error}
+            />
+          </div>
+          <Button onClick={handleSave} loading={saving} type="button">
+            {savedFeedback ? "Salvo ✓" : saving ? "Salvando…" : "Salvar"}
+          </Button>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }
