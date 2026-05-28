@@ -202,7 +202,7 @@ export default function AdminRepresentativePage() {
         setError(
           representativeResult.error?.message ||
             studentsResult.error?.message ||
-            "Nao foi possivel carregar os dados.",
+            "Não foi possível carregar os dados.",
         );
       } else {
         setRepresentative(
@@ -243,10 +243,10 @@ export default function AdminRepresentativePage() {
           <div className="absolute left-1/2 top-1/2 h-[340px] w-[560px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
           <div className="relative max-w-md text-center fade-up">
             <p className="mb-4 text-[10px] uppercase tracking-premium-widest text-wine">
-              Registro indisponivel
+              Registro indisponível
             </p>
             <h1 className="font-serif text-4xl tracking-premium-tight text-text-primary">
-              Representante nao encontrado
+              Representante não encontrado
             </h1>
             <Link
               href="/admin/dashboard"
@@ -406,10 +406,10 @@ export default function AdminRepresentativePage() {
           <div className="card-hover p-6 md:p-8">
             <div className="mb-8 border-b border-line pb-6">
               <h2 className="font-serif text-2xl tracking-premium-tight text-text-primary">
-                Informacoes da turma
+                Informações da turma
               </h2>
               <p className="mt-2 text-sm text-text-secondary">
-                Dados reais do representante e link publico da turma.
+                Dados reais do representante e link público da turma.
               </p>
             </div>
 
@@ -432,7 +432,7 @@ export default function AdminRepresentativePage() {
               </div>
               <div>
                 <dt className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  Instituicao
+                  Instituição
                 </dt>
                 <dd className="mt-2 text-sm text-text-primary">
                   {representative.institution_name}
@@ -503,7 +503,7 @@ export default function AdminRepresentativePage() {
               Alunos cadastrados
             </h2>
             <p className="mt-2 text-sm text-text-secondary">
-              Somente alunos que preencheram o formulario publico aparecem aqui.
+              Somente alunos que preencheram o formulário público aparecem aqui.
             </p>
           </div>
 
@@ -544,7 +544,7 @@ export default function AdminRepresentativePage() {
             {students.length === 0 && (
               <div className="border-t border-line px-4 py-12 text-center">
                 <p className="text-sm text-text-secondary">
-                  Nenhum aluno preencheu o formulario desta turma ainda.
+                  Nenhum aluno preencheu o formulário desta turma ainda.
                 </p>
               </div>
             )}

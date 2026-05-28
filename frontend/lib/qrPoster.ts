@@ -84,10 +84,10 @@ export async function buildQrPosterBlob(
   // LOGO
   try {
     const logo = await loadImage("/logos/logo-dark.png");
-    const logoH = 90;
+    const logoH = 160;
     const logoW = (logo.width / logo.height) * logoH;
     ctx.drawImage(logo, (W - logoW) / 2, y, logoW, logoH);
-    y += logoH + 60;
+    y += logoH + 50;
   } catch {
     ctx.fillStyle = "#0A0805";
     ctx.font = 'italic 56px Georgia, serif';

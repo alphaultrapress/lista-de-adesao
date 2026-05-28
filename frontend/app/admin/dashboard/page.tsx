@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
         setError(
           representativesResult.error?.message ||
             studentsResult.error?.message ||
-            "Nao foi possivel carregar os dados.",
+            "Não foi possível carregar os dados.",
         );
       } else {
         setRepresentatives((representativesResult.data as Representative[]) || []);
@@ -187,10 +187,10 @@ export default function AdminDashboardPage() {
           </div>
           <div className="card-hover p-6">
             <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              Ultima adesao
+              Última adesão
             </p>
             <p className="mt-4 text-sm font-medium text-text-primary">
-              {latestStudent ? latestStudent.full_name : "Sem adesoes"}
+              {latestStudent ? latestStudent.full_name : "Sem adesões"}
             </p>
             <p className="mt-2 text-xs text-text-tertiary">
               {latestStudent ? formatDateTimeBr(latestStudent.created_at) : "-"}
@@ -198,10 +198,10 @@ export default function AdminDashboardPage() {
           </div>
           <div className="card-hover p-6">
             <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              Curso com mais adesoes
+              Curso com mais adesões
             </p>
             <p className="mt-4 text-sm font-medium text-text-primary">
-              {courseWithMostStudents || "Sem adesoes"}
+              {courseWithMostStudents || "Sem adesões"}
             </p>
           </div>
         </div>
@@ -233,7 +233,7 @@ export default function AdminDashboardPage() {
               label="Busca por instituicao"
               value={institutionSearch}
               onChange={(e) => setInstitutionSearch(e.target.value)}
-              placeholder="Instituicao"
+              placeholder="Instituição"
             />
           </div>
 
@@ -243,12 +243,12 @@ export default function AdminDashboardPage() {
                 <tr className="border-b border-line text-[10px] uppercase tracking-premium-widest text-text-tertiary">
                   <th className="py-3 pr-4 font-medium">Representante</th>
                   <th className="py-3 pr-4 font-medium">Curso</th>
-                  <th className="py-3 pr-4 font-medium">Instituicao</th>
+                  <th className="py-3 pr-4 font-medium">Instituição</th>
                   <th className="py-3 pr-4 font-medium">Ano</th>
                   <th className="py-3 pr-4 font-medium">Convites</th>
-                  <th className="py-3 pr-4 font-medium">Adesoes</th>
+                  <th className="py-3 pr-4 font-medium">Adesões</th>
                   <th className="py-3 pr-4 font-medium">Status</th>
-                  <th className="py-3 text-right font-medium">Acao</th>
+                  <th className="py-3 text-right font-medium">Ação</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">

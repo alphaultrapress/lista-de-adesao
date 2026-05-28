@@ -92,7 +92,7 @@ export default function AdminLoginPage() {
               <span className="italic font-light text-gray-500">Alpha.</span>
             </h1>
             <p className="mt-5 text-sm leading-relaxed text-text-secondary">
-              Area restrita para acompanhar representantes e alunos cadastrados.
+              Área restrita para acompanhar representantes e alunos cadastrados.
             </p>
           </div>
 
