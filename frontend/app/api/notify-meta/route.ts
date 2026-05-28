@@ -133,15 +133,17 @@ async function sendBitrixNotification(
     `Total: ${total} convites[BR][BR]` +
     `[URL=${adminUrl}]Abrir painel administrativo →[/URL]`;
 
+  // im.notify do Bitrix espera form-encoded, nao JSON
   const url = webhookUrl.replace(/\/$/, "") + "/im.notify.json";
+  const form = new URLSearchParams();
+  form.set("to", String(userId));
+  form.set("message", message);
+  form.set("type", "SYSTEM");
+
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      to: userId,
-      message,
-      type: "SYSTEM",
-    }),
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: form.toString(),
   });
 
   if (!res.ok) {
