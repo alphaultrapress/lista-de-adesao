@@ -114,10 +114,10 @@ export default function MinhaAdesaoCard({
           Sua participação
         </p>
         <h3 className="mt-3 font-serif text-2xl leading-tight tracking-tight text-[#0A0A0A]">
-          Você faz parte da turma.
+          Você também faz parte desta turma!
         </h3>
-        <p className="mt-2 max-w-md text-sm leading-relaxed text-[#3a3a3a]">
-          Quantos convites você pretende ter? Pode ajustar quando quiser.
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#3a3a3a]">
+          Selecione a quantidade de convites que pretende adquirir. Você pode atualizar essa informação quando quiser.
         </p>
 
         <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-end">

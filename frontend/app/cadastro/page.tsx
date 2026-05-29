@@ -354,7 +354,7 @@ export default function CadastroPage() {
         <div className="relative mb-14 text-center fade-up">
           <span className="tech-eyebrow">
             <span className="dot" />
-            Cadastro do representante
+            Cadastro do representante da turma
           </span>
           <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
             Vamos conhecer

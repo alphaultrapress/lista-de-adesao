@@ -82,7 +82,7 @@ export default function DashboardPage() {
         <div className="relative mb-14 fade-up">
           <span className="tech-eyebrow">
             <span className="dot" />
-            Painel do representante
+            Representante da turma
           </span>
           <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
             Olá,{" "}

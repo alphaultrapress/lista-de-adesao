@@ -413,7 +413,7 @@ export default function AdesaoPublicaPage() {
 
           {/* Cinematic headline */}
           <h1
-            className="mt-10 font-serif font-normal"
+            className="mt-10 font-serif font-normal text-balance"
             style={{
               fontSize: "clamp(2.4rem, 6vw, 4.75rem)",
               lineHeight: "1.02",
@@ -423,8 +423,7 @@ export default function AdesaoPublicaPage() {
                 "0 2px 0 rgba(255,253,248,0.95), 0 -1px 0 rgba(255,253,248,0.9), 1px 0 0 rgba(255,253,248,0.9), -1px 0 0 rgba(255,253,248,0.9), 0 6px 24px rgba(255,253,248,0.8), 0 12px 40px rgba(20,15,10,0.12)",
             }}
           >
-            Sua turma merece um
-            <br />
+            A história da sua turma merece ser{" "}
             <span
               className="italic"
               style={{
@@ -435,7 +434,7 @@ export default function AdesaoPublicaPage() {
                   "0 2px 0 rgba(255,253,248,0.95), 0 -1px 0 rgba(255,253,248,0.9), 1px 0 0 rgba(255,253,248,0.9), -1px 0 0 rgba(255,253,248,0.9), 0 6px 24px rgba(255,253,248,0.85), 0 10px 32px rgba(42,42,45,0.18)",
               }}
             >
-              convite inesquecível.
+              eternizada.
             </span>
           </h1>
 
@@ -553,8 +552,7 @@ export default function AdesaoPublicaPage() {
                 "0 1px 0 rgba(255,253,248,0.95), 0 -1px 0 rgba(255,253,248,0.9), 1px 0 0 rgba(255,253,248,0.9), -1px 0 0 rgba(255,253,248,0.9), 0 4px 16px rgba(255,253,248,0.9), 0 8px 28px rgba(255,253,248,0.7)",
             }}
           >
-            Conheça os convites, acabamentos e possibilidades que a Alpha
-            prepara para turmas de todo o Brasil.
+            Cada conquista merece ser celebrada com um convite à altura desse momento. Descubra modelos exclusivos, acabamentos sofisticados e infinitas possibilidades de personalização para criar uma lembrança que será guardada para sempre.
           </p>
 
           {/* CTA único — destaque máximo, matte black com brilho dourado */}
@@ -654,8 +652,7 @@ export default function AdesaoPublicaPage() {
             </span>
           </h2>
           <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-[#3A3A3A]">
-            Poucos campos, sem compromisso. Nossa equipe entra em contato pelo
-            WhatsApp para apresentar as possibilidades.
+            Preencha seus dados e descubra as possibilidades que a Alpha preparou para a sua turma. É rápido, sem compromisso e nossa equipe entrará em contato pelo WhatsApp para apresentar opções, modelos e acabamentos.
           </p>
         </div>
 
@@ -842,8 +839,7 @@ export default function AdesaoPublicaPage() {
             </span>
           </h2>
           <p className="mx-auto mt-5 max-w-md text-sm leading-relaxed text-[#3A3A3A]">
-            Poucos campos, sem compromisso. Nossa equipe entra em contato pelo
-            WhatsApp para apresentar as possibilidades.
+            Preencha seus dados e descubra as possibilidades que a Alpha preparou para a sua turma. É rápido, sem compromisso e nossa equipe entrará em contato pelo WhatsApp para apresentar opções, modelos e acabamentos.
           </p>
         </div>
 

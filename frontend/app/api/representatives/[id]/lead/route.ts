@@ -72,23 +72,6 @@ export async function POST(
     );
   }
 
-  // consultor é opcional — busca em separado para nao quebrar se a coluna nao existir
-  let consultorNome: string | null = null;
-  let consultorPhone: string | null = null;
-  try {
-    const { data: c } = await admin
-      .from("representatives")
-      .select("consultant_name, consultant_phone")
-      .eq("id", representativeId)
-      .maybeSingle();
-    if (c) {
-      consultorNome = (c as any).consultant_name ?? null;
-      consultorPhone = (c as any).consultant_phone ?? null;
-    }
-  } catch {
-    // coluna nao existe neste banco — segue sem consultor
-  }
-
   const { data: students } = await admin
     .from("students")
     .select("full_name, email, phone, qtd_convites, created_at")
@@ -137,9 +120,6 @@ export async function POST(
     "",
     `Representante: ${rep.name}`,
     `E-mail: ${rep.email}`,
-    consultorNome
-      ? `Consultor: ${consultorNome} ${consultorPhone ? `(${consultorPhone})` : ""}`
-      : null,
     "",
     `TOTAL DE CONVITES DESEJADOS: ${total}`,
     `Total de adesões: ${(students || []).length}`,

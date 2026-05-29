@@ -182,7 +182,7 @@ export default function LandingPage() {
             <p
               className="font-sans text-sm md:text-lg leading-relaxed max-w-full md:max-w-[420px] mt-4 text-white/85 md:text-[#aaa] [text-shadow:0_1px_8px_rgba(0,0,0,0.5)] md:[text-shadow:none]"
             >
-              Crie a lista da sua turma, gere o link oficial e descubra as possibilidades tudo em um ambiente premium e simples.
+             Crie a lista de interesse da sua turma, gere o link oficial e compartilhe com toda a turma.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-stretch sm:items-start justify-start w-full sm:w-auto mt-8">
@@ -352,7 +352,7 @@ export default function LandingPage() {
 
           <div className="max-w-2xl mx-auto py-8 px-10 border-l-[3px] border-[#C41230] fade-up fade-up-d2 bg-[rgba(0,0,0,0.04)]">
             <p className="font-serif text-[22px] md:text-2xl text-[#0A0A0A] text-center leading-relaxed font-light">
-              Turmas com mais interessados recebem <span className="italic">condições especiais.</span>
+             Quanto mais interessados a turma tiver, melhores podem ser as condições e os valores por  <span className="italic">convite.</span>
             </p>
           </div>
         </div>

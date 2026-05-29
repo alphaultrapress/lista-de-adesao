@@ -108,7 +108,7 @@ export default function LinkCard({
   return (
     <Card
       title="Link da turma"
-      subtitle="Compartilhe este link com os colegas da sua turma."
+      subtitle="Compartilhe este link com os colegas para que eles possam registrar o interesse nos convites de formatura."
     >
       <div className="grid items-center gap-8 md:grid-cols-[1fr,auto]">
         <div className="space-y-5">
