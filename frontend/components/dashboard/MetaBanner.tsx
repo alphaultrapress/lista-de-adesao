@@ -94,7 +94,7 @@ export default function MetaBanner({ representativeId }: Props) {
           </p>
           <p className="mt-2 text-sm leading-relaxed text-[#3a3a3a]">
             O grupo ganhou força e nossa equipe já está preparando algo
-            especial. Continue convidando — quanto mais gente, melhor a
+            especial. Continue convidando quanto mais gente, melhor a
             experiência da turma.
           </p>
         </div>
