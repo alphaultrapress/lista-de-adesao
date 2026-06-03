@@ -81,7 +81,7 @@ export default function LandingPage() {
             Mobile: padding lateral menor e largura total;
             md+: padding-left 80px e max-width 600px (desktop intacto). */}
         <div
-          className="absolute inset-0 z-10 flex flex-col justify-center px-6 md:pl-20 md:pr-0 md:max-w-[600px]"
+          className="absolute inset-0 z-10 flex flex-col justify-start px-6 pt-[34vh] md:justify-center md:pt-0 md:pl-20 md:pr-0 md:max-w-[600px]"
         >
           <div className="fade-up flex flex-col items-start text-left">
             <span

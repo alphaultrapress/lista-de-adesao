@@ -14,6 +14,13 @@ const heights: Record<NonNullable<BrandProps["size"]>, number> = {
   lg: 92,
 };
 
+// Altura responsiva: menor no mobile (evita logo larga distorcida), cheia no desktop.
+const heightClasses: Record<NonNullable<BrandProps["size"]>, string> = {
+  sm: "h-[30px] sm:h-9",
+  md: "h-10 sm:h-[52px]",
+  lg: "h-[52px] sm:h-[72px] md:h-[92px]",
+};
+
 export function Brand({
   size = "md",
   href = "/",
@@ -33,7 +40,7 @@ export function Brand({
         width={h * 3}
         height={h}
         priority={size === "lg"}
-        style={{ height: h, width: "auto" }}
+        className={`w-auto ${heightClasses[size]}`}
       />
     </span>
   );
