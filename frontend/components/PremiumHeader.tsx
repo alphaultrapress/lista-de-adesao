@@ -17,6 +17,8 @@ interface PremiumHeaderProps {
   compact?: boolean;
   centeredBrand?: boolean;
   brandSize?: "sm" | "md" | "lg";
+  /** Destino da logo. Passe "" para tornar a logo não-clicável (ex.: página do convidado). */
+  brandHref?: string;
 }
 
 export default function PremiumHeader({
@@ -26,6 +28,7 @@ export default function PremiumHeader({
   compact = false,
   centeredBrand = false,
   brandSize,
+  brandHref = "/",
 }: PremiumHeaderProps) {
   return (
     <header
@@ -43,7 +46,11 @@ export default function PremiumHeader({
         } ${compact ? "h-[76px]" : "h-[94px]"} relative`}
       >
         <div className={centeredBrand ? "absolute left-1/2 -translate-x-1/2" : ""}>
-          <Brand size={brandSize || (compact ? "md" : "lg")} variant="light" />
+          <Brand
+            size={brandSize || (compact ? "md" : "lg")}
+            variant="light"
+            href={brandHref}
+          />
         </div>
 
         <nav className="flex items-center gap-2 sm:gap-4">

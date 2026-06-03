@@ -215,7 +215,7 @@ export default function LandingPage() {
           gap: '8px',
           whiteSpace: 'nowrap'
         }}>
-          ⭐ <span className="font-semibold">5.0</span> <span className="text-white/40">·</span> <span className="text-[#A1A1A1] text-[11px] uppercase tracking-wider font-medium">+6.000 turmas atendidas</span>
+          ⭐ <span className="font-semibold">5.0</span> <span className="text-white/40">·</span> <span className="text-[#A1A1A1] text-[11px] uppercase tracking-wider font-medium">+30.000 turmas atendidas</span>
         </div>
       </section>
 
@@ -224,7 +224,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 text-center fade-up items-start">
             {[
-              { end: 6, prefix: "+", suffix: "mil", label: "TURMAS ATENDIDAS" },
+              { end: 30, prefix: "+", suffix: "mil", label: "TURMAS ATENDIDAS" },
               { end: 50, prefix: "+", suffix: "anos", label: "DE HISTÓRIA" },
               { end: 30, prefix: "+", suffix: "anos", label: "COM A 2ª GERAÇÃO" },
             ].map((stat, i) => (

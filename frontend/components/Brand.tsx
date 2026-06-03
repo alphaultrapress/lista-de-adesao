@@ -49,7 +49,7 @@ const footerLinks = [
   { href: "/login", label: "Login" },
 ];
 
-export function Footer() {
+export function Footer({ minimal = false }: { minimal?: boolean }) {
   return (
     <footer id="footer" className="footer-premium">
       <div className="footer-grid-layer" />
@@ -65,16 +65,18 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="footer-column">
-          <p className="footer-title">Navegação</p>
-          <nav>
-            {footerLinks.map((item) => (
-              <Link key={item.href} href={item.href} className="premium-dark-link">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+        {!minimal && (
+          <div className="footer-column">
+            <p className="footer-title">Navegação</p>
+            <nav>
+              {footerLinks.map((item) => (
+                <Link key={item.href} href={item.href} className="premium-dark-link">
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        )}
 
         <div className="footer-column">
           <p className="footer-title">Contato</p>

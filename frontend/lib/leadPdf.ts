@@ -1,6 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { formatCpf, formatPhone } from "./format";
+import { formatPhone } from "./format";
 
 export type LeadPdfParams = {
   curso: string;
@@ -8,24 +8,49 @@ export type LeadPdfParams = {
   ano: string;
   representanteNome: string;
   representanteEmail: string;
-  consultorNome?: string | null;
   students: Array<{
     full_name: string;
-    cpf: string;
     email: string;
     phone: string;
     qtd_convites: number;
   }>;
 };
 
-export function downloadLeadPdf(params: LeadPdfParams) {
+// Carrega uma imagem pública como dataURL (para inserir no PDF) e devolve dimensões.
+async function loadImage(
+  src: string,
+): Promise<{ dataUrl: string; width: number; height: number } | null> {
+  try {
+    const res = await fetch(src);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+    const dims = await new Promise<{ width: number; height: number }>(
+      (resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ width: img.width, height: img.height });
+        img.onerror = reject;
+        img.src = dataUrl;
+      },
+    );
+    return { dataUrl, ...dims };
+  } catch {
+    return null;
+  }
+}
+
+export async function downloadLeadPdf(params: LeadPdfParams) {
   const {
     curso,
     instituicao,
     ano,
     representanteNome,
     representanteEmail,
-    consultorNome,
     students,
   } = params;
 
@@ -36,14 +61,23 @@ export function downloadLeadPdf(params: LeadPdfParams) {
   // Cabeçalho
   doc.setFillColor(10, 8, 5);
   doc.rect(0, 0, W, 90, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("times", "italic");
-  doc.setFontSize(26);
-  doc.text("Alpha Convites", 40, 45);
+
+  // Logo da Alpha (imagem). Se falhar o carregamento, cai no texto.
+  const logo = await loadImage("/logos/logo-white.png");
+  if (logo) {
+    const logoH = 46;
+    const logoW = (logo.width / logo.height) * logoH;
+    doc.addImage(logo.dataUrl, "PNG", 40, 22, logoW, logoH);
+  } else {
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("times", "italic");
+    doc.setFontSize(26);
+    doc.text("Alpha Convites", 40, 45);
+  }
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(212, 175, 110);
-  doc.text("LISTA DE ADESÃO · LEAD COMERCIAL", 40, 65);
+  doc.text("LISTA DE ADESÃO · LEAD COMERCIAL", 40, 78);
 
   // Título da turma
   doc.setTextColor(20, 15, 10);
@@ -67,12 +101,9 @@ export function downloadLeadPdf(params: LeadPdfParams) {
   doc.setFontSize(10);
   doc.setTextColor(80, 80, 80);
   doc.text(representanteEmail, 40, 222);
-  if (consultorNome) {
-    doc.text(`Consultor: ${consultorNome}`, 40, 238);
-  }
 
   // Métricas
-  const metricsY = consultorNome ? 262 : 246;
+  const metricsY = 246;
   doc.setFontSize(9);
   doc.setTextColor(140, 107, 58);
   doc.text("TOTAL DE CONVITES", W - 220, metricsY);
@@ -87,11 +118,10 @@ export function downloadLeadPdf(params: LeadPdfParams) {
   // Tabela de alunos
   autoTable(doc, {
     startY: metricsY + 50,
-    head: [["#", "Nome", "CPF", "E-mail", "WhatsApp", "Convites"]],
+    head: [["#", "Nome", "E-mail", "WhatsApp", "Convites"]],
     body: students.map((s, i) => [
       String(i + 1),
       s.full_name,
-      formatCpf(s.cpf),
       s.email,
       formatPhone(s.phone),
       String(s.qtd_convites),

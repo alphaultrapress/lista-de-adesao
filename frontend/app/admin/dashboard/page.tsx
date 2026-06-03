@@ -237,16 +237,26 @@ export default function AdminDashboardPage() {
             />
           </div>
 
-          <div className="mt-8 overflow-x-auto">
-            <table className="w-full min-w-[1040px] text-left text-sm">
+          <div className="mt-8">
+            <table className="w-full table-fixed text-left text-sm">
+              <colgroup>
+                <col className="w-[18%]" />
+                <col className="w-[12%]" />
+                <col className="w-[22%]" />
+                <col className="w-[7%]" />
+                <col className="w-[10%]" />
+                <col className="w-[8%]" />
+                <col className="w-[13%]" />
+                <col className="w-[10%]" />
+              </colgroup>
               <thead>
                 <tr className="border-b border-line text-[10px] uppercase tracking-premium-widest text-text-tertiary">
                   <th className="py-3 pr-4 font-medium">Representante</th>
                   <th className="py-3 pr-4 font-medium">Curso</th>
                   <th className="py-3 pr-4 font-medium">Instituição</th>
-                  <th className="py-3 pr-4 font-medium">Ano</th>
-                  <th className="py-3 pr-4 font-medium">Convites</th>
-                  <th className="py-3 pr-4 font-medium">Adesões</th>
+                  <th className="py-3 pr-4 text-center font-medium">Ano</th>
+                  <th className="py-3 pr-4 text-center font-medium">Convites</th>
+                  <th className="py-3 pr-4 text-center font-medium">Adesões</th>
                   <th className="py-3 pr-4 font-medium">Status</th>
                   <th className="py-3 text-right font-medium">Ação</th>
                 </tr>
@@ -265,22 +275,26 @@ export default function AdminDashboardPage() {
                       key={representative.id}
                       className="group transition-colors duration-300 hover:bg-bg-ice relative"
                     >
-                      <td className="py-4 pr-4 text-text-primary relative">
+                      <td className="relative py-4 pr-4 text-text-primary">
                         <div className="absolute left-0 top-0 bottom-0 w-1 bg-wine opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                        <span className="pl-4">{representative.name}</span>
+                        <span className="block pl-4 font-medium leading-snug line-clamp-2" title={representative.name}>
+                          {representative.name}
+                        </span>
                       </td>
-                      <td className="py-4 pr-4 text-text-secondary">
+                      <td className="truncate py-4 pr-4 text-text-secondary" title={representative.course_name}>
                         {representative.course_name}
                       </td>
-                      <td className="py-4 pr-4 text-text-secondary">
-                        {representative.institution_name}
+                      <td className="py-4 pr-4 text-text-secondary" title={representative.institution_name}>
+                        <span className="line-clamp-2">
+                          {representative.institution_name}
+                        </span>
                       </td>
-                      <td className="py-4 pr-4 text-text-secondary">
+                      <td className="py-4 pr-4 text-center text-text-secondary tabular-nums">
                         {representative.graduation_year}
                       </td>
-                      <td className="py-4 pr-4">
+                      <td className="py-4 pr-4 text-center whitespace-nowrap">
                         <span
-                          className={`font-medium ${
+                          className={`font-semibold tabular-nums ${
                             metaAtingida
                               ? "text-[#0a7d3a]"
                               : "text-text-primary"
@@ -292,26 +306,22 @@ export default function AdminDashboardPage() {
                           / {META_CONVITES}
                         </span>
                       </td>
-                      <td className="py-4 pr-4 text-text-primary">{adesoes}</td>
+                      <td className="py-4 pr-4 text-center text-text-primary tabular-nums">
+                        {adesoes}
+                      </td>
                       <td className="py-4 pr-4">
                         {atendida ? (
-                          <span
-                            className="inline-flex items-center gap-1.5 rounded-full border border-[#5b7da3]/30 bg-[#5b7da3]/8 px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-[#3a5a82]"
-                          >
+                          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#5b7da3]/30 bg-[#5b7da3]/8 px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-[#3a5a82]">
                             <span className="h-1.5 w-1.5 rounded-full bg-[#5b7da3]" />
                             Atendido
                           </span>
                         ) : metaAtingida ? (
-                          <span
-                            className="inline-flex items-center gap-1.5 rounded-full border border-[#0a7d3a]/30 bg-[#0a7d3a]/8 px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-[#0a7d3a]"
-                          >
+                          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#0a7d3a]/30 bg-[#0a7d3a]/8 px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-[#0a7d3a]">
                             <span className="h-1.5 w-1.5 rounded-full bg-[#0a7d3a] animate-pulse" />
                             Meta atingida
                           </span>
                         ) : (
-                          <span
-                            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg-soft px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-text-tertiary"
-                          >
+                          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-bg-soft px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-text-tertiary">
                             <span className="h-1.5 w-1.5 rounded-full bg-text-tertiary" />
                             Pendente
                           </span>
@@ -320,7 +330,7 @@ export default function AdminDashboardPage() {
                       <td className="py-4 text-right">
                         <Link
                           href={`/admin/dashboard/${representative.id}`}
-                          className="btn-secondary-tech inline-flex"
+                          className="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-line bg-white px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-primary transition-all duration-300 hover:border-text-primary hover:-translate-y-[1px]"
                         >
                           Visualizar
                         </Link>

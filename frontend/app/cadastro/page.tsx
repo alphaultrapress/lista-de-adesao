@@ -8,11 +8,10 @@ import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
-import CpfInput from "@/components/forms/CpfInput";
 import PhoneInput from "@/components/forms/PhoneInput";
 import Autocomplete from "@/components/forms/Autocomplete";
 import { signOutAndClearSession, supabase } from "@/lib/supabase";
-import { isValidCpf, isValidPhoneBr, onlyDigits } from "@/lib/cpf";
+import { isValidPhoneBr, onlyDigits } from "@/lib/cpf";
 import { buildTurmaSlug } from "@/lib/slugify";
 import { UFS, fetchMunicipios, Municipio } from "@/lib/ibge";
 import { getStoredConsultant } from "@/lib/consultants";
@@ -49,10 +48,8 @@ export default function CadastroPage() {
   const router = useRouter();
   const [form, setForm] = useState({
     nome: "",
-    cpf: "",
     email: "",
     whatsapp: "",
-    data_nascimento: "",
     curso: "",
     instituicao: "",
     estado: "",
@@ -139,10 +136,14 @@ export default function CadastroPage() {
     setErrors((e) => ({ ...e, [key]: "" }));
   }
 
+  // Campos de texto livre sempre em MAIÚSCULAS (nome, curso, instituição).
+  function setUpper<K extends keyof typeof form>(key: K, val: string) {
+    set(key, val.toUpperCase());
+  }
+
   function validate(): boolean {
     const e: Record<string, string> = {};
     if (!form.nome.trim()) e.nome = "Informe seu nome completo.";
-    if (!isValidCpf(form.cpf)) e.cpf = "CPF inválido.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       e.email = "E-mail inválido.";
     }
@@ -274,15 +275,12 @@ export default function CadastroPage() {
       if (insertErr) throw insertErr;
 
       // Insere o representante automaticamente na lista de adesões da própria turma.
-      // Não bloqueia o cadastro se falhar (ex.: CPF inválido) — só loga.
+      // Não bloqueia o cadastro se falhar — só loga.
       if (createdRepresentativeId) {
-        const cpfDigits = onlyDigits(form.cpf);
         const phoneDigits = onlyDigits(form.whatsapp);
         const { error: studentErr } = await supabase.from("students").insert({
           representative_id: createdRepresentativeId,
-          cpf: cpfDigits,
           full_name: form.nome.trim(),
-          birth_date: form.data_nascimento || null,
           phone: phoneDigits,
           email: normalizedEmail,
           qtd_convites: 1,
@@ -379,22 +377,11 @@ export default function CadastroPage() {
             </div>
           )}
 
-          <CpfInput
-            value={form.cpf}
-            onChange={(v) => set("cpf", v)}
-            onResolved={(d) => {
-              if (d.nome) set("nome", d.nome);
-              if (d.data_nascimento) set("data_nascimento", d.data_nascimento);
-            }}
-            error={errors.cpf}
-            required
-          />
-
           <Input
             label="Nome completo"
             name="nome"
             value={form.nome}
-            onChange={(e) => set("nome", e.target.value)}
+            onChange={(e) => setUpper("nome", e.target.value)}
             error={errors.nome}
             required
           />
@@ -423,7 +410,7 @@ export default function CadastroPage() {
             label="Curso de graduação"
             name="curso"
             value={form.curso}
-            onChange={(v) => set("curso", v)}
+            onChange={(v) => setUpper("curso", v)}
             options={CURSOS_COMUNS}
             placeholder="Ex: Medicina"
             error={errors.curso}
@@ -434,7 +421,7 @@ export default function CadastroPage() {
             label="Instituição de ensino"
             name="instituicao"
             value={form.instituicao}
-            onChange={(v) => set("instituicao", v)}
+            onChange={(v) => setUpper("instituicao", v)}
             fetchOptions={async (q) => {
               const res = await fetch(
                 `/api/instituicoes?q=${encodeURIComponent(q)}`,

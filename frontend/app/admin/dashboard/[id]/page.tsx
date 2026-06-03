@@ -13,7 +13,7 @@ import {
   Student,
   META_CONVITES,
 } from "@/lib/supabase";
-import { formatCpf, formatDateBr, formatPhone } from "@/lib/format";
+import { formatPhone } from "@/lib/format";
 import { buildQrPosterBlob, slugifyFile } from "@/lib/qrPoster";
 import { downloadLeadPdf } from "@/lib/leadPdf";
 import LeadSuccessModal from "@/components/admin/LeadSuccessModal";
@@ -82,16 +82,14 @@ export default function AdminRepresentativePage() {
 
   function baixarLeadPdf() {
     if (!representative) return;
-    downloadLeadPdf({
+    void downloadLeadPdf({
       curso: representative.course_name,
       instituicao: representative.institution_name,
       ano: representative.graduation_year,
       representanteNome: representative.name,
       representanteEmail: representative.email,
-      consultorNome: representative.consultant_name,
       students: students.map((s) => ({
         full_name: s.full_name,
-        cpf: s.cpf,
         email: s.email,
         phone: s.phone,
         qtd_convites: s.qtd_convites,
@@ -508,10 +506,9 @@ export default function AdminRepresentativePage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[860px] text-left text-sm">
+            <table className="w-full min-w-[680px] text-left text-sm">
               <thead>
                 <tr className="border-b border-line text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  <th className="py-3 pr-4 font-medium">CPF</th>
                   <th className="py-3 pr-4 font-medium">Nome</th>
                   <th className="py-3 pr-4 font-medium">Email</th>
                   <th className="py-3 pr-4 font-medium">Celular</th>
@@ -521,9 +518,6 @@ export default function AdminRepresentativePage() {
               <tbody className="divide-y divide-line">
                 {students.map((student) => (
                   <tr key={student.id}>
-                    <td className="py-4 pr-4 font-mono text-text-secondary">
-                      {formatCpf(student.cpf)}
-                    </td>
                     <td className="py-4 pr-4 text-text-primary">
                       {student.full_name}
                     </td>

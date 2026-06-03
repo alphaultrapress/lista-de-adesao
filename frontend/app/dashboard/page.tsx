@@ -4,12 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
-import ConsultantContact from "@/components/ConsultantContact";
-import LinkCard from "@/components/dashboard/LinkCard";
-import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
-import AdesoesCard from "@/components/dashboard/AdesoesCard";
-import MinhaAdesaoCard from "@/components/dashboard/MinhaAdesaoCard";
-import MetaBanner from "@/components/dashboard/MetaBanner";
+import TurmaDashboard, { ShareCard } from "@/components/dashboard/TurmaDashboard";
 import {
   signOutAndClearSession,
   supabase,
@@ -79,97 +74,41 @@ export default function DashboardPage() {
       <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-32 md:pb-20 md:pt-36">
         <div className="absolute right-0 top-0 h-[300px] w-[400px] glow-crimson-soft opacity-50 pointer-events-none" />
 
-        <div className="relative mb-14 fade-up">
-          <span className="tech-eyebrow">
-            <span className="dot" />
-            Representante da turma
-          </span>
-          <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            Olá,{" "}
-            <span className="italic font-light text-gray-500">
-              {representative.name.split(" ")[0]}.
-            </span>
-          </h1>
-          <p className="mt-5 text-text-secondary">
-            Turma de{" "}
-            <span className="text-text-primary">
-              {representative.course_name}
-            </span>{" "}
-            ·{" "}
-            <span className="text-text-primary">
-              {representative.institution_name}
-            </span>{" "}
-            ·{" "}
-            <span className="text-text-primary">
-              {representative.graduation_year}
-            </span>
-          </p>
-        </div>
-
-        <MetaBanner representativeId={representative.id} />
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <LinkCard
-            url={adesaoUrl}
-            nome={representative.name}
-            curso={representative.course_name}
-            instituicao={representative.institution_name}
-          />
-          <AdesoesCard
-            representativeId={representative.id}
-            curso={representative.course_name}
-          />
-        </div>
-
-        <div className="mt-6">
-          <MinhaAdesaoCard
-            representativeId={representative.id}
-            representativeEmail={representative.email}
-          />
-        </div>
-      </section>
-
-      <AcabamentosShowcase />
-
-      <section className="relative mx-auto max-w-6xl px-6 pt-16 pb-28 md:pt-20 md:pb-32">
-        <div className="cta-consultor relative flex flex-col items-start justify-between gap-8 overflow-hidden rounded-[6px] p-10 text-text-inverse md:flex-row md:items-center md:p-14">
-          <div className="cta-grid pointer-events-none absolute inset-0" />
-          <div className="cta-glow-tr pointer-events-none absolute inset-0" />
-          <div className="cta-glow-bc pointer-events-none absolute inset-0" />
-          <div className="cta-scanline pointer-events-none absolute inset-x-0 top-1/2" />
-          <div className="cinematic-noise pointer-events-none absolute inset-0 opacity-20" />
-
-          <div className="relative">
-            <span className="tech-eyebrow dark">
+        <div className="relative mb-14 flex flex-col gap-8 fade-up lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <span className="tech-eyebrow">
               <span className="dot" />
-              Atendimento direto
+              Representante da turma
             </span>
-            <h3 className="mb-2 mt-5 font-serif text-2xl tracking-premium-tight text-[#f5f5f5] md:text-3xl">
-              Quer falar com a Alpha?
-            </h3>
-            <p className="max-w-md text-sm text-[#b8b8b8]">
-              Tire dúvidas e receba uma proposta personalizada para a sua turma.
+            <h1 className="mt-5 font-serif text-2xl leading-[1.1] tracking-premium-tight text-text-primary md:text-3xl">
+              Olá,{" "}
+              <span className="italic font-light text-gray-500">
+                {representative.name.split(" ")[0]}.
+              </span>
+            </h1>
+            <p className="mt-4 text-[13px] leading-relaxed text-text-tertiary">
+              <span className="font-medium text-text-secondary">
+                {representative.course_name}
+              </span>
+              <span className="mx-1.5 text-text-tertiary/60">·</span>
+              {representative.institution_name}
+              <span className="mx-1.5 text-text-tertiary/60">·</span>
+              {representative.graduation_year}
             </p>
           </div>
-          <div className="cta-btn-wrap relative">
-            <ConsultantContact
-              representativeId={representative.id}
-              consultantName={representative.consultant_name}
-              consultantPhone={representative.consultant_phone}
-              onAssigned={(consultant) =>
-                setRepresentative((current) =>
-                  current
-                    ? {
-                        ...current,
-                        consultant_name: consultant.name,
-                        consultant_phone: consultant.phone,
-                      }
-                    : current,
-                )
-              }
+
+          {/* Compartilhar acesso — faixa compacta no topo, perto do header */}
+          <div className="w-full shrink-0 lg:w-auto lg:min-w-[330px] lg:max-w-[380px]">
+            <ShareCard
+              url={adesaoUrl}
+              nome={representative.name}
+              curso={representative.course_name}
+              instituicao={representative.institution_name}
             />
           </div>
         </div>
+
+        <TurmaDashboard representative={representative} adesaoUrl={adesaoUrl} />
       </section>
       <Footer />
     </main>

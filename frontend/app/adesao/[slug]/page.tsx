@@ -7,14 +7,13 @@ import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import CpfInput from "@/components/forms/CpfInput";
 import PhoneInput from "@/components/forms/PhoneInput";
 import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 import SocialProof from "@/components/SocialProof";
 import GalleryCarousel from "@/components/GalleryCarousel";
 import { SOCIAL } from "@/lib/social";
 import { supabase, PublicRepresentative } from "@/lib/supabase";
-import { isValidCpf, isValidPhoneBr, onlyDigits } from "@/lib/cpf";
+import { isValidPhoneBr, onlyDigits } from "@/lib/cpf";
 
 function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number, suffix?: string, prefix?: string }) {
   const [count, setCount] = useState(0);
@@ -56,9 +55,7 @@ export default function AdesaoPublicaPage() {
   const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
-    cpf: "",
     nome: "",
-    data_nascimento: "",
     whatsapp: "",
     email: "",
     qtd_convites: "1",
@@ -126,9 +123,13 @@ export default function AdesaoPublicaPage() {
     setErrors((e) => ({ ...e, [key]: "" }));
   }
 
+  // Nome sempre em MAIÚSCULAS.
+  function setUpper<K extends keyof typeof form>(key: K, val: string) {
+    set(key, val.toUpperCase());
+  }
+
   function validate() {
     const e: Record<string, string> = {};
-    if (!isValidCpf(form.cpf)) e.cpf = "CPF inválido.";
     if (!form.nome.trim()) e.nome = "Informe seu nome completo.";
     if (!isValidPhoneBr(form.whatsapp)) e.whatsapp = "Celular inválido.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
@@ -151,9 +152,7 @@ export default function AdesaoPublicaPage() {
       const qtdConvites = Math.max(1, parseInt(form.qtd_convites, 10) || 1);
       const { error } = await supabase.from("students").insert({
         representative_id: turma.id,
-        cpf: onlyDigits(form.cpf),
         full_name: form.nome.trim(),
-        birth_date: form.data_nascimento || null,
         phone: onlyDigits(form.whatsapp),
         email: form.email.trim().toLowerCase(),
         qtd_convites: qtdConvites,
@@ -162,7 +161,7 @@ export default function AdesaoPublicaPage() {
       if (error?.code === "23505") {
         setErrors((e) => ({
           ...e,
-          cpf: "Este CPF já foi cadastrado para esta turma.",
+          email: "Este e-mail já foi cadastrado para esta turma.",
         }));
         return;
       }
@@ -170,9 +169,7 @@ export default function AdesaoPublicaPage() {
       if (error?.code === "42P01") {
         const { error: legacyError } = await supabase.from("adesoes").insert({
           slug_origem: slug,
-          cpf: onlyDigits(form.cpf),
           nome: form.nome.trim(),
-          data_nascimento: form.data_nascimento || null,
           whatsapp: onlyDigits(form.whatsapp),
           email: form.email.trim().toLowerCase(),
           qtd_luxo: 0,
@@ -217,7 +214,7 @@ export default function AdesaoPublicaPage() {
   if (notFound) {
     return (
       <main className="page-canvas min-h-screen bg-bg flex flex-col">
-        <PremiumHeader compact centeredBrand brandSize="lg" />
+        <PremiumHeader compact centeredBrand brandSize="lg" brandHref="" />
         <section className="relative flex flex-1 items-center justify-center px-6 pb-20 pt-32">
           <div className="absolute left-1/2 top-1/2 h-[340px] w-[560px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
           <div className="relative max-w-md text-center fade-up">
@@ -233,7 +230,7 @@ export default function AdesaoPublicaPage() {
             </p>
           </div>
         </section>
-        <Footer />
+        <Footer minimal />
       </main>
     );
   }
@@ -241,7 +238,7 @@ export default function AdesaoPublicaPage() {
   if (success) {
     return (
       <main className="page-canvas min-h-screen bg-bg flex flex-col">
-        <PremiumHeader compact centeredBrand brandSize="lg" />
+        <PremiumHeader compact centeredBrand brandSize="lg" brandHref="" />
         <section className="relative flex flex-1 items-center justify-center overflow-hidden px-6 pb-20 pt-32">
           <div className="absolute inset-0 bg-grid-light opacity-50 pointer-events-none" />
           <div className="absolute left-1/2 top-1/2 h-[420px] w-[680px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
@@ -286,14 +283,14 @@ export default function AdesaoPublicaPage() {
             </p>
           </div>
         </section>
-        <Footer />
+        <Footer minimal />
       </main>
     );
   }
 
   return (
     <main className="page-canvas min-h-screen bg-bg">
-      <PremiumHeader compact centeredBrand brandSize="lg" />
+      <PremiumHeader compact centeredBrand brandSize="lg" brandHref="" />
 
       <section className="relative flex flex-col items-center justify-center min-h-[100vh] px-6 pb-24 pt-36 md:pt-48 overflow-hidden">
         {/* Background Hero Image with cinematic fade-in + slow zoom */}
@@ -666,23 +663,11 @@ export default function AdesaoPublicaPage() {
             <Image src="/images/form-bg.png" alt="Background Texture" fill className="object-cover" />
           </div>
           <div className="relative z-10 space-y-6">
-            <CpfInput
-              value={form.cpf}
-              onChange={(v) => set("cpf", v)}
-              onResolved={(d) => {
-                if (d.nome) set("nome", d.nome);
-                if (d.data_nascimento) {
-                  set("data_nascimento", d.data_nascimento);
-                }
-              }}
-              error={errors.cpf}
-              required
-            />
             <Input
               label="Seu nome"
               name="nome"
               value={form.nome}
-              onChange={(e) => set("nome", e.target.value)}
+              onChange={(e) => setUpper("nome", e.target.value)}
               error={errors.nome}
               required
             />
@@ -734,12 +719,12 @@ export default function AdesaoPublicaPage() {
         </form>
       </section>
 
-      {/* NOSSA HISTÓRIA — bloco preto idêntico à landing (+6 mil / +50 anos / +30 anos) */}
+      {/* NOSSA HISTÓRIA — bloco preto idêntico à landing (+30 mil / +50 anos / +30 anos) */}
       <section className="py-24 md:py-32 bg-[#0A0A0A] text-white relative border-t border-[rgba(255,255,255,0.08)]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 text-center fade-up items-start">
             {[
-              { end: 6, prefix: "+", suffix: "mil", label: "TURMAS ATENDIDAS" },
+              { end: 30, prefix: "+", suffix: "mil", label: "TURMAS ATENDIDAS" },
               { end: 50, prefix: "+", suffix: "anos", label: "DE HISTÓRIA" },
               { end: 30, prefix: "+", suffix: "anos", label: "COM A 2ª GERAÇÃO" },
             ].map((stat, i) => (
@@ -854,19 +839,6 @@ export default function AdesaoPublicaPage() {
             <Image src="/images/form-bg.png" alt="Background Texture" fill className="object-cover" />
           </div>
           <div className="relative z-10 space-y-6">
-          <CpfInput
-            value={form.cpf}
-            onChange={(v) => set("cpf", v)}
-            onResolved={(d) => {
-              if (d.nome) set("nome", d.nome);
-              if (d.data_nascimento) {
-                set("data_nascimento", d.data_nascimento);
-              }
-            }}
-            error={errors.cpf}
-            required
-          />
-
           <Input
             label="Seu nome"
             name="nome"
@@ -934,7 +906,7 @@ export default function AdesaoPublicaPage() {
       </section>
       <AcabamentosShowcase />
 
-      <Footer />
+      <Footer minimal />
     </main>
   );
 }
