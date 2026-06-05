@@ -691,7 +691,7 @@ export default function AdesaoPublicaPage() {
               />
             </div>
             <Input
-              label="Quantos convites você pretende?"
+              label="Quantos convites pretende adquirir?"
               name="qtd_convites"
               inputMode="numeric"
               pattern="[0-9]*"
@@ -869,7 +869,7 @@ export default function AdesaoPublicaPage() {
           </div>
 
           <Input
-            label="Quantos convites você pretende?"
+            label="Quantos convites pretende adquirir?"
             name="qtd_convites"
             inputMode="numeric"
             pattern="[0-9]*"

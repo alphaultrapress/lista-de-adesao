@@ -254,7 +254,7 @@ function ResumoCards({
     { label: "Convites confirmados", value: String(totalConvites) },
     { label: "Participantes", value: String(participantes) },
     {
-      label: "Faltam para a meta",
+      label: "Faltam para a meta mínima",
       value: metaAtingida ? "Meta atingida" : String(faltam),
       positive: metaAtingida,
     },
@@ -831,7 +831,7 @@ function AddStudentModal({
             />
           </div>
           <Input
-            label="Quantos convites?"
+            label="Quantos convites pretende adquirir?"
             name="qtd"
             inputMode="numeric"
             value={form.qtd}
