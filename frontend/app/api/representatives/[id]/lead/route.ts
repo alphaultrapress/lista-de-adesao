@@ -145,6 +145,7 @@ export async function POST(
   const finalFields: Record<string, any> = {
     SOURCE_ID: "WEBFORM", // Fonte = Marketing
     UF_CRM_1531223348: 11718, // Canal de Entrada = Lista de Adesão
+    UF_CRM_1690290010: 6726, // 01. Segmento = Convites de Formatura
     UF_CRM_1515146531: rep.course_name, // Curso
     UF_CRM_1515146539: rep.institution_name, // Faculdade
     UF_CRM_1633712858: total, // Quantidade desejada
@@ -152,6 +153,15 @@ export async function POST(
   if (assignedBy) finalFields.ASSIGNED_BY_ID = Number(assignedBy);
   if (anoStr && ANO_MAP[anoStr]) finalFields.UF_CRM_1515147878 = ANO_MAP[anoStr];
   if (semStr && SEM_MAP[semStr]) finalFields.UF_CRM_1515147809 = SEM_MAP[semStr];
+
+  // Telefones de todos os alunos (sem vazios e sem duplicados)
+  const phones = Array.from(
+    new Set(
+      (students || [])
+        .map((s: any) => String(s.phone || "").trim())
+        .filter((p) => p.length > 0),
+    ),
+  ).map((p) => ({ VALUE: p, VALUE_TYPE: "WORK" }));
 
   const fields: Record<string, any> = {
     TITLE: `Lista de Adesão — ${rep.course_name} / ${rep.institution_name}`,
@@ -161,6 +171,7 @@ export async function POST(
     OPPORTUNITY: total,
     CURRENCY_ID: "BRL",
   };
+  if (phones.length > 0) fields.PHONE = phones;
 
   const base = bitrixWebhook.replace(/\/$/, "");
   let leadId: number | undefined;
