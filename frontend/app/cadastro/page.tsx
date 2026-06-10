@@ -227,6 +227,8 @@ export default function CadastroPage() {
           course_name: form.curso.trim(),
           institution_name: form.instituicao.trim(),
           graduation_year: form.semestre,
+          state: form.estado,
+          city: form.cidade,
           slug,
         };
 

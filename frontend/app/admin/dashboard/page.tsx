@@ -284,10 +284,15 @@ export default function AdminDashboardPage() {
                       <td className="truncate py-4 pr-4 text-text-secondary" title={representative.course_name}>
                         {representative.course_name}
                       </td>
-                      <td className="py-4 pr-4 text-text-secondary" title={representative.institution_name}>
+                      <td className="py-4 pr-4 text-text-secondary" title={`${representative.institution_name}${representative.state ? ` — ${representative.state}` : ""}`}>
                         <span className="line-clamp-2">
                           {representative.institution_name}
                         </span>
+                        {representative.state && (
+                          <span className="mt-1 inline-block rounded-[3px] border border-line bg-bg-ice px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
+                            {representative.state}
+                          </span>
+                        )}
                       </td>
                       <td className="py-4 pr-4 text-center text-text-secondary tabular-nums">
                         {representative.graduation_year}

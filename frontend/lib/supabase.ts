@@ -73,6 +73,8 @@ export type Representative = {
   course_name: string;
   institution_name: string;
   graduation_year: string;
+  state?: string | null;
+  city?: string | null;
   slug: string;
   consultant_name?: string | null;
   consultant_phone?: string | null;
