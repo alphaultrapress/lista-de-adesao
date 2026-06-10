@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { QRCodeCanvas } from "qrcode.react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
@@ -14,7 +13,6 @@ import {
   META_CONVITES,
 } from "@/lib/supabase";
 import { formatPhone } from "@/lib/format";
-import { buildQrPosterBlob, slugifyFile } from "@/lib/qrPoster";
 import { downloadLeadPdf } from "@/lib/leadPdf";
 import LeadSuccessModal from "@/components/admin/LeadSuccessModal";
 
@@ -33,7 +31,6 @@ export default function AdminRepresentativePage() {
   const [leadError, setLeadError] = useState<string | undefined>();
   const [modalOpen, setModalOpen] = useState(false);
   const [leadId, setLeadId] = useState<number | undefined>();
-  const qrWrapperRef = useRef<HTMLDivElement>(null);
 
   const totalConvites = useMemo(
     () => students.reduce((sum, s) => sum + (s.qtd_convites || 0), 0),
@@ -82,12 +79,20 @@ export default function AdminRepresentativePage() {
 
   function baixarLeadPdf() {
     if (!representative) return;
+    // O representante também se cadastra na lista; pega o telefone dele
+    // casando pelo e-mail (ou, em último caso, pelo nome).
+    const repEmail = representative.email.trim().toLowerCase();
+    const repNome = representative.name.trim().toLowerCase();
+    const repStudent =
+      students.find((s) => s.email.trim().toLowerCase() === repEmail) ||
+      students.find((s) => s.full_name.trim().toLowerCase() === repNome);
     void downloadLeadPdf({
       curso: representative.course_name,
       instituicao: representative.institution_name,
       ano: representative.graduation_year,
       representanteNome: representative.name,
       representanteEmail: representative.email,
+      representanteTelefone: repStudent?.phone,
       students: students.map((s) => ({
         full_name: s.full_name,
         email: s.email,
@@ -126,37 +131,6 @@ export default function AdminRepresentativePage() {
     } finally {
       setMarcandoAtendido(false);
     }
-  }
-
-  async function baixarQr() {
-    if (!representative) return;
-    const canvas = qrWrapperRef.current?.querySelector(
-      "canvas",
-    ) as HTMLCanvasElement | null;
-    if (!canvas) return;
-
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      (typeof window !== "undefined" ? window.location.origin : "");
-    const adesaoUrl = `${appUrl}/adesao/${representative.slug}`;
-
-    const blob = await buildQrPosterBlob({
-      qrCanvas: canvas,
-      curso: representative.course_name,
-      instituicao: representative.institution_name,
-      url: adesaoUrl,
-    });
-    if (!blob) return;
-
-    const filename = `convite-${slugifyFile(representative.course_name)}-${slugifyFile(representative.institution_name)}.png`;
-    const objectUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = objectUrl;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(objectUrl);
   }
 
   useEffect(() => {
@@ -279,35 +253,37 @@ export default function AdminRepresentativePage() {
         <div className="absolute inset-x-0 top-0 h-[420px] bg-grid-light opacity-50 pointer-events-none" />
 
         <div className="relative mb-10 fade-up">
-          <span className="tech-eyebrow">
-            <span className="dot" />
-            Representante
-          </span>
-          <div className="mt-7 flex flex-wrap items-center gap-4">
-            <h1 className="font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-              {representative.name}
-            </h1>
-            {atendida ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#5b7da3]/30 bg-[#5b7da3]/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#3a5a82]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#5b7da3]" />
-                Atendido
-              </span>
-            ) : metaAtingida ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0a7d3a]/30 bg-[#0a7d3a]/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#0a7d3a]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#0a7d3a] animate-pulse" />
-                Meta atingida
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg-soft px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
-                <span className="h-1.5 w-1.5 rounded-full bg-text-tertiary" />
-                Pendente
-              </span>
-            )}
+          <div>
+            <span className="tech-eyebrow">
+              <span className="dot" />
+              Representante
+            </span>
+            <div className="mt-7 flex flex-wrap items-center gap-4">
+              <h1 className="font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
+                {representative.name}
+              </h1>
+              {atendida ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#5b7da3]/30 bg-[#5b7da3]/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#3a5a82]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#5b7da3]" />
+                  Atendido
+                </span>
+              ) : metaAtingida ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0a7d3a]/30 bg-[#0a7d3a]/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#0a7d3a]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#0a7d3a] animate-pulse" />
+                  Meta atingida
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg-soft px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
+                  <span className="h-1.5 w-1.5 rounded-full bg-text-tertiary" />
+                  Pendente
+                </span>
+              )}
+            </div>
+            <p className="mt-5 text-text-secondary">
+              {representative.course_name} · {representative.institution_name} ·{" "}
+              {representative.graduation_year}
+            </p>
           </div>
-          <p className="mt-5 text-text-secondary">
-            {representative.course_name} · {representative.institution_name} ·{" "}
-            {representative.graduation_year}
-          </p>
         </div>
 
         {/* Resumo de convites + ação de atendimento */}
@@ -400,7 +376,7 @@ export default function AdminRepresentativePage() {
           </div>
         )}
 
-        <div className="relative grid gap-6 lg:grid-cols-[1fr,360px]">
+        <div className="relative">
           <div className="card-hover p-6 md:p-8">
             <div className="mb-8 border-b border-line pb-6">
               <h2 className="font-serif text-2xl tracking-premium-tight text-text-primary">
@@ -444,6 +420,22 @@ export default function AdminRepresentativePage() {
                   {representative.graduation_year}
                 </dd>
               </div>
+              <div>
+                <dt className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
+                  Estado
+                </dt>
+                <dd className="mt-2 text-sm text-text-primary">
+                  {representative.state || "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
+                  Cidade
+                </dt>
+                <dd className="mt-2 text-sm text-text-primary">
+                  {representative.city || "—"}
+                </dd>
+              </div>
             </dl>
 
             <div className="mt-8">
@@ -454,44 +446,6 @@ export default function AdminRepresentativePage() {
                 {adesaoUrl}
               </div>
             </div>
-          </div>
-
-          <div className="card-hover flex flex-col items-center justify-center p-8 text-center">
-            <div
-              ref={qrWrapperRef}
-              className="border border-line bg-white/80 p-4 shadow-[0_24px_42px_-34px_rgba(10,10,10,0.42)]"
-            >
-              <QRCodeCanvas
-                value={adesaoUrl}
-                size={180}
-                bgColor="#FFFFFF"
-                fgColor="#0A0A0A"
-                level="M"
-              />
-            </div>
-            <p className="mt-5 text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              QR Code da turma
-            </p>
-            <button
-              type="button"
-              onClick={baixarQr}
-              className="group mt-4 inline-flex items-center gap-1.5 border border-line bg-white px-3 py-2 text-[10px] uppercase tracking-premium-widest text-text-secondary transition-all duration-300 hover:border-text-primary hover:text-text-primary"
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="transition-transform duration-300 group-hover:translate-y-[1px]"
-              >
-                <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
-              </svg>
-              Baixar QR Code
-            </button>
           </div>
         </div>
 

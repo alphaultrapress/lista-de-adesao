@@ -8,6 +8,7 @@ export type LeadPdfParams = {
   ano: string;
   representanteNome: string;
   representanteEmail: string;
+  representanteTelefone?: string;
   students: Array<{
     full_name: string;
     email: string;
@@ -51,6 +52,7 @@ export async function downloadLeadPdf(params: LeadPdfParams) {
     ano,
     representanteNome,
     representanteEmail,
+    representanteTelefone,
     students,
   } = params;
 
@@ -100,7 +102,10 @@ export async function downloadLeadPdf(params: LeadPdfParams) {
   doc.text(representanteNome, 40, 206);
   doc.setFontSize(10);
   doc.setTextColor(80, 80, 80);
-  doc.text(representanteEmail, 40, 222);
+  const contato = representanteTelefone
+    ? `${representanteEmail}   ·   ${formatPhone(representanteTelefone)}`
+    : representanteEmail;
+  doc.text(contato, 40, 222);
 
   // Métricas
   const metricsY = 246;

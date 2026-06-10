@@ -240,13 +240,14 @@ export default function AdminDashboardPage() {
           <div className="mt-8">
             <table className="w-full table-fixed text-left text-sm">
               <colgroup>
-                <col className="w-[18%]" />
+                <col className="w-[17%]" />
                 <col className="w-[12%]" />
-                <col className="w-[22%]" />
+                <col className="w-[19%]" />
+                <col className="w-[5%]" />
                 <col className="w-[7%]" />
                 <col className="w-[10%]" />
                 <col className="w-[8%]" />
-                <col className="w-[13%]" />
+                <col className="w-[12%]" />
                 <col className="w-[10%]" />
               </colgroup>
               <thead>
@@ -254,6 +255,7 @@ export default function AdminDashboardPage() {
                   <th className="py-3 pr-4 font-medium">Representante</th>
                   <th className="py-3 pr-4 font-medium">Curso</th>
                   <th className="py-3 pr-4 font-medium">Instituição</th>
+                  <th className="py-3 pr-4 text-center font-medium">UF</th>
                   <th className="py-3 pr-4 text-center font-medium">Ano</th>
                   <th className="py-3 pr-4 text-center font-medium">Convites</th>
                   <th className="py-3 pr-4 text-center font-medium">Adesões</th>
@@ -284,15 +286,13 @@ export default function AdminDashboardPage() {
                       <td className="truncate py-4 pr-4 text-text-secondary" title={representative.course_name}>
                         {representative.course_name}
                       </td>
-                      <td className="py-4 pr-4 text-text-secondary" title={`${representative.institution_name}${representative.state ? ` — ${representative.state}` : ""}`}>
+                      <td className="py-4 pr-4 text-text-secondary" title={representative.institution_name}>
                         <span className="line-clamp-2">
                           {representative.institution_name}
                         </span>
-                        {representative.state && (
-                          <span className="mt-1 inline-block rounded-[3px] border border-line bg-bg-ice px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
-                            {representative.state}
-                          </span>
-                        )}
+                      </td>
+                      <td className="py-4 pr-4 text-center font-semibold uppercase tabular-nums text-text-secondary">
+                        {representative.state || "—"}
                       </td>
                       <td className="py-4 pr-4 text-center text-text-secondary tabular-nums">
                         {representative.graduation_year}
