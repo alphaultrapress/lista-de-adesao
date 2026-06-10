@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import SocialProof from "@/components/SocialProof";
@@ -41,7 +41,156 @@ function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number, suffi
   return <span ref={ref}>{prefix}{count}{suffix}</span>;
 }
 
+// Painel de vídeo premium do hero ("display cinematográfico").
+// Shell em camadas: glow vermelho atrás + moldura glass + frame interno + vídeo.
+// Toca mudo em loop; ao clicar ativa o som; clicando de novo pausa/retoma.
+function HeroVideoCard({
+  className,
+  style,
+  radius = 24,
+  frameRadius = 18,
+  padding = 10,
+}: {
+  className?: string;
+  style?: CSSProperties;
+  radius?: number;
+  frameRadius?: number;
+  padding?: number;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [paused, setPaused] = useState(false);
+
+  // Garante o autoplay mudo (browsers às vezes não disparam sozinhos)
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = true;
+    v.play().catch(() => {});
+  }, []);
+
+  // Play/pause simples — sempre com som ao tocar.
+  const toggle = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      v.muted = false;
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  };
+
+  return (
+    <div
+      className={`hero-video-shell pointer-events-auto relative ${className ?? ""}`}
+      style={{
+        padding,
+        borderRadius: radius,
+        border: "1px solid rgba(255,255,255,0.18)",
+        background:
+          "linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.025))",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        boxShadow:
+          "0 28px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06), 0 0 42px rgba(190,18,34,0.16)",
+        ...style,
+      }}
+    >
+      {/* glow vermelho/branco discreto ATRÁS da moldura (::before) */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -inset-[2px] -z-10 blur-md"
+        style={{
+          borderRadius: "inherit",
+          background:
+            "radial-gradient(circle at 20% 0%, rgba(220,38,38,0.32), transparent 35%), radial-gradient(circle at 80% 100%, rgba(255,255,255,0.12), transparent 35%)",
+          opacity: 0.8,
+        }}
+      />
+
+      {/* frame interno — clicável (som / play / pause) */}
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={paused ? "Reproduzir vídeo" : "Pausar vídeo"}
+        className="group/vid hero-video-frame relative block h-full w-full cursor-pointer overflow-hidden border-0 p-0"
+        style={{ borderRadius: frameRadius, background: "#050505" }}
+      >
+        <video
+          ref={videoRef}
+          src="/video-principal.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          onPlay={() => setPaused(false)}
+          onPause={() => setPaused(true)}
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+
+        {/* Controle minimalista e transparente — só play/pause.
+            Pausado: ícone sempre visível. Tocando: some, reaparece no hover. */}
+        <span
+          className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+            paused ? "opacity-100" : "opacity-0 group-hover/vid:opacity-100"
+          }`}
+        >
+          <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/40 bg-black/10 backdrop-blur-[1px] transition-transform duration-300 group-hover/vid:scale-110">
+            {paused ? (
+              // play
+              <svg viewBox="0 0 24 24" className="ml-[3px] h-6 w-6 fill-white/90" aria-hidden>
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            ) : (
+              // pause
+              <svg viewBox="0 0 24 24" className="h-5 w-5 fill-white/90" aria-hidden>
+                <rect x="6" y="5" width="4" height="14" rx="1" />
+                <rect x="14" y="5" width="4" height="14" rx="1" />
+              </svg>
+            )}
+          </span>
+        </span>
+
+        {/* linha superior fina em degradê vermelho/transparente */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[2px]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(196,18,48,0.85), transparent)",
+          }}
+        />
+
+        {/* cantos estilo HUD, discretos */}
+        <span aria-hidden className="pointer-events-none absolute left-2 top-2 h-4 w-4 border-l border-t border-white/30 rounded-tl-[4px]" />
+        <span aria-hidden className="pointer-events-none absolute right-2 top-2 h-4 w-4 border-r border-t border-white/30 rounded-tr-[4px]" />
+        <span aria-hidden className="pointer-events-none absolute left-2 bottom-2 h-4 w-4 border-l border-b border-white/30 rounded-bl-[4px]" />
+        <span aria-hidden className="pointer-events-none absolute right-2 bottom-2 h-4 w-4 border-r border-b border-white/30 rounded-br-[4px]" />
+      </button>
+    </div>
+  );
+}
+
 export default function LandingPage() {
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
+
+  // Vídeo de fundo: fica CONGELADO num frame (pausa infinita), sem rodar.
+  useEffect(() => {
+    const v = bgVideoRef.current;
+    if (!v) return;
+    const freeze = () => {
+      v.pause();
+      // posiciona num frame com conteúdo (evita tela preta do frame 0)
+      try {
+        if (v.duration && isFinite(v.duration)) v.currentTime = v.duration * 0.3;
+      } catch {}
+    };
+    if (v.readyState >= 1) freeze();
+    else v.addEventListener("loadedmetadata", freeze, { once: true });
+    return () => v.removeEventListener("loadedmetadata", freeze);
+  }, []);
+
   return (
     <main className="page-canvas min-h-screen bg-[#0A0A0A] selection:bg-[#C41230] selection:text-white">
       <PremiumHeader
@@ -57,11 +206,11 @@ export default function LandingPage() {
         style={{ height: "100vh", overflow: "hidden", background: "#0A0A0A" }}
       >
         <video
+          ref={bgVideoRef}
           src="/social-proof/hero-familia.mp4"
-          autoPlay
-          loop
           muted
           playsInline
+          preload="auto"
           style={{
             position: "absolute",
             inset: 0,
@@ -74,14 +223,14 @@ export default function LandingPage() {
         {/* Overlay: mobile escurece mais (texto sobre foto clara);
             desktop mantém o degradê lateral original. */}
         <div
-          className="pointer-events-none absolute inset-0 [background:linear-gradient(to_bottom,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.65)_45%,rgba(0,0,0,0.85)_100%)] md:[background:linear-gradient(to_right,rgba(0,0,0,0.75)_0%,rgba(0,0,0,0.3)_100%)]"
+          className="pointer-events-none absolute inset-0 [background:linear-gradient(to_bottom,rgba(0,0,0,0.8)_0%,rgba(0,0,0,0.74)_45%,rgba(0,0,0,0.92)_100%)] md:[background:linear-gradient(to_right,rgba(0,0,0,0.85)_0%,rgba(0,0,0,0.58)_50%,rgba(0,0,0,0.72)_100%)]"
         />
 
         {/* Conteúdo do Hero — alinhado à esquerda.
             Mobile: padding lateral menor e largura total;
             md+: padding-left 80px e max-width 600px (desktop intacto). */}
         <div
-          className="absolute inset-0 z-10 flex flex-col justify-start px-6 pt-[34vh] md:justify-center md:pt-0 md:pl-20 md:pr-0 md:max-w-[600px]"
+          className="absolute inset-0 z-10 flex flex-col justify-start overflow-y-auto px-6 pt-[18vh] pb-10 md:overflow-visible md:justify-center md:pt-0 md:pb-0 md:pl-20 md:pr-0 md:max-w-[600px]"
         >
           <div className="fade-up flex flex-col items-start text-left">
             <span
@@ -193,10 +342,44 @@ export default function LandingPage() {
                 <span>JÁ TENHO CONTA &rarr;</span>
               </Link>
             </div>
+
+            {/* Painel do vídeo — MOBILE/TABLET: abaixo dos botões, centralizado (lg+ usa a versão à direita) */}
+            <div className="mt-7 flex w-full justify-center lg:hidden">
+              <HeroVideoCard
+                className="w-full"
+                style={{
+                  maxWidth: "min(92vw, 420px)",
+                  aspectRatio: "16 / 9",
+                }}
+                radius={18}
+                frameRadius={14}
+                padding={7}
+              />
+            </div>
+
+            {/* Card de avaliação — MOBILE: no fluxo, abaixo do vídeo (desktop usa a versão flutuante) */}
+            <div className="mt-6 flex items-center gap-2 self-center rounded-[12px] border border-white/12 bg-white/[0.08] px-5 py-3 whitespace-nowrap backdrop-blur-md md:hidden">
+              ⭐ <span className="font-semibold text-white text-[13px]">5.0</span>
+              <span className="text-white/40">·</span>
+              <span className="text-[#A1A1A1] text-[11px] uppercase tracking-wider font-medium">+30.000 turmas atendidas</span>
+            </div>
           </div>
         </div>
 
-        <div style={{
+        {/* Moldura do vídeo — DESKTOP: ocupa a metade direita do hero e centraliza o card
+            (vertical e horizontalmente) para não ficar colado no canto. */}
+        <div className="pointer-events-none absolute inset-y-0 left-1/2 right-0 z-10 hidden items-center justify-center px-8 xl:px-14 lg:flex">
+          <HeroVideoCard
+            style={{
+              width: "min(42vw, 640px)",
+              minWidth: "520px",
+              aspectRatio: "16 / 9",
+            }}
+          />
+        </div>
+
+        {/* Card de avaliação — DESKTOP: flutua no rodapé do hero (mobile usa a versão no fluxo) */}
+        <div className="hidden md:flex" style={{
           position: 'absolute',
           bottom: '40px',
           left: '50%',
@@ -210,7 +393,6 @@ export default function LandingPage() {
           fontFamily: 'var(--font-inter), sans-serif',
           fontSize: '13px',
           zIndex: 20,
-          display: 'flex',
           alignItems: 'center',
           gap: '8px',
           whiteSpace: 'nowrap'
