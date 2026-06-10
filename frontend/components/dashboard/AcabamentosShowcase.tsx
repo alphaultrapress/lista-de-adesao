@@ -53,11 +53,9 @@ export default function AcabamentosShowcase() {
                 src={`/images/${item.arquivo}`}
                 alt={item.nome}
                 fill
-                unoptimized
                 sizes="(max-width: 768px) 260px, 340px"
                 className="acabamento-img object-cover object-center transition-transform duration-700 ease-in-out group-hover:scale-105"
-                priority={i < 5}
-                loading={i < 5 ? "eager" : "lazy"}
+                loading="lazy"
               />
 
               {/* Overlay leve apenas no rodapé — topo da imagem permanece limpo */}
