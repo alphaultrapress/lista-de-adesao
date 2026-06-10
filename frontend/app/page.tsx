@@ -59,19 +59,40 @@ function HeroVideoCard({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [paused, setPaused] = useState(false);
+  // Só anexa o src do vídeo (22MB) quando o card entra na tela.
+  // Antes disso mostra apenas o poster leve — economiza dados no mobile.
+  const [shouldLoad, setShouldLoad] = useState(false);
 
-  // Garante o autoplay mudo (browsers às vezes não disparam sozinhos)
   useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShouldLoad(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+
+  // Quando o src é anexado, tenta dar play mudo (autoplay).
+  useEffect(() => {
+    if (!shouldLoad) return;
     const v = videoRef.current;
     if (!v) return;
     v.muted = true;
     v.play().catch(() => {});
-  }, []);
+  }, [shouldLoad]);
 
   // Play/pause simples — sempre com som ao tocar.
   const toggle = () => {
     const v = videoRef.current;
     if (!v) return;
+    if (!shouldLoad) setShouldLoad(true);
     if (v.paused) {
       v.muted = false;
       v.play().catch(() => {});
@@ -118,12 +139,12 @@ function HeroVideoCard({
       >
         <video
           ref={videoRef}
-          src="/video-principal.mp4"
-          autoPlay
+          src={shouldLoad ? "/video-principal.mp4" : undefined}
+          poster="/video-principal-poster.jpg"
           muted
           loop
           playsInline
-          preload="auto"
+          preload="none"
           onPlay={() => setPaused(false)}
           onPause={() => setPaused(true)}
           className="absolute inset-0 h-full w-full object-cover object-center"
@@ -173,24 +194,6 @@ function HeroVideoCard({
 }
 
 export default function LandingPage() {
-  const bgVideoRef = useRef<HTMLVideoElement>(null);
-
-  // Vídeo de fundo: fica CONGELADO num frame (pausa infinita), sem rodar.
-  useEffect(() => {
-    const v = bgVideoRef.current;
-    if (!v) return;
-    const freeze = () => {
-      v.pause();
-      // posiciona num frame com conteúdo (evita tela preta do frame 0)
-      try {
-        if (v.duration && isFinite(v.duration)) v.currentTime = v.duration * 0.3;
-      } catch {}
-    };
-    if (v.readyState >= 1) freeze();
-    else v.addEventListener("loadedmetadata", freeze, { once: true });
-    return () => v.removeEventListener("loadedmetadata", freeze);
-  }, []);
-
   return (
     <main className="page-canvas min-h-screen bg-[#0A0A0A] selection:bg-[#C41230] selection:text-white">
       <PremiumHeader
@@ -205,12 +208,13 @@ export default function LandingPage() {
         className="relative w-full"
         style={{ height: "100vh", overflow: "hidden", background: "#0A0A0A" }}
       >
-        <video
-          ref={bgVideoRef}
-          src="/social-proof/hero-familia.mp4"
-          muted
-          playsInline
-          preload="auto"
+        {/* Fundo do hero: imagem estática leve (antes era um vídeo de 5MB
+            que ficava congelado num frame — a imagem dá o mesmo resultado). */}
+        <img
+          src="/social-proof/hero-familia-poster.jpg"
+          alt=""
+          aria-hidden
+          fetchPriority="high"
           style={{
             position: "absolute",
             inset: 0,
