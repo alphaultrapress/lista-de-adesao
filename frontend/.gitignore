@@ -10,3 +10,6 @@ out
 .vercel
 next-env.d.ts
 *.tsbuildinfo
+
+# fonte pesado do vídeo principal (o site usa public/video-principal.mp4 comprimido)
+public/Videos/Video-Principal.mp4
