@@ -88,7 +88,31 @@ function HeroVideoCard({
     v.play().catch(() => {});
   }, [shouldLoad]);
 
-  // Play/pause simples — sempre com som ao tocar.
+  // Navegadores bloqueiam som automático sem interação. Então no PRIMEIRO
+  // gesto do usuário na página (clique/toque/scroll/tecla) ativamos o som —
+  // só enquanto o vídeo estiver tocando. O usuário não foi forçado a clicar no vídeo.
+  useEffect(() => {
+    const unmuteOnFirstGesture = () => {
+      const v = videoRef.current;
+      if (v && !v.paused && v.muted) {
+        v.muted = false;
+      }
+      cleanup();
+    };
+    const cleanup = () => {
+      window.removeEventListener("pointerdown", unmuteOnFirstGesture);
+      window.removeEventListener("keydown", unmuteOnFirstGesture);
+      window.removeEventListener("touchstart", unmuteOnFirstGesture);
+      window.removeEventListener("scroll", unmuteOnFirstGesture);
+    };
+    window.addEventListener("pointerdown", unmuteOnFirstGesture, { passive: true });
+    window.addEventListener("keydown", unmuteOnFirstGesture);
+    window.addEventListener("touchstart", unmuteOnFirstGesture, { passive: true });
+    window.addEventListener("scroll", unmuteOnFirstGesture, { passive: true });
+    return cleanup;
+  }, []);
+
+  // Clique no vídeo: pausa se tocando; se pausado, retoma com som.
   const toggle = () => {
     const v = videoRef.current;
     if (!v) return;
