@@ -39,16 +39,6 @@ export default function ConfirmDeleteModal({
             "0 40px 80px -20px rgba(20,15,10,0.55), inset 0 1px 0 rgba(255,255,255,0.6)",
         }}
       >
-        {/* Halo vinho no topo */}
-        <div
-          className="pointer-events-none absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(124,30,49,0.30) 0%, transparent 70%)",
-            filter: "blur(8px)",
-          }}
-        />
-
         <button
           type="button"
           onClick={onClose}
@@ -64,10 +54,7 @@ export default function ConfirmDeleteModal({
         <div className="relative px-8 pb-8 pt-10 text-center">
           {/* Ícone de lixeira em destaque */}
           <div className="relative mx-auto mb-2 h-20 w-20">
-            <div
-              className="absolute inset-0 flex items-center justify-center rounded-full border border-wine/25 bg-wine/8 text-wine"
-              style={{ boxShadow: "0 0 32px rgba(124,30,49,0.18)" }}
-            >
+            <div className="absolute inset-0 flex items-center justify-center rounded-full border border-wine/25 bg-wine/8 text-wine">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6" />
                 <line x1="10" y1="11" x2="10" y2="17" />
