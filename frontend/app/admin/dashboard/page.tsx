@@ -24,6 +24,7 @@ export default function AdminDashboardPage() {
   const [institutionSearch, setInstitutionSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
+  const [removingId, setRemovingId] = useState<string | undefined>();
 
   useEffect(() => {
     (async () => {
@@ -76,6 +77,45 @@ export default function AdminDashboardPage() {
   async function logout() {
     await signOutAndClearSession();
     router.replace("/admin/login");
+  }
+
+  async function removeRepresentative(representative: Representative) {
+    const confirmed = window.confirm(
+      `Remover "${representative.name}" e todos os alunos cadastrados nesta turma?\n\nEsta ação não pode ser desfeita.`,
+    );
+    if (!confirmed) return;
+
+    setRemovingId(representative.id);
+    setError(undefined);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess.session?.access_token;
+      if (!token) {
+        router.replace("/admin/login");
+        return;
+      }
+
+      const res = await fetch(`/api/representatives/${representative.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || "Não foi possível remover o representante.");
+      }
+
+      setRepresentatives((current) =>
+        current.filter((item) => item.id !== representative.id),
+      );
+      setStudents((current) =>
+        current.filter((item) => item.representative_id !== representative.id),
+      );
+    } catch (err: any) {
+      setError(err?.message || "Não foi possível remover o representante.");
+    } finally {
+      setRemovingId(undefined);
+    }
   }
 
   const studentsByRepresentative = useMemo(() => {
@@ -333,12 +373,32 @@ export default function AdminDashboardPage() {
                         )}
                       </td>
                       <td className="py-4 text-right">
-                        <Link
-                          href={`/admin/dashboard/${representative.id}`}
-                          className="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-line bg-white px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-primary transition-all duration-300 hover:border-text-primary hover:-translate-y-[1px]"
-                        >
-                          Visualizar
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/admin/dashboard/${representative.id}`}
+                            className="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-line bg-white px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-primary transition-all duration-300 hover:border-text-primary hover:-translate-y-[1px]"
+                          >
+                            Visualizar
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => removeRepresentative(representative)}
+                            disabled={removingId === representative.id}
+                            title="Remover representante"
+                            aria-label={`Remover ${representative.name}`}
+                            className="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-wine/30 bg-white px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-wine transition-all duration-300 hover:border-wine hover:bg-wine/5 hover:-translate-y-[1px] disabled:opacity-50 disabled:hover:translate-y-0"
+                          >
+                            {removingId === representative.id ? (
+                              "…"
+                            ) : (
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6" />
+                                <line x1="10" y1="11" x2="10" y2="17" />
+                                <line x1="14" y1="11" x2="14" y2="17" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
