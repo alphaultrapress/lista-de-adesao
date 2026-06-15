@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Footer } from "@/components/Brand";
 import PremiumHeader from "@/components/PremiumHeader";
 import Input from "@/components/ui/Input";
+import ConfirmDeleteModal from "@/components/admin/ConfirmDeleteModal";
 import {
   signOutAndClearSession,
   supabase,
@@ -25,6 +26,7 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
   const [removingId, setRemovingId] = useState<string | undefined>();
+  const [toRemove, setToRemove] = useState<Representative | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -79,11 +81,9 @@ export default function AdminDashboardPage() {
     router.replace("/admin/login");
   }
 
-  async function removeRepresentative(representative: Representative) {
-    const confirmed = window.confirm(
-      `Remover "${representative.name}" e todos os alunos cadastrados nesta turma?\n\nEsta ação não pode ser desfeita.`,
-    );
-    if (!confirmed) return;
+  async function confirmRemove() {
+    const representative = toRemove;
+    if (!representative) return;
 
     setRemovingId(representative.id);
     setError(undefined);
@@ -111,8 +111,10 @@ export default function AdminDashboardPage() {
       setStudents((current) =>
         current.filter((item) => item.representative_id !== representative.id),
       );
+      setToRemove(null);
     } catch (err: any) {
       setError(err?.message || "Não foi possível remover o representante.");
+      setToRemove(null);
     } finally {
       setRemovingId(undefined);
     }
@@ -280,15 +282,15 @@ export default function AdminDashboardPage() {
           <div className="mt-8">
             <table className="w-full table-fixed text-left text-sm">
               <colgroup>
+                <col className="w-[16%]" />
+                <col className="w-[11%]" />
                 <col className="w-[17%]" />
-                <col className="w-[12%]" />
-                <col className="w-[19%]" />
                 <col className="w-[5%]" />
+                <col className="w-[6%]" />
+                <col className="w-[9%]" />
                 <col className="w-[7%]" />
-                <col className="w-[10%]" />
-                <col className="w-[8%]" />
-                <col className="w-[12%]" />
-                <col className="w-[10%]" />
+                <col className="w-[11%]" />
+                <col className="w-[18%]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-line text-[10px] uppercase tracking-premium-widest text-text-tertiary">
@@ -372,7 +374,7 @@ export default function AdminDashboardPage() {
                           </span>
                         )}
                       </td>
-                      <td className="py-4 text-right">
+                      <td className="py-4 pl-2 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/admin/dashboard/${representative.id}`}
@@ -382,21 +384,16 @@ export default function AdminDashboardPage() {
                           </Link>
                           <button
                             type="button"
-                            onClick={() => removeRepresentative(representative)}
-                            disabled={removingId === representative.id}
+                            onClick={() => setToRemove(representative)}
                             title="Remover representante"
                             aria-label={`Remover ${representative.name}`}
-                            className="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-wine/30 bg-white px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-wine transition-all duration-300 hover:border-wine hover:bg-wine/5 hover:-translate-y-[1px] disabled:opacity-50 disabled:hover:translate-y-0"
+                            className="inline-flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-md border border-wine/30 bg-white text-wine transition-all duration-300 hover:border-wine hover:bg-wine/5 hover:-translate-y-[1px]"
                           >
-                            {removingId === representative.id ? (
-                              "…"
-                            ) : (
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6" />
-                                <line x1="10" y1="11" x2="10" y2="17" />
-                                <line x1="14" y1="11" x2="14" y2="17" />
-                              </svg>
-                            )}
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6" />
+                              <line x1="10" y1="11" x2="10" y2="17" />
+                              <line x1="14" y1="11" x2="14" y2="17" />
+                            </svg>
                           </button>
                         </div>
                       </td>
@@ -416,6 +413,17 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </section>
+
+      <ConfirmDeleteModal
+        open={Boolean(toRemove)}
+        name={toRemove?.name}
+        loading={Boolean(removingId)}
+        onConfirm={confirmRemove}
+        onClose={() => {
+          if (removingId) return;
+          setToRemove(null);
+        }}
+      />
 
       <Footer />
     </main>
