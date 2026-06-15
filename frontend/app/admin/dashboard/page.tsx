@@ -282,15 +282,15 @@ export default function AdminDashboardPage() {
           <div className="mt-8">
             <table className="w-full table-fixed text-left text-sm">
               <colgroup>
-                <col className="w-[16%]" />
-                <col className="w-[11%]" />
-                <col className="w-[17%]" />
+                <col className="w-[18%]" />
+                <col className="w-[12%]" />
+                <col className="w-[19%]" />
                 <col className="w-[5%]" />
                 <col className="w-[6%]" />
                 <col className="w-[9%]" />
                 <col className="w-[7%]" />
                 <col className="w-[11%]" />
-                <col className="w-[18%]" />
+                <col className="w-[13%]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-line text-[10px] uppercase tracking-premium-widest text-text-tertiary">
