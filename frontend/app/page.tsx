@@ -163,8 +163,7 @@ function HeroVideoCard({
       >
         <video
           ref={videoRef}
-          src={shouldLoad ? "/video-principal.mp4" : undefined}
-          poster="/video-principal-poster.jpg"
+          src={shouldLoad ? "/Videos/video-home.mp4" : undefined}
           muted
           loop
           playsInline
@@ -396,11 +395,11 @@ export default function LandingPage() {
 
         {/* Moldura do vídeo — DESKTOP: ocupa a metade direita do hero e centraliza o card
             (vertical e horizontalmente) para não ficar colado no canto. */}
-        <div className="pointer-events-none absolute inset-y-0 left-1/2 right-0 z-10 hidden items-center justify-center px-8 xl:px-14 lg:flex">
+        <div className="pointer-events-none absolute inset-y-0 left-[38%] right-0 z-10 hidden items-center justify-center px-8 xl:px-14 lg:flex">
           <HeroVideoCard
             style={{
-              width: "min(42vw, 640px)",
-              minWidth: "520px",
+              width: "min(50vw, 820px)",
+              minWidth: "640px",
               aspectRatio: "16 / 9",
             }}
           />
