@@ -688,7 +688,7 @@ export default function AdesaoClient({ slug }: { slug: string }) {
               />
             </div>
             <Input
-              label="Quantos convites pretende adquirir?"
+              label="Quantidade de convites"
               name="qtd_convites"
               inputMode="numeric"
               pattern="[0-9]*"

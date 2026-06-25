@@ -841,7 +841,7 @@ function AddStudentModal({
             />
           </div>
           <Input
-            label="Quantos convites pretende adquirir?"
+            label="Quantidade de convites"
             name="qtd"
             inputMode="numeric"
             value={form.qtd}

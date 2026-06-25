@@ -31,7 +31,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {label && (
           <label
             htmlFor={inputId}
-            className={`absolute left-4 top-1.5 text-[10px] tracking-premium-widest uppercase font-medium text-text-tertiary transition-all duration-250 ease-premium pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:text-[10px] peer-focus:uppercase peer-focus:tracking-premium-widest peer-focus:text-ink ${error ? "text-wine peer-focus:text-wine" : ""}`}
+            className={`absolute left-4 right-4 top-1.5 truncate whitespace-nowrap text-[10px] tracking-premium-widest uppercase font-medium text-text-tertiary transition-all duration-250 ease-premium pointer-events-none peer-placeholder-shown:top-3.5 peer-placeholder-shown:whitespace-normal peer-placeholder-shown:text-sm peer-placeholder-shown:normal-case peer-placeholder-shown:tracking-normal peer-focus:top-1.5 peer-focus:whitespace-nowrap peer-focus:truncate peer-focus:text-[10px] peer-focus:uppercase peer-focus:tracking-premium-widest peer-focus:text-ink ${error ? "text-wine peer-focus:text-wine" : ""}`}
           >
             {label}
           </label>
