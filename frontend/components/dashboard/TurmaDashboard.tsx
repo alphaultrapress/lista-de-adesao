@@ -6,6 +6,8 @@ import { supabase, Student, Representative, META_CONVITES } from "@/lib/supabase
 import { getInitials, getAvatarColor } from "@/lib/avatar";
 import { isValidPhoneBr, onlyDigits } from "@/lib/cpf";
 import { buildQrPosterBlob, slugifyFile } from "@/lib/qrPoster";
+import { buildWhatsAppShareUrl } from "@/lib/share";
+import { absoluteUrl, PROMO_VIDEO_PATH } from "@/lib/site";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
 import PhoneInput from "../forms/PhoneInput";
@@ -617,9 +619,13 @@ export function ShareCard({
     flashFeedback("Imagem baixada");
   }
 
-  const waText = encodeURIComponent(
-    `Olá! Sou ${nome}, de ${curso} - ${instituicao}. Demonstre seu interesse nos convites de formatura da nossa turma aqui, sem compromisso: ${url}`,
-  );
+  const waShareUrl = buildWhatsAppShareUrl({
+    nomeUsuario: nome,
+    curso,
+    instituicao,
+    linkAdesao: url,
+    linkVideo: absoluteUrl(PROMO_VIDEO_PATH),
+  });
 
   const shortUrl = url.replace(/^https?:\/\//, "");
 
@@ -680,7 +686,7 @@ export function ShareCard({
           </button>
         </div>
         <a
-          href={`https://wa.me/?text=${waText}`}
+          href={waShareUrl}
           target="_blank"
           rel="noreferrer"
           className="mt-2 inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-primary transition-all duration-300 hover:border-[#25D366]"
@@ -772,9 +778,13 @@ function AddStudentModal({
     }
   }
 
-  const waText = encodeURIComponent(
-    `Olá! Sou ${nome}, de ${curso} - ${instituicao}. Demonstre seu interesse nos convites de formatura da nossa turma aqui, sem compromisso: ${url}`,
-  );
+  const waShareUrl = buildWhatsAppShareUrl({
+    nomeUsuario: nome,
+    curso,
+    instituicao,
+    linkAdesao: url,
+    linkVideo: absoluteUrl(PROMO_VIDEO_PATH),
+  });
 
   return (
     <div
@@ -868,7 +878,7 @@ function AddStudentModal({
               {copied ? "Link copiado" : "Copiar link"}
             </button>
             <a
-              href={`https://wa.me/?text=${waText}`}
+              href={waShareUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-primary transition-all hover:border-[#25D366]"
