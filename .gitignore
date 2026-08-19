@@ -38,3 +38,6 @@ Thumbs.db
 # Next.js types
 next-env.d.ts
 **/next-env.d.ts
+
+# Credenciais anotadas (NUNCA commitar)
+supabase/doc.txt
