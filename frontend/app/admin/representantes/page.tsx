@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -41,7 +41,11 @@ const DIA = 86_400_000;
 
 type Ordem = { campo: "created_at" | "name" | "convites" | "adesoes"; desc: boolean };
 
-export default function RepresentantesPage() {
+/* Os filtros moram na URL (useSearchParams), e no App Router isso obriga o
+   componente a ficar dentro de um <Suspense> — sem ele o `next build` para de
+   pre-renderizar a rota e o deploy quebra. O wrapper default abaixo cumpre
+   esse papel. */
+function RepresentantesConteudo() {
   const router = useRouter();
   const params = useSearchParams();
 
@@ -690,5 +694,15 @@ export default function RepresentantesPage() {
         onConfirm={confirmarRemocao}
       />
     </div>
+  );
+}
+
+export default function RepresentantesPage() {
+  // A pagina inteira e client-side e fica atras do login do admin, entao o
+  // fallback so aparece no instante entre o HTML e a hidratacao.
+  return (
+    <Suspense fallback={null}>
+      <RepresentantesConteudo />
+    </Suspense>
   );
 }
