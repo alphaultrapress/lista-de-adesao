@@ -3,8 +3,16 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Footer } from "@/components/Brand";
-import PremiumHeader from "@/components/PremiumHeader";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Check,
+  Copy,
+  ExternalLink,
+  FileDown,
+  Send,
+  Undo2,
+} from "lucide-react";
 import {
   signOutAndClearSession,
   supabase,
@@ -15,14 +23,102 @@ import {
 import { formatPhone } from "@/lib/format";
 import { downloadLeadPdf } from "@/lib/leadPdf";
 import LeadSuccessModal from "@/components/admin/LeadSuccessModal";
+import { useLoadingGate } from "@/components/ui/LoadingScreen";
+import { ADM, RADIUS } from "@/lib/admin/tokens";
+import { dataAdmin, dataHoraAdmin, tempoRelativo } from "@/lib/admin/format";
+import { ErroBloco, Painel, StatusBadge, TituloPainel, Vazio } from "@/components/admin/Primitivos";
+import type { StatusRep } from "@/lib/admin/data";
+
+/**
+ * Botão do padrão administrativo.
+ *
+ * A cor não é enfeite: identifica o que a ação faz. Verde confirma, âmbar
+ * desfaz, preto é o encaminhamento comercial, neutro é utilitário. O resto da
+ * tela segue sem cor, para esses quatro se destacarem.
+ */
+type VarianteBotao = "neutro" | "escuro" | "sucesso" | "atencao";
+
+const PALETA_BOTAO: Record<
+  VarianteBotao,
+  { fundo: string; borda: string; texto: string; hover: string }
+> = {
+  neutro: { fundo: ADM.surface, borda: ADM.border, texto: ADM.text, hover: ADM.bg },
+  escuro: { fundo: ADM.ink, borda: ADM.ink, texto: "#FFFFFF", hover: "#2A2C28" },
+  sucesso: { fundo: ADM.success, borda: ADM.success, texto: "#FFFFFF", hover: "#1C6A40" },
+  atencao: {
+    fundo: ADM.surface,
+    borda: "rgba(162,103,25,0.45)",
+    texto: ADM.warning,
+    hover: "rgba(162,103,25,0.07)",
+  },
+};
+
+function Botao({
+  children,
+  onClick,
+  variante = "neutro",
+  disabled,
+  icone,
+}: {
+  children: React.ReactNode;
+  onClick?: () => void;
+  variante?: VarianteBotao;
+  disabled?: boolean;
+  icone?: React.ReactNode;
+}) {
+  const p = PALETA_BOTAO[variante];
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      whileHover={disabled ? undefined : { y: -1 }}
+      whileTap={disabled ? undefined : { scale: 0.985 }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
+      className="inline-flex items-center gap-2 whitespace-nowrap px-3.5 text-[13px] font-medium disabled:opacity-50"
+      style={{
+        height: 38,
+        borderRadius: RADIUS,
+        border: `1px solid ${p.borda}`,
+        background: p.fundo,
+        color: p.texto,
+        transition: "background 180ms ease",
+      }}
+      onMouseEnter={(e) => {
+        if (!disabled) e.currentTarget.style.background = p.hover;
+      }}
+      onMouseLeave={(e) => {
+        if (!disabled) e.currentTarget.style.background = p.fundo;
+      }}
+    >
+      {icone}
+      {children}
+    </motion.button>
+  );
+}
+
+function Campo({ rotulo, valor }: { rotulo: string; valor: string }) {
+  return (
+    <div>
+      <p
+        className="text-[10.5px] uppercase"
+        style={{ letterSpacing: "0.12em", color: ADM.textMuted }}
+      >
+        {rotulo}
+      </p>
+      <p className="mt-1 text-[13.5px]" style={{ color: ADM.text }}>
+        {valor || "Não informado"}
+      </p>
+    </div>
+  );
+}
 
 export default function AdminRepresentativePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const representativeId = params?.id;
-  const [representative, setRepresentative] = useState<Representative | null>(
-    null,
-  );
+
+  const [representative, setRepresentative] = useState<Representative | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
@@ -31,6 +127,7 @@ export default function AdminRepresentativePage() {
   const [leadError, setLeadError] = useState<string | undefined>();
   const [modalOpen, setModalOpen] = useState(false);
   const [leadId, setLeadId] = useState<number | undefined>();
+  const [copiado, setCopiado] = useState(false);
 
   const totalConvites = useMemo(
     () => students.reduce((sum, s) => sum + (s.qtd_convites || 0), 0),
@@ -39,6 +136,16 @@ export default function AdminRepresentativePage() {
   const metaAtingida = totalConvites >= META_CONVITES;
   const atendida = Boolean(representative?.contacted_at);
   const leadCriado = Boolean(representative?.lead_created_at);
+
+  const status: StatusRep = metaAtingida
+    ? "meta_atingida"
+    : students.length > 0
+      ? "em_andamento"
+      : "pendente";
+
+  const linkTurma = representative
+    ? `${process.env.NEXT_PUBLIC_APP_URL || (typeof window !== "undefined" ? window.location.origin : "")}/adesao/${representative.slug}`
+    : "";
 
   async function gerarLead() {
     if (!representative) return;
@@ -49,26 +156,20 @@ export default function AdminRepresentativePage() {
       const token = sess.session?.access_token;
       if (!token) return;
 
-      const res = await fetch(
-        `/api/representatives/${representative.id}/lead`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`/api/representatives/${representative.id}/lead`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
       const data = await res.json();
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "Falha ao gerar lead.");
-      }
+      if (!res.ok || !data.ok) throw new Error(data.error || "Falha ao gerar lead.");
+
       setLeadId(data.leadId);
       setModalOpen(true);
       setRepresentative((current) =>
-        current
-          ? { ...current, lead_created_at: new Date().toISOString() }
-          : current,
+        current ? { ...current, lead_created_at: new Date().toISOString() } : current,
       );
     } catch (err: any) {
       setLeadError(err?.message || "Não foi possível gerar o lead.");
@@ -110,17 +211,14 @@ export default function AdminRepresentativePage() {
       const token = sess.session?.access_token;
       if (!token) return;
 
-      const res = await fetch(
-        `/api/representatives/${representative.id}/contact`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ contacted: !atendida }),
+      const res = await fetch(`/api/representatives/${representative.id}/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify({ contacted: !atendida }),
+      });
 
       if (res.ok) {
         const data = await res.json();
@@ -133,13 +231,22 @@ export default function AdminRepresentativePage() {
     }
   }
 
+  function copiarLink() {
+    navigator.clipboard?.writeText(linkTurma).then(
+      () => {
+        setCopiado(true);
+        setTimeout(() => setCopiado(false), 1800);
+      },
+      () => setError("Não foi possível copiar o link."),
+    );
+  }
+
   useEffect(() => {
     if (!representativeId) return;
 
     (async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData.session?.user.id;
-
       if (!userId) {
         router.replace("/admin/login");
         return;
@@ -150,7 +257,6 @@ export default function AdminRepresentativePage() {
         .select("id")
         .eq("user_id", userId)
         .maybeSingle();
-
       if (!admin) {
         await signOutAndClearSession();
         router.replace("/admin/login");
@@ -158,11 +264,7 @@ export default function AdminRepresentativePage() {
       }
 
       const [representativeResult, studentsResult] = await Promise.all([
-        supabase
-          .from("representatives")
-          .select("*")
-          .eq("id", representativeId)
-          .maybeSingle(),
+        supabase.from("representatives").select("*").eq("id", representativeId).maybeSingle(),
         supabase
           .from("students")
           .select("*")
@@ -177,9 +279,7 @@ export default function AdminRepresentativePage() {
             "Não foi possível carregar os dados.",
         );
       } else {
-        setRepresentative(
-          (representativeResult.data as Representative | null) || null,
-        );
+        setRepresentative((representativeResult.data as Representative | null) || null);
         setStudents((studentsResult.data as Student[]) || []);
       }
 
@@ -187,318 +287,361 @@ export default function AdminRepresentativePage() {
     })();
   }, [representativeId, router]);
 
-  async function logout() {
-    await signOutAndClearSession();
-    router.replace("/admin/login");
-  }
-
-  if (loading) {
-    return (
-      <main className="page-canvas min-h-screen bg-bg flex items-center justify-center">
-        <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
-          Carregando representante
-        </p>
-      </main>
-    );
-  }
+  const { mostrando: carregandoTela, tela } = useLoadingGate(loading);
+  if (carregandoTela) return tela;
 
   if (!representative) {
     return (
-      <main className="page-canvas min-h-screen bg-bg flex flex-col">
-        <PremiumHeader
-          onLogout={logout}
-          compact
-          centeredBrand
-          brandSize="lg"
-        />
-        <section className="relative flex flex-1 items-center justify-center px-6 pb-20 pt-32">
-          <div className="absolute left-1/2 top-1/2 h-[340px] w-[560px] -translate-x-1/2 -translate-y-1/2 glow-crimson-soft pointer-events-none" />
-          <div className="relative max-w-md text-center fade-up">
-            <p className="mb-4 text-[10px] uppercase tracking-premium-widest text-wine">
-              Registro indisponível
-            </p>
-            <h1 className="font-serif text-4xl tracking-premium-tight text-text-primary">
-              Representante não encontrado
-            </h1>
-            <Link
-              href="/admin/dashboard"
-              className="btn-secondary-tech mt-8 inline-flex"
-            >
-              Voltar ao painel
-            </Link>
-          </div>
-        </section>
-        <Footer />
-      </main>
+      <div className="mx-auto max-w-[1400px]">
+        <Link
+          href="/admin/representantes"
+          className="mb-5 inline-flex items-center gap-1.5 text-[13px]"
+          style={{ color: ADM.textMuted }}
+        >
+          <ArrowLeft size={14} strokeWidth={1.8} />
+          Representantes
+        </Link>
+        <Painel>
+          <Vazio
+            titulo="Representante não encontrado"
+            detalhe="O registro pode ter sido removido. Volte à lista para conferir."
+          />
+        </Painel>
+      </div>
     );
   }
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (typeof window !== "undefined" ? window.location.origin : "");
-  const adesaoUrl = `${appUrl}/adesao/${representative.slug}`;
+  const faltam = Math.max(0, META_CONVITES - totalConvites);
 
   return (
-    <main className="page-canvas min-h-screen bg-bg">
-      <PremiumHeader
-        onLogout={logout}
-        compact
-        centeredBrand
-        brandSize="lg"
-        actions={[{ href: "/admin/dashboard", label: "Admin" }]}
-      />
+    <div className="mx-auto max-w-[1400px]">
+      <Link
+        href="/admin/representantes"
+        className="mb-5 inline-flex items-center gap-1.5 text-[13px] transition-colors hover:text-[#171816]"
+        style={{ color: ADM.textMuted }}
+      >
+        <ArrowLeft size={14} strokeWidth={1.8} />
+        Representantes
+      </Link>
 
-      <section className="relative mx-auto max-w-7xl px-6 pb-20 pt-32 md:pt-36">
-        <div className="absolute left-1/2 top-10 h-[340px] w-[620px] -translate-x-1/2 glow-crimson-soft opacity-60 pointer-events-none" />
-        <div className="absolute inset-x-0 top-0 h-[420px] bg-grid-light opacity-50 pointer-events-none" />
-
-        <div className="relative mb-10 fade-up">
-          <div>
-            <span className="tech-eyebrow">
-              <span className="dot" />
-              Representante
-            </span>
-            <div className="mt-7 flex flex-wrap items-center gap-4">
-              <h1 className="font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-                {representative.name}
-              </h1>
-              {atendida ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#5b7da3]/30 bg-[#5b7da3]/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#3a5a82]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#5b7da3]" />
-                  Atendido
-                </span>
-              ) : metaAtingida ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0a7d3a]/30 bg-[#0a7d3a]/8 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#0a7d3a]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#0a7d3a] animate-pulse" />
-                  Meta atingida
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg-soft px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
-                  <span className="h-1.5 w-1.5 rounded-full bg-text-tertiary" />
-                  Pendente
-                </span>
-              )}
-            </div>
-            <p className="mt-5 text-text-secondary">
-              {representative.course_name} · {representative.institution_name} ·{" "}
-              {representative.graduation_year}
-            </p>
+      {/* cabeçalho */}
+      <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1
+              className="font-semibold"
+              style={{ fontSize: 22, letterSpacing: "-0.02em", color: ADM.text }}
+            >
+              {representative.name}
+            </h1>
+            <StatusBadge status={status} />
+            {atendida && (
+              <span
+                className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11.5px] font-medium"
+                style={{ background: "rgba(35,122,75,0.10)", color: ADM.success }}
+              >
+                <Check size={12} strokeWidth={2.2} />
+                Atendida
+              </span>
+            )}
           </div>
+          <p className="mt-1.5 text-[13.5px]" style={{ color: ADM.textMuted }}>
+            {representative.course_name} · {representative.institution_name} ·{" "}
+            {representative.graduation_year}
+          </p>
         </div>
 
-        {/* Resumo de convites + ação de atendimento */}
-        <div className="relative mb-6 grid gap-4 md:grid-cols-3 fade-up">
-          <div className="card-hover p-5">
-            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              Total de convites
+        {/* ações */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Botao onClick={copiarLink} icone={<Copy size={15} strokeWidth={1.8} />}>
+            {copiado ? "Link copiado" : "Copiar link"}
+          </Botao>
+          <Botao
+            onClick={baixarLeadPdf}
+            disabled={students.length === 0}
+            icone={<FileDown size={15} strokeWidth={1.8} />}
+          >
+            Baixar PDF
+          </Botao>
+          <Botao
+            variante={atendida ? "atencao" : "sucesso"}
+            onClick={toggleAtendido}
+            disabled={marcandoAtendido}
+            icone={
+              atendida ? <Undo2 size={15} strokeWidth={1.8} /> : <Check size={15} strokeWidth={2} />
+            }
+          >
+            {marcandoAtendido
+              ? "Salvando…"
+              : atendida
+                ? "Desmarcar atendimento"
+                : "Marcar como atendida"}
+          </Botao>
+
+          {/* O encaminhamento comercial só existe depois do atendimento. */}
+          <AnimatePresence>
+            {atendida && (
+              <motion.div
+                initial={{ opacity: 0, x: 8, width: 0 }}
+                animate={{ opacity: 1, x: 0, width: "auto" }}
+                exit={{ opacity: 0, x: 8, width: 0 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                style={{ overflow: "hidden" }}
+              >
+                <Botao
+                  variante="escuro"
+                  onClick={gerarLead}
+                  disabled={gerandoLead}
+                  icone={<Send size={15} strokeWidth={1.8} />}
+                >
+                  {gerandoLead ? "Gerando…" : leadCriado ? "Gerar lead novamente" : "Gerar lead"}
+                </Botao>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </header>
+
+      {error && (
+        <div className="mb-5">
+          <ErroBloco mensagem={error} />
+        </div>
+      )}
+      {leadError && (
+        <div className="mb-5">
+          <ErroBloco mensagem={leadError} />
+        </div>
+      )}
+
+      {/* indicadores da turma */}
+      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {[
+          {
+            label: "Convites",
+            valor: `${totalConvites}`,
+            apoio: `de ${META_CONVITES} da meta`,
+            destaque: metaAtingida,
+          },
+          {
+            label: "Alunos na lista",
+            valor: String(students.length),
+            apoio: students.length === 1 ? "1 adesão" : `${students.length} adesões`,
+            destaque: false,
+          },
+          {
+            label: "Cadastro",
+            valor: dataAdmin(representative.created_at),
+            apoio: tempoRelativo(representative.created_at),
+            destaque: false,
+          },
+          {
+            label: "Situação",
+            // Mesmo vocabulário do resto do painel: a turma vai de "Faltam X"
+            // para "Meta atingida" e daí para "Meta atendida".
+            valor: !metaAtingida
+              ? `Faltam ${faltam}`
+              : atendida
+                ? "Meta atendida"
+                : "Meta atingida",
+            apoio: !metaAtingida
+              ? "convites para a meta"
+              : atendida
+                ? "Turma já contatada"
+                : "Aguardando atendimento",
+            destaque: metaAtingida,
+          },
+        ].map((c, i) => (
+          <motion.div
+            key={c.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col justify-between"
+            style={{
+              height: 118,
+              background: ADM.surface,
+              border: `1px solid ${ADM.border}`,
+              borderRadius: RADIUS,
+              padding: 16,
+            }}
+          >
+            <p
+              className="text-[11px] uppercase"
+              style={{ letterSpacing: "0.1em", color: ADM.textMuted }}
+            >
+              {c.label}
             </p>
             <p
-              className={`mt-3 font-serif text-4xl tracking-premium-tight ${
-                metaAtingida ? "text-[#0a7d3a]" : "text-text-primary"
-              }`}
+              className="font-semibold leading-none"
+              style={{
+                fontSize: 26,
+                letterSpacing: "-0.03em",
+                color: c.destaque ? ADM.success : ADM.text,
+              }}
             >
-              {totalConvites}
-              <span className="ml-2 text-base font-sans text-text-tertiary">
-                / {META_CONVITES}
-              </span>
+              {c.valor}
             </p>
+            <p className="truncate text-[12px]" style={{ color: ADM.textMuted }}>
+              {c.apoio}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        {/* dados da turma */}
+        <Painel className="lg:col-span-1">
+          <TituloPainel titulo="Dados da turma" descricao="Informações do cadastro." />
+          <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+            <Campo rotulo="Representante" valor={representative.name} />
+            <Campo rotulo="Curso" valor={representative.course_name} />
+            <Campo rotulo="Instituição" valor={representative.institution_name} />
+            <Campo rotulo="Ano/Período" valor={representative.graduation_year} />
+            <Campo rotulo="Cidade" valor={representative.city ?? ""} />
+            <Campo rotulo="Estado" valor={representative.state ?? ""} />
+            <Campo rotulo="E-mail" valor={representative.email} />
+            <Campo
+              rotulo="Consultor"
+              valor={representative.consultant_name ?? ""}
+            />
           </div>
-          <div className="card-hover p-5">
-            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              Alunos cadastrados
+
+          <div className="mt-5">
+            <p
+              className="text-[10.5px] uppercase"
+              style={{ letterSpacing: "0.12em", color: ADM.textMuted }}
+            >
+              Link público da turma
             </p>
-            <p className="mt-3 font-serif text-4xl tracking-premium-tight text-text-primary">
-              {students.length}
-            </p>
+            <div className="mt-1.5 flex items-center gap-2">
+              <code
+                className="min-w-0 flex-1 truncate px-2.5 py-2 text-[12px]"
+                style={{
+                  background: ADM.bg,
+                  border: `1px solid ${ADM.border}`,
+                  borderRadius: 8,
+                  color: ADM.text,
+                }}
+                title={linkTurma}
+              >
+                {linkTurma}
+              </code>
+              <a
+                href={`/adesao/${representative.slug}`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Abrir link da turma"
+                className="flex h-9 w-9 shrink-0 items-center justify-center"
+                style={{ border: `1px solid ${ADM.border}`, borderRadius: 8, color: ADM.textMuted }}
+              >
+                <ExternalLink size={15} strokeWidth={1.8} />
+              </a>
+            </div>
           </div>
-          <div className="card-hover flex flex-col p-5">
-            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              Ação
-            </p>
-            {metaAtingida ? (
-              <div className="mt-auto flex flex-col gap-2.5">
-                <button
-                  type="button"
-                  onClick={toggleAtendido}
-                  disabled={marcandoAtendido}
-                  className={`self-start inline-flex items-center justify-center gap-2 rounded-[3px] px-5 py-2.5 text-[11px] uppercase tracking-premium-wide font-semibold transition-all duration-300 ${
-                    atendida
-                      ? "border border-line bg-white text-text-secondary hover:border-text-primary hover:text-text-primary"
-                      : "bg-[#0a7d3a] text-white shadow-[0_8px_20px_-8px_rgba(10,125,58,0.45)] hover:bg-[#13b85a] hover:shadow-[0_12px_24px_-8px_rgba(19,184,90,0.55)] hover:-translate-y-[1px]"
-                  } disabled:opacity-50`}
+
+          {/* carimbos reais do banco */}
+          <div className="mt-5 space-y-2" style={{ borderTop: `1px solid ${ADM.border}`, paddingTop: 16 }}>
+            {[
+              { r: "Cadastro", v: representative.created_at },
+              { r: "Meta notificada", v: representative.meta_notified_at },
+              { r: "Atendimento", v: representative.contacted_at },
+              { r: "Lead gerado", v: representative.lead_created_at },
+            ].map((l) => (
+              <div key={l.r} className="flex items-baseline justify-between gap-3">
+                <span className="text-[12px]" style={{ color: ADM.textMuted }}>
+                  {l.r}
+                </span>
+                <span className="text-[12.5px]" style={{ color: l.v ? ADM.text : ADM.textMuted }}>
+                  {l.v ? dataHoraAdmin(l.v) : "Pendente"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Painel>
+
+        {/* alunos */}
+        <Painel className="lg:col-span-2" padding={false}>
+          <div className="p-5 pb-0">
+            <TituloPainel
+              titulo="Alunos na lista"
+              descricao="Somente quem preencheu o formulário público aparece aqui."
+              acao={
+                <span
+                  className="shrink-0 whitespace-nowrap rounded-md px-2.5 py-1 text-[12px] font-medium"
+                  style={{ background: ADM.bg, color: ADM.textMuted }}
                 >
-                  {!atendida && !marcandoAtendido && (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12l5 5L20 7" />
-                    </svg>
-                  )}
-                  {marcandoAtendido
-                    ? "Salvando…"
-                    : atendida
-                      ? "Desfazer atendimento"
-                      : "Marcar como atendido"}
-                </button>
-
-                {atendida && (
-                  <button
-                    type="button"
-                    onClick={leadCriado ? () => setModalOpen(true) : gerarLead}
-                    disabled={gerandoLead}
-                    className="self-start inline-flex items-center justify-center gap-2 rounded-[3px] bg-[#1A1410] px-5 py-2.5 text-[11px] uppercase tracking-premium-wide font-semibold text-white shadow-[0_8px_20px_-8px_rgba(20,15,10,0.5)] transition-all duration-300 hover:bg-black hover:-translate-y-[1px] disabled:opacity-50"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-                    </svg>
-                    {gerandoLead
-                      ? "Enviando…"
-                      : leadCriado
-                        ? "Ver lead enviado"
-                        : "Gerar lead no Bitrix"}
-                  </button>
-                )}
-
-                {leadError && (
-                  <p className="text-xs text-wine">{leadError}</p>
-                )}
-              </div>
-            ) : (
-              <p className="mt-3 text-xs text-text-tertiary">
-                Faltam {META_CONVITES - totalConvites} convite(s) para liberar o
-                atendimento.
-              </p>
-            )}
-          </div>
-        </div>
-
-        {error && (
-          <div className="relative mb-8 border border-wine/30 bg-wine/5 px-4 py-3 text-sm text-wine">
-            {error}
-          </div>
-        )}
-
-        <div className="relative">
-          <div className="card-hover p-6 md:p-8">
-            <div className="mb-8 border-b border-line pb-6">
-              <h2 className="font-serif text-2xl tracking-premium-tight text-text-primary">
-                Informações da turma
-              </h2>
-              <p className="mt-2 text-sm text-text-secondary">
-                Dados reais do representante e link público da turma.
-              </p>
-            </div>
-
-            <dl className="grid gap-5 md:grid-cols-2">
-              <div>
-                <dt className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  Nome representante
-                </dt>
-                <dd className="mt-2 text-sm text-text-primary">
-                  {representative.name}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  Curso
-                </dt>
-                <dd className="mt-2 text-sm text-text-primary">
-                  {representative.course_name}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  Instituição
-                </dt>
-                <dd className="mt-2 text-sm text-text-primary">
-                  {representative.institution_name}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  Ano
-                </dt>
-                <dd className="mt-2 text-sm text-text-primary">
-                  {representative.graduation_year}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  Estado
-                </dt>
-                <dd className="mt-2 text-sm text-text-primary">
-                  {representative.state || "—"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  Cidade
-                </dt>
-                <dd className="mt-2 text-sm text-text-primary">
-                  {representative.city || "—"}
-                </dd>
-              </div>
-            </dl>
-
-            <div className="mt-8">
-              <p className="mb-2 text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                Link da turma
-              </p>
-              <div className="break-all border border-line bg-white/70 px-4 py-3 font-mono text-sm text-text-secondary shadow-[0_1px_0_rgba(255,255,255,0.72)_inset]">
-                {adesaoUrl}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative mt-6 card-hover p-6 md:p-8">
-          <div className="mb-8 border-b border-line pb-6">
-            <h2 className="font-serif text-2xl tracking-premium-tight text-text-primary">
-              Alunos cadastrados
-            </h2>
-            <p className="mt-2 text-sm text-text-secondary">
-              Somente alunos que preencheram o formulário público aparecem aqui.
-            </p>
+                  {students.length} {students.length === 1 ? "aluno" : "alunos"}
+                </span>
+              }
+            />
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[680px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-line text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  <th className="py-3 pr-4 font-medium">Nome</th>
-                  <th className="py-3 pr-4 font-medium">Email</th>
-                  <th className="py-3 pr-4 font-medium">Celular</th>
-                  <th className="py-3 pr-4 font-medium text-right">Convites</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {students.map((student) => (
-                  <tr key={student.id}>
-                    <td className="py-4 pr-4 text-text-primary">
-                      {student.full_name}
-                    </td>
-                    <td className="py-4 pr-4 text-text-secondary">
-                      {student.email}
-                    </td>
-                    <td className="py-4 pr-4 text-text-secondary">
-                      {formatPhone(student.phone)}
-                    </td>
-                    <td className="py-4 pr-4 text-right font-medium text-text-primary">
-                      {student.qtd_convites}
-                    </td>
+          {students.length === 0 ? (
+            <Vazio
+              titulo="Nenhum aluno ainda"
+              detalhe="Compartilhe o link da turma para a lista começar a receber adesões."
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    {["Nome", "E-mail", "Celular", "Entrou", "Convites"].map((h, i) => (
+                      <th
+                        key={h}
+                        className={`whitespace-nowrap px-4 py-2.5 text-[11px] font-semibold uppercase ${i === 4 ? "text-right" : "text-left"}`}
+                        style={{
+                          letterSpacing: "0.08em",
+                          color: ADM.textMuted,
+                          borderBottom: `1px solid ${ADM.border}`,
+                          borderTop: `1px solid ${ADM.border}`,
+                        }}
+                      >
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {students.length === 0 && (
-              <div className="border-t border-line px-4 py-12 text-center">
-                <p className="text-sm text-text-secondary">
-                  Nenhum aluno preencheu o formulário desta turma ainda.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+                </thead>
+                <tbody>
+                  {students.map((s) => (
+                    <tr key={s.id} style={{ borderBottom: `1px solid ${ADM.border}` }}>
+                      <td className="px-4 py-3 text-[13px]" style={{ color: ADM.text }}>
+                        {s.full_name}
+                      </td>
+                      <td
+                        className="max-w-[220px] truncate px-4 py-3 text-[12.5px]"
+                        style={{ color: ADM.textMuted }}
+                        title={s.email}
+                      >
+                        {s.email}
+                      </td>
+                      <td
+                        className="whitespace-nowrap px-4 py-3 text-[12.5px]"
+                        style={{ color: ADM.textMuted }}
+                      >
+                        {formatPhone(s.phone)}
+                      </td>
+                      <td
+                        className="whitespace-nowrap px-4 py-3 text-[12.5px]"
+                        style={{ color: ADM.textMuted }}
+                        title={dataHoraAdmin(s.created_at)}
+                      >
+                        {dataAdmin(s.created_at)}
+                      </td>
+                      <td
+                        className="whitespace-nowrap px-4 py-3 text-right text-[13px] font-semibold"
+                        style={{ color: ADM.text }}
+                      >
+                        {s.qtd_convites}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Painel>
+      </div>
 
       <LeadSuccessModal
         open={modalOpen}
@@ -506,8 +649,6 @@ export default function AdminRepresentativePage() {
         onClose={() => setModalOpen(false)}
         onDownloadPdf={baixarLeadPdf}
       />
-
-      <Footer />
-    </main>
+    </div>
   );
 }

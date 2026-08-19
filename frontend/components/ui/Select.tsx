@@ -12,19 +12,21 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   error?: string;
   options: Option[];
   placeholder?: string;
+  variant?: "default" | "auth";
 }
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { label, error, options, placeholder, className = "", id, ...rest },
+  { label, error, options, placeholder, variant = "default", className = "", id, ...rest },
   ref,
 ) {
   const inputId = id || rest.name;
+  const auth = variant === "auth";
   return (
     <div className="w-full">
       {label && (
         <label
           htmlFor={inputId}
-          className="block mb-2 text-[10px] tracking-premium-widest uppercase text-text-tertiary font-medium"
+          className={`mb-2 block text-[10px] font-medium uppercase tracking-premium-widest ${auth ? "text-[#6F6D68]" : "text-text-tertiary"}`}
         >
           {label}
         </label>
@@ -32,10 +34,16 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
       <select
         id={inputId}
         ref={ref}
-        className={`input-premium w-full bg-bg-ice border text-text-primary px-4 py-3.5 text-[15px] transition-all duration-250 ease-premium appearance-none ${
-          error
-            ? "border-wine"
-            : "border-line hover:border-line-strong"
+        className={`w-full appearance-none border px-4 py-3.5 text-[15px] outline-none transition-all duration-250 ease-premium ${
+          auth
+            ? `h-[54px] rounded-[10px] bg-[#F8F7F3] text-[#111210] ${
+                error
+                  ? "border-[#C41230]"
+                  : "border-[#D8D4CC] hover:border-[#AAA69E] focus:border-[#111210] focus:shadow-[0_0_0_3px_rgba(17,18,16,0.10)]"
+              }`
+            : `input-premium bg-bg-ice text-text-primary ${
+                error ? "border-wine" : "border-line hover:border-line-strong"
+              }`
         } ${className}`}
         style={{
           backgroundImage:
@@ -57,7 +65,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
           </option>
         ))}
       </select>
-      {error && <p className="mt-2 text-xs text-wine">{error}</p>}
+      {error && <p className={`mt-2 text-xs ${auth ? "text-[#C41230]" : "text-wine"}`}>{error}</p>}
     </div>
   );
 });

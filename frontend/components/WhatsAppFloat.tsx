@@ -1,7 +1,14 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 // =====================================================================
 // Botão flutuante de WhatsApp — fixo no canto inferior direito,
 // visível em toda a página independente do scroll.
 // Número oficial Alpha: mesmo usado em ConsultantContact.tsx.
+//
+// Não aparece na área administrativa: ali é ferramenta de trabalho da
+// equipe, não canal de atendimento ao público.
 // =====================================================================
 
 const WHATSAPP_URL =
@@ -10,6 +17,9 @@ const WHATSAPP_URL =
   "&type=phone_number&app_absent=0";
 
 export default function WhatsAppFloat() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <a
       href={WHATSAPP_URL}

@@ -2932,3 +2932,27 @@ textarea::placeholder {
     transition: opacity 200ms linear;
   }
 }
+
+/* Carrossel de acabamentos — rola na horizontal sem mostrar a barra. */
+.acab-trilho::-webkit-scrollbar {
+  display: none;
+}
+
+/* Mural da galeria — colunas deslizando. A lista de cada coluna é repetida
+   duas vezes no HTML, então deslocar -50% da altura emenda a volta sem salto. */
+@keyframes galeriaSobe {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(0, -50%, 0); }
+}
+
+@keyframes galeriaDesce {
+  from { transform: translate3d(0, -50%, 0); }
+  to   { transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galeria-col {
+    animation: none !important;
+    transform: translate3d(0, -12%, 0);
+  }
+}

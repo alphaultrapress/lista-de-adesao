@@ -96,7 +96,7 @@ export async function POST(
   const studentsTxt = (students || [])
     .map(
       (s: any, i: number) =>
-        `${i + 1}. ${s.full_name} — ${s.email} · ${s.phone} · ${s.qtd_convites} convite(s)`,
+        `${i + 1}. ${s.full_name}: ${s.email} · ${s.phone} · ${s.qtd_convites} convite(s)`,
     )
     .join("\n");
 
@@ -109,7 +109,7 @@ export async function POST(
         : "";
 
   const comments = [
-    "=== LISTA DE ADESÃO — ALPHA CONVITES ===",
+    "=== LISTA DE ADESÃO | ALPHA CONVITES ===",
     `Origem do Lead: Lista de Adesão`,
     `Fonte: Marketing`,
     "",
@@ -164,7 +164,7 @@ export async function POST(
   ).map((p) => ({ VALUE: p, VALUE_TYPE: "WORK" }));
 
   const fields: Record<string, any> = {
-    TITLE: `Lista de Adesão — ${rep.course_name} / ${rep.institution_name}`,
+    TITLE: `Lista de Adesão | ${rep.course_name} / ${rep.institution_name}`,
     NAME: rep.name,
     EMAIL: [{ VALUE: rep.email, VALUE_TYPE: "WORK" }],
     COMMENTS: comments,

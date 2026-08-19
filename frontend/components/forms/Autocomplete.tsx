@@ -14,6 +14,7 @@ interface AutocompleteProps {
   name?: string;
   required?: boolean;
   minChars?: number;
+  variant?: "default" | "auth";
 }
 
 export default function Autocomplete({
@@ -27,6 +28,7 @@ export default function Autocomplete({
   name,
   required,
   minChars = 2,
+  variant,
 }: AutocompleteProps) {
   const [open, setOpen] = useState(false);
   const [remote, setRemote] = useState<string[]>([]);
@@ -83,20 +85,23 @@ export default function Autocomplete({
         placeholder={placeholder}
         error={error}
         required={required}
+        variant={variant}
         autoComplete="off"
       />
       {showDropdown && (
         <ul
-          className="absolute left-0 right-0 mt-1 max-h-56 overflow-auto border border-line-strong fade-in rounded-md"
+          className={`absolute left-0 right-0 mt-1 max-h-56 overflow-auto border fade-in ${
+            variant === "auth" ? "rounded-[10px] border-[#D8D4CC]" : "rounded-md border-line-strong"
+          }`}
           style={{
             zIndex: 60,
-            backgroundColor: "#ffffff",
+            backgroundColor: variant === "auth" ? "#F8F7F3" : "#ffffff",
             boxShadow:
               "0 12px 32px -8px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)",
           }}
         >
           {loading && (
-            <li className="px-4 py-2.5 text-xs uppercase tracking-wider text-text-tertiary">
+            <li className={`px-4 py-2.5 text-xs uppercase tracking-wider ${variant === "auth" ? "text-[#6F6D68]" : "text-text-tertiary"}`}>
               Buscando…
             </li>
           )}
@@ -109,7 +114,11 @@ export default function Autocomplete({
                   onChange(o);
                   setOpen(false);
                 }}
-                className="px-4 py-2.5 text-sm text-text-secondary hover:bg-bg-soft hover:text-text-primary cursor-pointer transition-colors duration-250"
+                className={`cursor-pointer px-4 py-2.5 text-sm transition-colors duration-250 ${
+                  variant === "auth"
+                    ? "text-[#6F6D68] hover:bg-[#EEEAE2] hover:text-[#111210]"
+                    : "text-text-secondary hover:bg-bg-soft hover:text-text-primary"
+                }`}
               >
                 {o}
               </li>

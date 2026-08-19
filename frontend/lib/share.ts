@@ -47,7 +47,7 @@ export function buildWhatsAppShareText({
   const nome = primeiroNome(nomeUsuario) || nomeUsuario;
 
   const linhas = [
-    `Olá! Aqui é ${nome}, da turma de ${curso} — ${instituicao}.`,
+    `Olá! Aqui é ${nome}, da turma de ${curso} da ${instituicao}.`,
     ``,
     `Estamos organizando os convites de formatura da nossa turma com a Alpha Convites e queremos contar com você. Demonstre seu interesse aqui, sem compromisso:`,
     linkAdesao,

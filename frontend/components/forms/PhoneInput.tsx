@@ -10,6 +10,7 @@ interface PhoneInputProps {
   error?: string;
   required?: boolean;
   name?: string;
+  variant?: "default" | "auth";
 }
 
 export default function PhoneInput({
@@ -19,6 +20,7 @@ export default function PhoneInput({
   error,
   required,
   name = "whatsapp",
+  variant,
 }: PhoneInputProps) {
   return (
     <Input
@@ -31,6 +33,7 @@ export default function PhoneInput({
       autoComplete="tel"
       required={required}
       error={error}
+      variant={variant}
     />
   );
 }

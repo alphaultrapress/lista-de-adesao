@@ -62,7 +62,7 @@ create table if not exists public.students (
   birth_date         date not null,
   phone              text not null,
   email              text not null,
-  qtd_convites       integer not null default 1 check (qtd_convites >= 0),
+  qtd_convites       integer not null default 1 check (qtd_convites >= 0 and qtd_convites <= 10000),
   created_at         timestamptz not null default now(),
   constraint students_unique_cpf_per_representative unique (representative_id, cpf)
 );

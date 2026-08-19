@@ -85,6 +85,7 @@ export type Representative = {
 };
 
 export const META_CONVITES = 30;
+export const MAX_CONVITES_POR_PESSOA = 10_000;
 
 export type PublicRepresentative = Pick<
   Representative,

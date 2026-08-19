@@ -11,8 +11,13 @@ import AcabamentosShowcase from "@/components/dashboard/AcabamentosShowcase";
 import SocialProof from "@/components/SocialProof";
 import GalleryCarousel from "@/components/GalleryCarousel";
 import { SOCIAL } from "@/lib/social";
-import { supabase, PublicRepresentative } from "@/lib/supabase";
+import {
+  MAX_CONVITES_POR_PESSOA,
+  PublicRepresentative,
+  supabase,
+} from "@/lib/supabase";
 import { isValidPhoneBr, onlyDigits } from "@/lib/cpf";
+import { useLoadingGate } from "@/components/ui/LoadingScreen";
 
 function AnimatedCounter({ end, suffix = "", prefix = "" }: { end: number, suffix?: string, prefix?: string }) {
   const [count, setCount] = useState(0);
@@ -133,8 +138,8 @@ export default function AdesaoClient({ slug }: { slug: string }) {
       e.email = "E-mail inválido.";
     }
     const qtd = parseInt(form.qtd_convites, 10);
-    if (!qtd || qtd < 1) {
-      e.qtd_convites = "Informe uma quantidade válida.";
+    if (!qtd || qtd < 1 || qtd > MAX_CONVITES_POR_PESSOA) {
+      e.qtd_convites = "Informe uma quantidade entre 1 e 10.000 convites.";
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -146,7 +151,10 @@ export default function AdesaoClient({ slug }: { slug: string }) {
     if (!validate() || !turma) return;
     setSubmitting(true);
     try {
-      const qtdConvites = Math.max(1, parseInt(form.qtd_convites, 10) || 1);
+      const qtdConvites = Math.min(
+        MAX_CONVITES_POR_PESSOA,
+        Math.max(1, parseInt(form.qtd_convites, 10) || 1),
+      );
       const { error } = await supabase.from("students").insert({
         representative_id: turma.id,
         full_name: form.nome.trim(),
@@ -198,15 +206,9 @@ export default function AdesaoClient({ slug }: { slug: string }) {
     }
   }
 
-  if (loading) {
-    return (
-      <main className="page-canvas min-h-screen bg-bg flex items-center justify-center">
-        <p className="text-sm text-[#0A0A0A] tracking-premium-wide uppercase">
-          Carregando
-        </p>
-      </main>
-    );
-  }
+  // Tela de carregamento premium; o gate a mantém viva até a saída terminar.
+  const { mostrando: carregandoTela, tela } = useLoadingGate(loading);
+  if (carregandoTela) return tela;
 
   if (notFound) {
     return (
@@ -694,7 +696,7 @@ export default function AdesaoClient({ slug }: { slug: string }) {
               pattern="[0-9]*"
               value={form.qtd_convites}
               onChange={(e) =>
-                set("qtd_convites", e.target.value.replace(/\D/g, "").slice(0, 4))
+                set("qtd_convites", e.target.value.replace(/\D/g, "").slice(0, 5))
               }
               hint="Quantidade aproximada de convites. Você pode ajustar depois com a equipe."
               error={errors.qtd_convites}
@@ -872,7 +874,7 @@ export default function AdesaoClient({ slug }: { slug: string }) {
             pattern="[0-9]*"
             value={form.qtd_convites}
             onChange={(e) =>
-              set("qtd_convites", e.target.value.replace(/\D/g, "").slice(0, 2))
+              set("qtd_convites", e.target.value.replace(/\D/g, "").slice(0, 5))
             }
             hint="Quantidade aproximada de convites. Você pode ajustar depois com a equipe."
             error={errors.qtd_convites}

@@ -2,15 +2,23 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { supabase, Student, Representative, META_CONVITES } from "@/lib/supabase";
+import {
+  supabase,
+  Student,
+  Representative,
+  MAX_CONVITES_POR_PESSOA,
+  META_CONVITES,
+} from "@/lib/supabase";
 import { getInitials, getAvatarColor } from "@/lib/avatar";
 import { isValidPhoneBr, onlyDigits } from "@/lib/cpf";
 import { buildQrPosterBlob, slugifyFile } from "@/lib/qrPoster";
 import { buildWhatsAppShareUrl } from "@/lib/share";
 import { absoluteUrl, PROMO_VIDEO_PATH } from "@/lib/site";
+import DashboardShareReminder from "./DashboardShareReminder";
 import Input from "../ui/Input";
-import Button from "../ui/Button";
 import PhoneInput from "../forms/PhoneInput";
+import AuthButton from "../auth/AuthButton";
+import { AUTH } from "../auth/tokens";
 
 type StudentRow = Pick<
   Student,
@@ -89,8 +97,21 @@ export default function TurmaDashboard({ representative, adesaoUrl }: Props) {
 
   return (
     <>
-      <div className="relative space-y-6">
-        {/* Lista da turma — primeiro bloco, largura total */}
+      <div className="relative space-y-5">
+        <ResumoCards
+          totalConvites={totalConvites}
+          participantes={participantes}
+          faltam={faltam}
+          metaAtingida={metaAtingida}
+        />
+
+        <ProgressCard
+          representativeId={representativeId}
+          total={totalConvites}
+          faltam={faltam}
+          metaAtingida={metaAtingida}
+        />
+
         <TurmaList
           list={list}
           loading={loading}
@@ -99,19 +120,6 @@ export default function TurmaDashboard({ representative, adesaoUrl }: Props) {
           onReload={load}
           onAdd={() => setShowAddModal(true)}
           onMutate={notifyMeta}
-        />
-
-        <ProgressCard
-          total={totalConvites}
-          faltam={faltam}
-          metaAtingida={metaAtingida}
-        />
-
-        <ResumoCards
-          totalConvites={totalConvites}
-          participantes={participantes}
-          faltam={faltam}
-          metaAtingida={metaAtingida}
         />
       </div>
 
@@ -131,109 +139,407 @@ export default function TurmaDashboard({ representative, adesaoUrl }: Props) {
           }}
         />
       )}
+
+      <DashboardShareReminder
+        active={metaAtingida && !showAddModal}
+        adesaoUrl={adesaoUrl}
+        nome={representative.name}
+        curso={representative.course_name}
+        instituicao={representative.institution_name}
+      />
     </>
   );
+}
+
+interface AchievementNotice {
+  eyebrow: string;
+  title: string;
+  description: string;
+  next: string;
+}
+
+const META_ACHIEVEMENT: AchievementNotice = {
+  eyebrow: "Meta inicial concluída",
+  title: "Parabéns! Sua turma chegou a 30 convites.",
+  description:
+    "A equipe Alpha já pode falar com você. Enquanto isso, a lista continua aberta: compartilhe o link com quem ainda não entrou. Cada nova adesão fortalece a negociação da turma.",
+  next: "A lista segue aberta até o contato da equipe Alpha.",
+};
+
+const inviteNumberFormatter = new Intl.NumberFormat("pt-BR");
+
+function formatInviteCount(value: number) {
+  return inviteNumberFormatter.format(value);
 }
 
 /* ============================================================
    CARD DE PROGRESSO DA META
    ============================================================ */
 function ProgressCard({
+  representativeId,
   total,
   faltam,
   metaAtingida,
 }: {
+  representativeId: string;
   total: number;
   faltam: number;
   metaAtingida: boolean;
 }) {
-  const pct = Math.min(100, Math.round((total / META_CONVITES) * 100));
+  const ringRadius = 76;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const initialGoalProgress = Math.min(
+    Math.round((total / META_CONVITES) * 100),
+    100,
+  );
+  const invitationsAfterGoal = Math.max(total - META_CONVITES, 0);
+  const confirmedGoalInvitations = Math.min(total, META_CONVITES);
+  const goalSlots = Array.from(
+    { length: META_CONVITES },
+    (_unused, index) => index + 1,
+  );
+  const ringOffset = ringCircumference * (1 - initialGoalProgress / 100);
+  const ringColor = metaAtingida ? "#22C55E" : "#C41230";
+  const [achievement, setAchievement] = useState<AchievementNotice | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !metaAtingida) return;
+
+    const storageKey = `alpha-progress-meta-achievement:v2:${representativeId}`;
+    if (window.localStorage.getItem(storageKey)) return;
+
+    window.localStorage.setItem(storageKey, "seen");
+    setAchievement(META_ACHIEVEMENT);
+  }, [metaAtingida, representativeId]);
+
+  function focusShareCard() {
+    setAchievement(null);
+    document
+      .querySelector<HTMLElement>('[data-dashboard-tour="share-access"]')
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border border-black/[0.06] p-6 md:p-8 fade-up"
+      data-dashboard-tour="progress"
+      className="relative overflow-hidden rounded-[22px] border p-5 sm:p-6 md:p-8"
       style={{
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.66) 100%)",
-        backdropFilter: "blur(12px)",
-        boxShadow:
-          "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -16px rgba(0,0,0,0.08)",
+        background: "#FAF9F6",
+        borderColor: "#D8D4CC",
+        boxShadow: "0 14px 38px rgba(17,18,16,0.06)",
       }}
     >
-      <div className="absolute right-0 top-0 h-[180px] w-[280px] glow-crimson-soft opacity-40 pointer-events-none" />
-
-      <div className="relative flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
+      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-text-tertiary">
-            Meta inicial da turma
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6F6D68]">
+            Acompanhe sua turma
           </p>
-          <p className="mt-3 flex items-baseline gap-2.5">
-            <span className="text-[44px] font-bold leading-none tracking-tight tabular-nums text-[#0A0A0A]">
-              {total}
-            </span>
-            <span className="text-sm font-medium text-[#3a3a3a]">
-              de {META_CONVITES} convites confirmados
-            </span>
-          </p>
+          <h2 className="mt-2 text-[27px] font-light tracking-[-0.04em] text-[#111210] sm:text-[32px]">
+            Progresso da turma
+          </h2>
         </div>
 
         {metaAtingida ? (
-          <span className="inline-flex items-center gap-2 self-start rounded-full bg-[#0a7d3a]/10 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#0a7d3a] sm:self-auto">
+          <span className="inline-flex items-center gap-2 self-start rounded-full bg-[#0a7d3a]/10 px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-[#0a7d3a] sm:self-auto">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12l5 5L20 7" />
             </svg>
-            Meta mínima atingida
+            Meta inicial concluída
           </span>
         ) : (
-          <span className="self-start text-[13px] font-medium text-[#C41230] sm:self-auto sm:text-right">
-            Faltam {faltam} {faltam === 1 ? "convite" : "convites"} para liberar
-            o consultor
+          <span className="inline-flex items-center gap-2 self-start rounded-full border border-[#D8D4CC] bg-[#F8F7F3] px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-[#6F6D68] sm:self-auto">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#C41230]" />
+            {faltam} para a meta inicial
           </span>
         )}
       </div>
 
-      {/* Barra de progresso — verde escuro vai ficando verde claro até 100% */}
-      <div className="relative mt-6">
-        <div className="h-2.5 w-full overflow-hidden rounded-full bg-black/[0.06]">
+      <div className="relative mt-6 grid gap-4 lg:grid-cols-[minmax(270px,0.82fr)_minmax(0,1.45fr)]">
+        <section
+          className="relative isolate overflow-hidden rounded-[18px] p-5 text-[#FAF9F6] sm:p-6"
+          style={{ background: "#111210" }}
+        >
           <div
-            className="h-full rounded-full transition-[width] duration-700 ease-out"
+            aria-hidden
+            className="absolute inset-0 opacity-30"
             style={{
-              width: `${pct}%`,
               backgroundImage:
-                "linear-gradient(90deg, #053d1c 0%, #0a7d3a 50%, #2ecc71 100%)",
-              backgroundSize: `${100 * (100 / Math.max(pct, 1))}% 100%`,
-              backgroundRepeat: "no-repeat",
+                "linear-gradient(rgba(250,249,246,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(250,249,246,0.08) 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
             }}
           />
-        </div>
-        <div className="mt-2 flex justify-between text-[10px] uppercase tracking-[0.14em] text-text-tertiary">
-          <span>{pct}%</span>
-          <span>meta {META_CONVITES}</span>
-        </div>
+          <div className="relative flex items-center gap-5">
+            <div className="relative grid h-[154px] w-[154px] shrink-0 place-items-center">
+              <svg
+                aria-label={`${initialGoalProgress}% da meta inicial atingida`}
+                className="absolute inset-0 -rotate-90"
+                viewBox="0 0 180 180"
+                role="img"
+              >
+                <circle
+                  cx="90"
+                  cy="90"
+                  r={ringRadius}
+                  fill="none"
+                  stroke="rgba(250,249,246,0.16)"
+                  strokeWidth="10"
+                />
+                <circle
+                  cx="90"
+                  cy="90"
+                  r={ringRadius}
+                  fill="none"
+                  stroke={ringColor}
+                  strokeWidth="10"
+                  strokeLinecap="round"
+                  strokeDasharray={ringCircumference}
+                  strokeDashoffset={ringOffset}
+                  style={{ transition: "stroke-dashoffset 700ms cubic-bezier(0.22,1,0.36,1)" }}
+                />
+              </svg>
+              <div className="relative text-center">
+                <p className="text-[38px] font-light leading-none tracking-[-0.06em] tabular-nums">
+                  {initialGoalProgress}
+                  <span className="text-lg">%</span>
+                </p>
+                <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-white/55">
+                  meta inicial
+                </p>
+              </div>
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
+                {metaAtingida ? "Meta concluída" : "Meta inicial"}
+              </p>
+              <p className="mt-2 text-[20px] font-medium leading-none tracking-[-0.04em] text-white">
+                {metaAtingida ? "30 convites confirmados" : "Chegar a 30 convites"}
+              </p>
+              <p className="mt-3 flex items-baseline gap-2">
+                <span className="text-[34px] font-light leading-none tracking-[-0.06em] tabular-nums">
+                  {metaAtingida ? META_CONVITES : total}
+                </span>
+                <span className="text-sm text-white/60">/ {META_CONVITES}</span>
+              </p>
+              <p className="mt-3 text-sm leading-5 text-white/65">
+                {metaAtingida
+                  ? "A lista continua aberta enquanto a equipe Alpha entra em contato com você."
+                  : `Faltam ${faltam} ${faltam === 1 ? "convite" : "convites"} para completar a meta inicial.`}
+              </p>
+            </div>
+          </div>
+
+          <div className="relative mt-5 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
+            <div>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                Você está aqui
+              </p>
+              <p className="mt-1 text-sm font-medium text-white/90">
+                {metaAtingida ? "Meta concluída" : "A caminho da meta"}
+              </p>
+            </div>
+            <div>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                Depois da meta
+              </p>
+              <p className="mt-1 text-sm font-medium text-white/90">
+                {metaAtingida
+                  ? `${formatInviteCount(invitationsAfterGoal)} novas adesões`
+                  : "Começa após 30 convites"}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section
+          className="rounded-[18px] border p-5 sm:p-6"
+          style={{ background: "#F8F7F3", borderColor: "#D8D4CC" }}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6F6D68]">
+                Acompanhe as adesões
+              </p>
+              <p className="mt-1 text-sm leading-5 text-[#3A3A3A]">
+                {metaAtingida
+                  ? "A meta inicial foi alcançada. A lista segue aberta enquanto a equipe Alpha prepara o próximo contato."
+                  : "Cada bloco representa um convite confirmado na lista da turma."}
+              </p>
+            </div>
+            <span className="text-[11px] font-semibold tabular-nums text-[#111210]">
+              {formatInviteCount(total)} convites na lista
+            </span>
+          </div>
+
+          <div className="mt-5 rounded-[14px] border border-[#D8D4CC] bg-[#FAF9F6] p-3.5">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6F6D68]">
+                Meta inicial
+              </p>
+              <span className="text-[11px] font-semibold tabular-nums text-[#111210]">
+                {confirmedGoalInvitations} de {META_CONVITES}
+              </span>
+            </div>
+            <div
+              aria-label={`${confirmedGoalInvitations} de ${META_CONVITES} convites preenchidos na meta inicial`}
+              className="mt-3 grid grid-cols-10 gap-1 sm:gap-1.5"
+              role="img"
+            >
+              {goalSlots.map((slot) => {
+                const confirmed = slot <= confirmedGoalInvitations;
+                return (
+                  <span
+                    key={slot}
+                    className="h-3 rounded-[3px] transition-colors duration-500 sm:h-4"
+                    style={{
+                      background: confirmed
+                        ? metaAtingida
+                          ? "#16A34A"
+                          : "#111210"
+                        : "#E8E5DF",
+                    }}
+                  />
+                );
+              })}
+            </div>
+            <div className="mt-2 flex justify-between text-[9px] font-medium uppercase tracking-[0.12em] text-[#8A8781]">
+              <span>0</span>
+              <span>{META_CONVITES} convites</span>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-[14px] border border-[#D8D4CC] bg-[#FAF9F6] p-3.5">
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6F6D68]">
+                  {metaAtingida ? "Depois da meta" : "Próximo passo"}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[#111210]">
+                  {metaAtingida
+                    ? `${formatInviteCount(invitationsAfterGoal)} novas adesões`
+                    : `Faltam ${faltam} ${faltam === 1 ? "convite" : "convites"}`}
+                </p>
+              </div>
+              <p className="max-w-[340px] text-sm leading-5 text-[#6F6D68] sm:text-right">
+                {metaAtingida
+                  ? "Se quiser, continue enviando o link. Mais adesões fortalecem a negociação da turma."
+                  : "Compartilhe o link com a turma para alcançar a meta inicial."}
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
 
-      {/* Mensagem estratégica */}
-      <p className="relative mt-5 text-sm leading-relaxed text-[#3a3a3a]">
-        {metaAtingida ? (
-          <>
-            A turma já possui convites suficientes para o consultor entrar em
-            contato.{" "}
-            <span className="text-text-primary">
-              Continue convidando mais colegas para melhorar a condição da
-              turma.
-            </span>
-          </>
-        ) : (
-          <>
-            Quando a turma atingir {META_CONVITES} convites, um consultor da
-            Alpha entra em contato para dar continuidade.{" "}
-            <span className="text-text-primary">
-              Quanto maior a participação, mais acessível pode ficar o valor por
-              convite.
-            </span>
-          </>
-        )}
-      </p>
+      <div className="relative mt-5 border-t border-[#D8D4CC] pt-5">
+        <p className="max-w-4xl text-sm leading-relaxed text-[#3A3A3A]">
+          {total >= META_CONVITES ? (
+            <>
+              Sua turma já alcançou a meta inicial de {META_CONVITES} convites. {" "}
+              <span className="font-medium text-[#111210]">
+                A lista permanece aberta até o contato da equipe Alpha. Cada nova adesão fortalece a negociação da turma.
+              </span>
+            </>
+          ) : (
+            <>
+              A meta inicial é de {META_CONVITES} convites. {" "}
+              <span className="font-medium text-[#111210]">
+                Compartilhe o link para reunir a turma e alcançar esse primeiro objetivo.
+              </span>
+            </>
+          )}
+        </p>
+      </div>
+
+      {achievement && (
+        <AchievementModal
+          notice={achievement}
+          onClose={() => setAchievement(null)}
+          onShare={focusShareCard}
+        />
+      )}
+    </div>
+  );
+}
+
+function AchievementModal({
+  notice,
+  onClose,
+  onShare,
+}: {
+  notice: AchievementNotice;
+  onClose: () => void;
+  onShare: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[180] flex items-center justify-center bg-[#111210]/60 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={notice.title}
+        className="relative w-full max-w-[440px] overflow-hidden rounded-[24px] border p-6 sm:p-8"
+        style={{
+          background: "#FAF9F6",
+          borderColor: "#D8D4CC",
+          boxShadow: "0 28px 72px rgba(17,18,16,0.32)",
+        }}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="absolute inset-x-0 top-0 h-1.5 bg-[#16A34A]" />
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Fechar"
+          className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full text-[#6F6D68] transition-colors hover:bg-black/[0.05] hover:text-[#111210]"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
+
+        <div className="grid h-16 w-16 place-items-center rounded-full bg-[#16A34A]/10 text-[#0A7D3A]">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <path d="M8 3h8v4a4 4 0 01-8 0V3zM7 5H4v1a4 4 0 004 4M17 5h3v1a4 4 0 01-4 4M12 11v6M8 21h8M9 17h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+
+        <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0A7D3A]">
+          {notice.eyebrow}
+        </p>
+        <h3 className="mt-2 max-w-[330px] text-[30px] font-light leading-none tracking-[-0.04em] text-[#111210] sm:text-[34px]">
+          {notice.title}
+        </h3>
+        <p className="mt-4 text-sm leading-6 text-[#5D5B56]">{notice.description}</p>
+
+        <div className="mt-5 rounded-[12px] border border-[#D8D4CC] bg-[#F8F7F3] px-4 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#6F6D68]">
+            Próximo passo
+          </p>
+          <p className="mt-1 text-sm font-semibold text-[#111210]">{notice.next}</p>
+        </div>
+
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-2 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-[#6F6D68] transition-colors hover:text-[#111210]"
+          >
+            Entendi
+          </button>
+          <button
+            type="button"
+            onClick={onShare}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-[10px] bg-[#111210] px-4 text-[12px] font-semibold text-white shadow-[0_8px_18px_rgba(17,18,16,0.18)] transition-transform duration-200 hover:-translate-y-0.5"
+          >
+            Compartilhar link
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M5 12h13M13 6l6 6-6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -253,11 +559,11 @@ function ResumoCards({
   metaAtingida: boolean;
 }) {
   const cards = [
-    { label: "Convites confirmados", value: String(totalConvites) },
-    { label: "Participantes", value: String(participantes) },
+    { label: "Convites confirmados", value: formatInviteCount(totalConvites) },
+    { label: "Participantes", value: formatInviteCount(participantes) },
     {
       label: "Faltam para a meta mínima",
-      value: metaAtingida ? "Meta atingida" : String(faltam),
+      value: metaAtingida ? "Meta atingida" : formatInviteCount(faltam),
       positive: metaAtingida,
     },
   ];
@@ -267,10 +573,11 @@ function ResumoCards({
       {cards.map((c) => (
         <div
           key={c.label}
-          className="rounded-2xl border border-black/[0.06] bg-white/70 px-5 py-5 backdrop-blur-[8px]"
+          className="rounded-[16px] border px-5 py-5"
           style={{
-            boxShadow:
-              "0 1px 2px rgba(0,0,0,0.03), 0 8px 24px -18px rgba(0,0,0,0.10)",
+            background: "#FAF9F6",
+            borderColor: "#D8D4CC",
+            boxShadow: "0 10px 28px rgba(17,18,16,0.05)",
           }}
         >
           <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-text-tertiary">
@@ -314,27 +621,44 @@ function TurmaList({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQtd, setEditQtd] = useState("1");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
 
   function startEdit(s: StudentRow) {
     setEditingId(s.id);
     setEditQtd(String(s.qtd_convites || 1));
+    setEditError(null);
   }
 
   async function saveEdit(id: string) {
     const parsed = parseInt(editQtd, 10);
-    if (!parsed || parsed < 1) return;
+    if (!parsed || parsed < 1 || parsed > MAX_CONVITES_POR_PESSOA) {
+      setEditError("Digite uma quantidade de 1 a 10.000 convites.");
+      return;
+    }
+
+    setEditError(null);
     setBusyId(id);
     const { error } = await supabase
       .from("students")
       .update({ qtd_convites: parsed })
-      .eq("id", id);
+      .eq("id", id)
+      .select("id")
+      .single();
     setBusyId(null);
-    if (!error) {
-      setEditingId(null);
-      await onReload();
-      window.dispatchEvent(new CustomEvent("adesoes:refresh"));
-      onMutate();
+
+    if (error) {
+      setEditError(
+        error.code === "23514"
+          ? "A lista ainda não aceita essa quantidade. Tente atualizar a página e salvar de novo."
+          : "Não foi possível salvar agora. Tente novamente.",
+      );
+      return;
     }
+
+    setEditingId(null);
+    await onReload();
+    window.dispatchEvent(new CustomEvent("adesoes:refresh"));
+    onMutate();
   }
 
   async function removeStudent(id: string, name: string) {
@@ -351,13 +675,11 @@ function TurmaList({
 
   return (
     <div
-      className="relative overflow-hidden rounded-2xl border border-black/[0.06] p-6 md:p-7"
+      className="relative overflow-hidden rounded-[18px] border p-6 md:p-7"
       style={{
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%)",
-        backdropFilter: "blur(12px)",
-        boxShadow:
-          "0 1px 2px rgba(0,0,0,0.04), 0 12px 32px -16px rgba(0,0,0,0.08)",
+        background: "#FAF9F6",
+        borderColor: "#D8D4CC",
+        boxShadow: "0 14px 38px rgba(17,18,16,0.06)",
       }}
     >
       <style jsx>{`
@@ -445,50 +767,64 @@ function TurmaList({
                 </div>
 
                 {editingId === s.id ? (
-                  <div className="flex items-center gap-2 pl-8 sm:pl-0">
-                    <input
-                      inputMode="numeric"
-                      value={editQtd}
-                      onChange={(e) =>
-                        setEditQtd(e.target.value.replace(/\D/g, "").slice(0, 4))
-                      }
-                      className="w-16 rounded-md border border-line bg-white px-2 py-1.5 text-center text-sm focus:border-ink focus:outline-none"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") saveEdit(s.id);
-                        if (e.key === "Escape") setEditingId(null);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => saveEdit(s.id)}
-                      disabled={busyId === s.id}
-                      className="rounded-md bg-[#0a7d3a] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-[#13b85a] disabled:opacity-50"
-                    >
-                      OK
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(null)}
-                      className="text-text-tertiary transition-colors hover:text-text-primary"
-                      aria-label="Cancelar"
-                    >
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-                        <path d="M6 6l12 12M18 6L6 18" />
-                      </svg>
-                    </button>
+                  <div className="pl-8 sm:pl-0">
+                    <div className="flex items-center gap-2">
+                      <input
+                        inputMode="numeric"
+                        value={editQtd}
+                        onChange={(e) =>
+                          setEditQtd(e.target.value.replace(/\D/g, "").slice(0, 5))
+                        }
+                        className="w-20 rounded-md border border-line bg-white px-2 py-1.5 text-center text-sm focus:border-ink focus:outline-none"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveEdit(s.id);
+                          if (e.key === "Escape") {
+                            setEditError(null);
+                            setEditingId(null);
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => saveEdit(s.id)}
+                        disabled={busyId === s.id}
+                        className="rounded-md bg-[#0a7d3a] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white transition-colors hover:bg-[#13b85a] disabled:opacity-50"
+                      >
+                        {busyId === s.id ? "Salvando" : "OK"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditError(null);
+                          setEditingId(null);
+                        }}
+                        className="text-text-tertiary transition-colors hover:text-text-primary"
+                        aria-label="Cancelar"
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                          <path d="M6 6l12 12M18 6L6 18" />
+                        </svg>
+                      </button>
+                    </div>
+                    {editError && (
+                      <p className="mt-1.5 max-w-[210px] text-xs leading-4 text-[#C41230]">
+                        {editError}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="flex shrink-0 items-center gap-2 pl-8 sm:pl-0">
                     <button
                       type="button"
+                      data-dashboard-tour="edit-invites"
                       onClick={() => startEdit(s)}
                       className="group/qtd flex items-center gap-3 rounded-xl border border-black/[0.08] bg-white/80 py-1.5 pl-4 pr-3.5 transition-all duration-200 hover:border-[#0a7d3a]/40 hover:bg-[#0a7d3a]/[0.04]"
                       aria-label="Editar quantidade de convites"
                     >
                       <span className="flex items-baseline gap-1.5">
-                        <span className="w-7 text-right text-[22px] font-bold leading-none tabular-nums text-[#0A0A0A]">
-                          {s.qtd_convites}
+                        <span className="min-w-[2.75rem] text-right text-[22px] font-bold leading-none tabular-nums text-[#0A0A0A]">
+                          {formatInviteCount(s.qtd_convites)}
                         </span>
                         <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-text-tertiary">
                           {s.qtd_convites === 1 ? "convite" : "convites"}
@@ -526,6 +862,7 @@ function TurmaList({
             <li>
               <button
                 type="button"
+                data-dashboard-tour="add-student"
                 onClick={onAdd}
                 className="group flex w-full items-center gap-3 rounded-xl border border-dashed border-black/[0.14] px-2.5 py-3 text-left transition-all duration-300 hover:border-[#C41230]/50 hover:bg-[#C41230]/[0.03]"
               >
@@ -631,17 +968,15 @@ export function ShareCard({
 
   return (
     <div
-      className="relative flex items-center gap-4 overflow-hidden rounded-xl border border-black/[0.06] p-3.5"
+      className="relative flex min-w-0 items-center gap-3 overflow-hidden rounded-[14px] border p-3 sm:gap-4 sm:p-3.5"
       style={{
-        background:
-          "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.62) 100%)",
-        backdropFilter: "blur(12px)",
-        boxShadow:
-          "0 1px 2px rgba(0,0,0,0.04), 0 10px 26px -18px rgba(0,0,0,0.10)",
+        background: "#F8F7F3",
+        borderColor: "#D8D4CC",
+        boxShadow: "0 8px 24px rgba(17,18,16,0.05)",
       }}
     >
       {/* QR pequeno */}
-      <div className="flex flex-col items-center gap-1.5">
+      <div className="flex shrink-0 flex-col items-center gap-1.5">
         <div
           ref={qrWrapperRef}
           className="rounded-lg border border-line bg-white p-1.5"
@@ -670,10 +1005,10 @@ export function ShareCard({
 
       {/* Conteúdo: título + link + ações */}
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-text-tertiary">
+        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-text-tertiary sm:text-[11px] sm:tracking-[0.16em]">
           Compartilhar acesso
         </p>
-        <div className="mt-2 flex items-center gap-2 rounded-lg border border-line bg-white/70 px-2.5 py-1.5">
+        <div className="mt-2 flex min-w-0 items-center gap-2 rounded-lg border border-line bg-white/70 px-2.5 py-1.5">
           <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-text-secondary">
             {shortUrl}
           </span>
@@ -743,7 +1078,9 @@ function AddStudentModal({
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       e.email = "E-mail inválido.";
     const qtd = parseInt(form.qtd, 10);
-    if (!qtd || qtd < 1) e.qtd = "Quantidade inválida.";
+    if (!qtd || qtd < 1 || qtd > MAX_CONVITES_POR_PESSOA) {
+      e.qtd = "Informe uma quantidade entre 1 e 10.000 convites.";
+    }
     setErrors(e);
     if (Object.keys(e).length) return;
 
@@ -789,40 +1126,52 @@ function AddStudentModal({
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{ background: "rgba(10,10,10,0.55)", backdropFilter: "blur(4px)" }}
+      style={{
+        background: "rgba(17,18,16,0.54)",
+        backdropFilter: "blur(7px)",
+      }}
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-md overflow-hidden rounded-2xl border border-black/[0.06] bg-white p-6 md:p-7"
-        style={{ boxShadow: "0 24px 64px -20px rgba(0,0,0,0.4)" }}
+        className="relative w-full max-w-[580px] overflow-hidden rounded-[24px] border p-6 sm:p-8"
+        style={{
+          background: AUTH.warmWhite,
+          borderColor: AUTH.border,
+          boxShadow: "0 28px 72px rgba(17,18,16,0.28)",
+        }}
         onClick={(ev) => ev.stopPropagation()}
       >
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar"
-          className="absolute right-4 top-4 text-text-tertiary transition-colors hover:text-text-primary"
+          className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full text-[#6F6D68] transition-colors hover:bg-black/[0.05] hover:text-[#111210]"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </button>
 
-        <h3 className="font-serif text-2xl tracking-tight text-[#0A0A0A]">
-          Adicionar aluno à turma
-        </h3>
-        <p className="mt-1.5 text-sm text-text-tertiary">
-          Cadastre um colega manualmente ou compartilhe o link para ele
-          preencher.
-        </p>
+        <div className="pr-10">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#6F6D68]">
+            Participante da turma
+          </p>
+          <h3 className="mt-2 text-[30px] font-light leading-none tracking-[-0.04em] text-[#111210] sm:text-[34px]">
+            Adicionar aluno à turma
+          </h3>
+          <p className="mt-3 max-w-[430px] text-sm leading-6 text-[#6F6D68]">
+            Cadastre um colega manualmente ou compartilhe o link para ele preencher.
+          </p>
+        </div>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-7 space-y-3.5">
           <Input
             label="Nome completo"
             name="nome"
             value={form.nome}
             onChange={(e) => set("nome", e.target.value.toUpperCase())}
             error={errors.nome}
+            variant="auth"
           />
           <div className="grid gap-3 sm:grid-cols-2">
             <PhoneInput
@@ -830,6 +1179,7 @@ function AddStudentModal({
               value={form.whatsapp}
               onChange={(v) => set("whatsapp", v)}
               error={errors.whatsapp}
+              variant="auth"
             />
             <Input
               label="E-mail"
@@ -838,6 +1188,7 @@ function AddStudentModal({
               value={form.email}
               onChange={(e) => set("email", e.target.value)}
               error={errors.email}
+              variant="auth"
             />
           </div>
           <Input
@@ -846,34 +1197,44 @@ function AddStudentModal({
             inputMode="numeric"
             value={form.qtd}
             onChange={(e) =>
-              set("qtd", e.target.value.replace(/\D/g, "").slice(0, 4))
+              set("qtd", e.target.value.replace(/\D/g, "").slice(0, 5))
             }
             error={errors.qtd}
+            variant="auth"
           />
-          <div className="flex items-center gap-2 pt-1">
-            <Button onClick={submit} loading={saving} type="button">
-              {saving ? "Adicionando…" : "Adicionar à lista"}
-            </Button>
+          <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:items-center">
+            <AuthButton
+              type="button"
+              onClick={submit}
+              loading={saving}
+              loadingLabel="Adicionando..."
+              style={{ width: "auto", paddingInline: 24 }}
+            >
+              Adicionar à lista
+            </AuthButton>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-3.5 text-[11px] uppercase tracking-premium-wide text-text-tertiary transition-colors hover:text-text-primary"
+              className="px-4 py-3.5 text-left text-[11px] font-medium uppercase tracking-[0.14em] text-[#6F6D68] transition-colors hover:text-[#111210]"
             >
               Cancelar
             </button>
           </div>
         </div>
 
-        {/* Divisão: compartilhar */}
-        <div className="mt-6 border-t border-line pt-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-text-tertiary">
+        <div
+          className="mt-7 rounded-[14px] border p-4"
+          style={{ background: AUTH.fieldBg, borderColor: AUTH.border }}
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6F6D68]">
             Ou compartilhe o acesso da turma
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2.5">
             <button
               type="button"
               onClick={copyLink}
-              className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-primary transition-colors hover:border-text-primary"
+              className="inline-flex h-10 items-center gap-2 rounded-[10px] border bg-[#FAF9F6] px-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#111210] transition-colors hover:border-[#111210]"
+              style={{ borderColor: AUTH.border }}
             >
               {copied ? "Link copiado" : "Copiar link"}
             </button>
@@ -881,7 +1242,8 @@ function AddStudentModal({
               href={waShareUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-text-primary transition-all hover:border-[#25D366]"
+              className="inline-flex h-10 items-center gap-2 rounded-[10px] border bg-[#FAF9F6] px-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#111210] transition-all hover:border-[#25D366]"
+              style={{ borderColor: AUTH.border }}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="#25D366">
                 <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.149-.174.198-.298.298-.497.099-.198.05-.372-.025-.521-.075-.149-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z" />

@@ -127,7 +127,7 @@ async function sendBitrixNotification(
   const { userId, rep, total, adminUrl } = payload;
 
   const message =
-    `[B]Lista de Adesão — meta atingida[/B][BR]` +
+    `[B]Lista de Adesão: meta atingida[/B][BR]` +
     `Turma: ${rep.course_name} / ${rep.institution_name} (${rep.graduation_year})[BR]` +
     `Representante: ${rep.name}[BR]` +
     `Total: ${total} convites[BR][BR]` +

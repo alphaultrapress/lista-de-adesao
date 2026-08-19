@@ -53,6 +53,12 @@ const config: Config = {
           deep: "#5A1010",
           rich: "#7A1C1C",
         },
+        // Paleta acromática da landing (referência Squarespace).
+        obsidian: "#000000",
+        paper: "#FFFFFF",
+        charcoal: "#2F2F2F",
+        ash: "#898989",
+        fog: "#DDDDDD",
       },
       fontFamily: {
         serif: ["var(--font-cormorant)", "Cormorant Garamond", "serif"],

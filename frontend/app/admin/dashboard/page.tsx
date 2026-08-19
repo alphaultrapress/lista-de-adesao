@@ -3,429 +3,334 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Footer } from "@/components/Brand";
-import PremiumHeader from "@/components/PremiumHeader";
-import Input from "@/components/ui/Input";
-import ConfirmDeleteModal from "@/components/admin/ConfirmDeleteModal";
 import {
-  signOutAndClearSession,
-  supabase,
-  Representative,
-  Student,
-  META_CONVITES,
-} from "@/lib/supabase";
-import { formatDateBr, formatDateTimeBr } from "@/lib/format";
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { ChevronRight } from "lucide-react";
+import { META_CONVITES, signOutAndClearSession, supabase } from "@/lib/supabase";
+import { useLoadingGate } from "@/components/ui/LoadingScreen";
+import { ADM, RADIUS } from "@/lib/admin/tokens";
+import { dataHoraAdmin, tempoRelativo } from "@/lib/admin/format";
+import {
+  atividades,
+  carregarPainel,
+  graficoMetas,
+  indicadores,
+  pendencias,
+  type BarraMeta,
+  type PainelDados,
+} from "@/lib/admin/data";
+import {
+  CardIndicador,
+  ErroBloco,
+  Painel,
+  TituloPainel,
+  Vazio,
+} from "@/components/admin/Primitivos";
 
-export default function AdminDashboardPage() {
+/** Quantas atividades a linha de baixo mostra. */
+const ATIVIDADES_VISIVEIS = 5;
+
+function DicaMeta({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload as BarraMeta;
+  return (
+    <div
+      className="px-3 py-2 text-[12px]"
+      style={{
+        background: ADM.surface,
+        border: `1px solid ${ADM.border}`,
+        borderRadius: 8,
+        boxShadow: "0 8px 24px rgba(17,24,22,0.10)",
+      }}
+    >
+      <p className="font-semibold" style={{ color: ADM.text }}>
+        {d.nome}
+      </p>
+      <p style={{ color: ADM.textMuted }}>{d.curso}</p>
+      <p className="mt-1" style={{ color: d.bateu ? ADM.success : ADM.text }}>
+        {d.convites} convites · {d.adesoes} adesões
+      </p>
+      <p style={{ color: ADM.textMuted }}>
+        {d.bateu ? "Meta atingida" : `Faltam ${META_CONVITES - d.convites}`}
+      </p>
+    </div>
+  );
+}
+
+export default function VisaoGeralPage() {
   const router = useRouter();
-  const [representatives, setRepresentatives] = useState<Representative[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [nameSearch, setNameSearch] = useState("");
-  const [courseSearch, setCourseSearch] = useState("");
-  const [institutionSearch, setInstitutionSearch] = useState("");
+  const [dados, setDados] = useState<PainelDados | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | undefined>();
-  const [removingId, setRemovingId] = useState<string | undefined>();
-  const [toRemove, setToRemove] = useState<Representative | null>(null);
+  const [erro, setErro] = useState<string | undefined>();
 
   useEffect(() => {
     (async () => {
+      // Guarda de admin: sessão + registro na tabela admins.
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData.session?.user.id;
-
       if (!userId) {
         router.replace("/admin/login");
         return;
       }
-
       const { data: admin } = await supabase
         .from("admins")
         .select("id")
         .eq("user_id", userId)
         .maybeSingle();
-
       if (!admin) {
         await signOutAndClearSession();
         router.replace("/admin/login");
         return;
       }
 
-      const [representativesResult, studentsResult] = await Promise.all([
-        supabase
-          .from("representatives")
-          .select("*")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("students")
-          .select("*")
-          .order("created_at", { ascending: false }),
-      ]);
-
-      if (representativesResult.error || studentsResult.error) {
-        setError(
-          representativesResult.error?.message ||
-            studentsResult.error?.message ||
-            "Não foi possível carregar os dados.",
-        );
-      } else {
-        setRepresentatives((representativesResult.data as Representative[]) || []);
-        setStudents((studentsResult.data as Student[]) || []);
+      try {
+        setDados(await carregarPainel());
+      } catch (err: any) {
+        setErro(err?.message || "Não foi possível carregar os dados.");
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     })();
   }, [router]);
 
-  async function logout() {
-    await signOutAndClearSession();
-    router.replace("/admin/login");
-  }
+  const { mostrando: carregandoTela, tela } = useLoadingGate(loading);
 
-  async function confirmRemove() {
-    const representative = toRemove;
-    if (!representative) return;
+  const kpis = useMemo(() => (dados ? indicadores(dados) : []), [dados]);
+  const barras = useMemo(() => (dados ? graficoMetas(dados) : []), [dados]);
+  const eventos = useMemo(
+    () => (dados ? atividades(dados, ATIVIDADES_VISIVEIS) : []),
+    [dados],
+  );
+  const alertas = useMemo(() => (dados ? pendencias(dados, 6) : []), [dados]);
 
-    setRemovingId(representative.id);
-    setError(undefined);
-    try {
-      const { data: sess } = await supabase.auth.getSession();
-      const token = sess.session?.access_token;
-      if (!token) {
-        router.replace("/admin/login");
-        return;
-      }
+  const bateram = barras.filter((b) => b.bateu).length;
+  // Com muitas turmas os nomes no eixo colidem; aí o tooltip assume.
+  const mostrarNomes = barras.length <= 22;
 
-      const res = await fetch(`/api/representatives/${representative.id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || "Não foi possível remover o representante.");
-      }
-
-      setRepresentatives((current) =>
-        current.filter((item) => item.id !== representative.id),
-      );
-      setStudents((current) =>
-        current.filter((item) => item.representative_id !== representative.id),
-      );
-      setToRemove(null);
-    } catch (err: any) {
-      setError(err?.message || "Não foi possível remover o representante.");
-      setToRemove(null);
-    } finally {
-      setRemovingId(undefined);
-    }
-  }
-
-  const studentsByRepresentative = useMemo(() => {
-    return students.reduce<Record<string, number>>((acc, student) => {
-      acc[student.representative_id] = (acc[student.representative_id] || 0) + 1;
-      return acc;
-    }, {});
-  }, [students]);
-
-  const convitesByRepresentative = useMemo(() => {
-    return students.reduce<Record<string, number>>((acc, student) => {
-      acc[student.representative_id] =
-        (acc[student.representative_id] || 0) + (student.qtd_convites || 0);
-      return acc;
-    }, {});
-  }, [students]);
-
-  const representativeById = useMemo(() => {
-    return representatives.reduce<Record<string, Representative>>((acc, item) => {
-      acc[item.id] = item;
-      return acc;
-    }, {});
-  }, [representatives]);
-
-  const courseWithMostStudents = useMemo(() => {
-    const countByCourse = students.reduce<Record<string, number>>((acc, student) => {
-      const course = representativeById[student.representative_id]?.course_name;
-      if (!course) return acc;
-      acc[course] = (acc[course] || 0) + 1;
-      return acc;
-    }, {});
-
-    return Object.entries(countByCourse).sort((a, b) => b[1] - a[1])[0]?.[0];
-  }, [representativeById, students]);
-
-  const latestStudent = students[0];
-
-  const filteredRepresentatives = useMemo(() => {
-    const normalize = (value: string) => value.trim().toLowerCase();
-    const name = normalize(nameSearch);
-    const course = normalize(courseSearch);
-    const institution = normalize(institutionSearch);
-
-    return representatives.filter((representative) => {
-      const matchesName =
-        !name || representative.name.toLowerCase().includes(name);
-      const matchesCourse =
-        !course || representative.course_name.toLowerCase().includes(course);
-      const matchesInstitution =
-        !institution ||
-        representative.institution_name.toLowerCase().includes(institution);
-
-      return matchesName && matchesCourse && matchesInstitution;
-    });
-  }, [courseSearch, institutionSearch, nameSearch, representatives]);
-
-  if (loading) {
-    return (
-      <main className="page-canvas min-h-screen bg-bg flex items-center justify-center">
-        <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
-          Carregando painel administrativo
-        </p>
-      </main>
-    );
-  }
+  if (carregandoTela) return tela;
 
   return (
-    <main className="page-canvas min-h-screen bg-bg">
-      <PremiumHeader
-        onLogout={logout}
-        logoutLabel="Sair"
-        compact
-        centeredBrand
-        brandSize="lg"
-      />
+    <div className="mx-auto max-w-[1400px]">
+      <header className="mb-6">
+        <h1
+          className="font-semibold"
+          style={{ fontSize: 22, letterSpacing: "-0.02em", color: ADM.text }}
+        >
+          Visão geral
+        </h1>
+        <p className="mt-1.5 text-[13.5px]" style={{ color: ADM.textMuted }}>
+          Acompanhe o desempenho das turmas e o que precisa de atenção.
+        </p>
+      </header>
 
-      <section className="relative mx-auto max-w-7xl px-6 pb-20 pt-32 md:pt-36">
-        <div className="absolute right-0 top-0 h-[300px] w-[400px] glow-crimson-soft opacity-50 pointer-events-none" />
-        <div className="absolute inset-x-0 top-0 h-[420px] bg-grid-light opacity-50 pointer-events-none" />
-
-        <div className="relative mb-12 fade-up">
-          <h1 className="font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            Painel <span className="italic font-light text-gray-500">administrativo.</span>
-          </h1>
+      {erro && (
+        <div className="mb-6">
+          <ErroBloco mensagem={erro} />
         </div>
+      )}
 
-        {error && (
-          <div className="relative mb-8 border border-wine/30 bg-wine/5 px-4 py-3 text-sm text-wine">
-            {error}
+      {/* ── linha 1: os quatro números ── */}
+      <div className="mb-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {kpis.map((k) => (
+          <CardIndicador
+            key={k.chave}
+            {...k}
+            destaque={k.chave === "metas_atendidas"}
+          />
+        ))}
+      </div>
+
+      {/* ── linha 2: o gráfico da meta, largura toda ── */}
+      <Painel className="mb-4">
+        <TituloPainel
+          titulo="Convites por turma"
+          descricao={`Linha da meta em ${META_CONVITES} convites. Em verde, as turmas que passaram dela.`}
+          acao={
+            <span
+              className="shrink-0 whitespace-nowrap rounded-md px-2.5 py-1 text-[12px] font-medium"
+              style={{ background: "rgba(35,122,75,0.10)", color: ADM.success }}
+            >
+              {bateram} de {barras.length} na meta
+            </span>
+          }
+        />
+
+        {barras.length === 0 ? (
+          <Vazio
+            titulo="Nenhuma turma cadastrada"
+            detalhe="O gráfico aparece quando a primeira turma registrar convites."
+          />
+        ) : (
+          <div style={{ height: 320 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={barras}
+                margin={{ top: 8, right: 8, left: -20, bottom: mostrarNomes ? 28 : 4 }}
+                barCategoryGap="18%"
+              >
+                <CartesianGrid stroke={ADM.border} vertical={false} />
+                <XAxis
+                  dataKey="nome"
+                  tick={mostrarNomes ? { fontSize: 10.5, fill: ADM.textMuted } : false}
+                  angle={mostrarNomes ? -35 : 0}
+                  textAnchor={mostrarNomes ? "end" : "middle"}
+                  interval={0}
+                  height={mostrarNomes ? 52 : 8}
+                  stroke={ADM.border}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: ADM.textMuted }}
+                  stroke={ADM.border}
+                  tickLine={false}
+                  allowDecimals={false}
+                />
+                <Tooltip content={<DicaMeta />} cursor={{ fill: "rgba(17,24,22,0.04)" }} />
+                <ReferenceLine
+                  y={META_CONVITES}
+                  stroke={ADM.success}
+                  strokeDasharray="4 4"
+                  label={{
+                    value: `Meta ${META_CONVITES}`,
+                    position: "right",
+                    fill: ADM.success,
+                    fontSize: 11,
+                  }}
+                />
+                <Bar dataKey="convites" radius={[3, 3, 0, 0]} maxBarSize={44}>
+                  {barras.map((b) => (
+                    <Cell key={b.id} fill={b.bateu ? ADM.success : ADM.ink} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         )}
+      </Painel>
 
-        <div className="relative grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="card-hover p-6">
-            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              Total representantes
-            </p>
-            <p className="mt-4 font-serif text-4xl tracking-premium-tight text-text-primary">
-              {representatives.length}
-            </p>
-          </div>
-          <div className="card-hover p-6">
-            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              Total alunos cadastrados
-            </p>
-            <p className="mt-4 font-serif text-4xl tracking-premium-tight text-text-primary">
-              {students.length}
-            </p>
-          </div>
-          <div className="card-hover p-6">
-            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              Última adesão
-            </p>
-            <p className="mt-4 text-sm font-medium text-text-primary">
-              {latestStudent ? latestStudent.full_name : "Sem adesões"}
-            </p>
-            <p className="mt-2 text-xs text-text-tertiary">
-              {latestStudent ? formatDateTimeBr(latestStudent.created_at) : "-"}
-            </p>
-          </div>
-          <div className="card-hover p-6">
-            <p className="text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-              Curso com mais adesões
-            </p>
-            <p className="mt-4 text-sm font-medium text-text-primary">
-              {courseWithMostStudents || "Sem adesões"}
-            </p>
-          </div>
-        </div>
-
-        <div className="relative mt-6 card-hover p-6 md:p-8">
-          <div className="mb-8 border-b border-line pb-6">
-            <h2 className="font-serif text-2xl tracking-premium-tight text-text-primary">
-              Representantes
-            </h2>
-            <p className="mt-2 text-sm text-text-secondary">
-              Filtre por nome, curso ou instituicao para encontrar uma turma.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <Input
-              label="Busca por nome"
-              value={nameSearch}
-              onChange={(e) => setNameSearch(e.target.value)}
-              placeholder="Nome representante"
-            />
-            <Input
-              label="Busca por curso"
-              value={courseSearch}
-              onChange={(e) => setCourseSearch(e.target.value)}
-              placeholder="Curso"
-            />
-            <Input
-              label="Busca por instituição"
-              value={institutionSearch}
-              onChange={(e) => setInstitutionSearch(e.target.value)}
-              placeholder="Instituição"
-            />
-          </div>
-
-          <div className="mt-8">
-            <table className="w-full table-fixed text-left text-sm">
-              <colgroup>
-                <col className="w-[18%]" />
-                <col className="w-[12%]" />
-                <col className="w-[19%]" />
-                <col className="w-[5%]" />
-                <col className="w-[6%]" />
-                <col className="w-[9%]" />
-                <col className="w-[7%]" />
-                <col className="w-[11%]" />
-                <col className="w-[13%]" />
-              </colgroup>
-              <thead>
-                <tr className="border-b border-line text-[10px] uppercase tracking-premium-widest text-text-tertiary">
-                  <th className="py-3 pr-4 font-medium">Representante</th>
-                  <th className="py-3 pr-4 font-medium">Curso</th>
-                  <th className="py-3 pr-4 font-medium">Instituição</th>
-                  <th className="py-3 pr-4 text-center font-medium">UF</th>
-                  <th className="py-3 pr-4 text-center font-medium">Ano</th>
-                  <th className="py-3 pr-4 text-center font-medium">Convites</th>
-                  <th className="py-3 pr-4 text-center font-medium">Adesões</th>
-                  <th className="py-3 pr-4 font-medium">Status</th>
-                  <th className="py-3 text-right font-medium">Ação</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {filteredRepresentatives.map((representative) => {
-                  const totalConvites =
-                    convitesByRepresentative[representative.id] || 0;
-                  const adesoes =
-                    studentsByRepresentative[representative.id] || 0;
-                  const metaAtingida = totalConvites >= META_CONVITES;
-                  const atendida = Boolean(representative.contacted_at);
-
-                  return (
-                    <tr
-                      key={representative.id}
-                      className="group transition-colors duration-300 hover:bg-bg-ice relative"
+      {/* ── linha 3: atividades recentes e pendências ── */}
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <Painel>
+          <TituloPainel
+            titulo="Atividades recentes"
+            descricao={`Os ${ATIVIDADES_VISIVEIS} eventos mais novos.`}
+            acao={
+              <Link
+                href="/admin/representantes"
+                className="shrink-0 whitespace-nowrap text-[12.5px] font-medium underline-offset-2 hover:underline"
+                style={{ color: ADM.text }}
+              >
+                Ver tudo
+              </Link>
+            }
+          />
+          {eventos.length === 0 ? (
+            <Vazio titulo="Sem atividades registradas" />
+          ) : (
+            <ol>
+              {eventos.map((e, i) => (
+                <li key={e.id} className="relative flex gap-3.5 pb-4 last:pb-0">
+                  {i < eventos.length - 1 && (
+                    <span
+                      aria-hidden
+                      className="absolute left-[5px] top-4 h-full w-px"
+                      style={{ background: ADM.border }}
+                    />
+                  )}
+                  <span
+                    aria-hidden
+                    className="relative mt-[5px] h-[11px] w-[11px] shrink-0 rounded-full"
+                    style={{ background: ADM.surface, border: `2px solid ${ADM.border}` }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-medium" style={{ color: ADM.text }}>
+                      {e.acao}
+                    </p>
+                    <p
+                      className="truncate text-[12.5px]"
+                      style={{ color: ADM.textMuted }}
+                      title={`${e.pessoa} · ${e.registro}`}
                     >
-                      <td className="relative py-4 pr-4 text-text-primary">
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-wine opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                        <span className="block pl-4 font-medium leading-snug line-clamp-2" title={representative.name}>
-                          {representative.name}
-                        </span>
-                      </td>
-                      <td className="truncate py-4 pr-4 text-text-secondary" title={representative.course_name}>
-                        {representative.course_name}
-                      </td>
-                      <td className="py-4 pr-4 text-text-secondary" title={representative.institution_name}>
-                        <span className="line-clamp-2">
-                          {representative.institution_name}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4 text-center font-semibold uppercase tabular-nums text-text-secondary">
-                        {representative.state || "—"}
-                      </td>
-                      <td className="py-4 pr-4 text-center text-text-secondary tabular-nums">
-                        {representative.graduation_year}
-                      </td>
-                      <td className="py-4 pr-4 text-center whitespace-nowrap">
-                        <span
-                          className={`font-semibold tabular-nums ${
-                            metaAtingida
-                              ? "text-[#0a7d3a]"
-                              : "text-text-primary"
-                          }`}
-                        >
-                          {totalConvites}
-                        </span>
-                        <span className="ml-1 text-xs text-text-tertiary">
-                          / {META_CONVITES}
-                        </span>
-                      </td>
-                      <td className="py-4 pr-4 text-center text-text-primary tabular-nums">
-                        {adesoes}
-                      </td>
-                      <td className="py-4 pr-4">
-                        {atendida ? (
-                          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#5b7da3]/30 bg-[#5b7da3]/8 px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-[#3a5a82]">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#5b7da3]" />
-                            Atendido
-                          </span>
-                        ) : metaAtingida ? (
-                          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#0a7d3a]/30 bg-[#0a7d3a]/8 px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-[#0a7d3a]">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#0a7d3a] animate-pulse" />
-                            Meta atingida
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-bg-soft px-2.5 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-text-tertiary">
-                            <span className="h-1.5 w-1.5 rounded-full bg-text-tertiary" />
-                            Pendente
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-4 pl-2 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            href={`/admin/dashboard/${representative.id}`}
-                            className="inline-flex items-center justify-center whitespace-nowrap rounded-md border border-line bg-white px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-primary transition-all duration-300 hover:border-text-primary hover:-translate-y-[1px]"
-                          >
-                            Visualizar
-                          </Link>
-                          <button
-                            type="button"
-                            onClick={() => setToRemove(representative)}
-                            title="Remover representante"
-                            aria-label={`Remover ${representative.name}`}
-                            className="inline-flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-md border border-wine/30 bg-white text-wine transition-all duration-300 hover:border-wine hover:bg-wine/5 hover:-translate-y-[1px]"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6" />
-                              <line x1="10" y1="11" x2="10" y2="17" />
-                              <line x1="14" y1="11" x2="14" y2="17" />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      {e.pessoa} · {e.registro}
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-2 text-[12px]">
+                      <span style={{ color: ADM.textMuted }} title={dataHoraAdmin(e.quando)}>
+                        {tempoRelativo(e.quando)}
+                      </span>
+                      <Link
+                        href={e.href}
+                        className="font-medium underline-offset-2 hover:underline"
+                        style={{ color: ADM.text }}
+                      >
+                        detalhes
+                      </Link>
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Painel>
 
-            {filteredRepresentatives.length === 0 && (
-              <div className="border-t border-line px-4 py-12 text-center">
-                <p className="text-sm text-text-secondary">
-                  Nenhum representante encontrado.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      <ConfirmDeleteModal
-        open={Boolean(toRemove)}
-        name={toRemove?.name}
-        loading={Boolean(removingId)}
-        onConfirm={confirmRemove}
-        onClose={() => {
-          if (removingId) return;
-          setToRemove(null);
-        }}
-      />
-
-      <Footer />
-    </main>
+        <Painel>
+          <TituloPainel
+            titulo="Pendências"
+            descricao="Turmas que precisam de uma ação da equipe."
+          />
+          {alertas.length === 0 ? (
+            <Vazio
+              titulo="Nada pendente"
+              detalhe="Nenhuma turma na meta está sem atendimento."
+            />
+          ) : (
+            <ul className="space-y-1.5">
+              {alertas.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    href={p.href}
+                    className="flex items-start gap-3 px-3 py-2.5 transition-colors hover:bg-[#F5F5F3]"
+                    style={{ borderRadius: RADIUS - 2 }}
+                  >
+                    <span
+                      aria-hidden
+                      className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full"
+                      style={{
+                        background: p.nivel === "atencao" ? ADM.warning : ADM.textMuted,
+                      }}
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[12.5px]" style={{ color: ADM.text }}>
+                        {p.titulo}
+                      </span>
+                      <span
+                        className="block truncate text-[12px]"
+                        style={{ color: ADM.textMuted }}
+                      >
+                        {p.detalhe}
+                      </span>
+                    </span>
+                    <ChevronRight
+                      size={14}
+                      strokeWidth={1.7}
+                      color={ADM.textMuted}
+                      className="mt-[3px] shrink-0"
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Painel>
+      </div>
+    </div>
   );
 }

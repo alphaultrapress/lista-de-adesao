@@ -3,19 +3,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Footer } from "@/components/Brand";
-import PremiumHeader from "@/components/PremiumHeader";
+import Image from "next/image";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import Button from "@/components/ui/Button";
 import PhoneInput from "@/components/forms/PhoneInput";
 import Autocomplete from "@/components/forms/Autocomplete";
+import AuthButton from "@/components/auth/AuthButton";
+import AuthMediaPanel from "@/components/auth/AuthMediaPanel";
+import { AUTH } from "@/components/auth/tokens";
 import { signOutAndClearSession, supabase } from "@/lib/supabase";
 import { isValidPhoneBr, onlyDigits } from "@/lib/cpf";
 import { buildTurmaSlug } from "@/lib/slugify";
 import { UFS, fetchMunicipios, Municipio } from "@/lib/ibge";
 import { getStoredConsultant } from "@/lib/consultants";
 import { CURSOS_COMUNS } from "@/lib/cursos";
+import { useLoadingGate } from "@/components/ui/LoadingScreen";
 
 const SEMESTRES = ["2026.1", "2026.2", "2027.1", "2027.2", "2028.1", "2028.2"];
 const DUPLICATE_EMAIL_MESSAGE = "Este e-mail já está cadastrado.";
@@ -324,56 +326,105 @@ export default function CadastroPage() {
     setForm((current) => ({ ...current, email: "", senha: "", confirmar: "" }));
   }
 
-  if (checkingSession) {
-    return (
-      <main className="page-canvas min-h-screen bg-bg flex items-center justify-center">
-        <p className="text-sm text-text-tertiary tracking-premium-wide uppercase">
-          Carregando cadastro
-        </p>
-      </main>
-    );
-  }
+  // Tela de carregamento premium; o gate a mantém viva até a saída terminar.
+  const { mostrando: carregandoTela, tela } = useLoadingGate(checkingSession);
+  if (carregandoTela) return tela;
 
   return (
-    <main className="page-canvas min-h-screen bg-bg">
-      <PremiumHeader
-        compact
-        onLogout={existingUserId ? logout : undefined}
-        logoutLabel="Trocar conta"
-        actions={
-          existingUserId
-            ? []
-            : [{ href: "/login", label: "Já tenho cadastro", emphasis: true }]
-        }
-      />
-
-      <section className="relative mx-auto max-w-3xl px-6 pb-20 pt-32 md:pt-36">
-        <div className="absolute left-1/2 top-12 h-[340px] w-[620px] -translate-x-1/2 glow-crimson-soft opacity-60 pointer-events-none" />
-        <div className="absolute inset-x-0 top-0 h-[420px] bg-grid-light opacity-50 pointer-events-none" />
-
-        <div className="relative mb-14 text-center fade-up">
-          <span className="tech-eyebrow">
-            <span className="dot" />
-            Cadastro do representante da turma
-          </span>
-          <h1 className="mt-7 font-serif text-4xl leading-[1.05] tracking-premium-tight text-text-primary md:text-5xl">
-            Vamos conhecer
-            <br />
-            <span className="italic font-light text-gray-500">a sua turma.</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-md leading-relaxed text-text-secondary">
-            Você vai gerar o link oficial para sua sala preencher a lista de
-            adesão. O cadastro é feito apenas pelo representante.
-          </p>
-        </div>
-
-        <form
-          onSubmit={handleSubmit}
-          className="card-hover space-y-6 p-6 md:p-9"
-          noValidate
+    <main
+      className="relative flex min-h-[100svh] flex-col"
+      style={{ background: AUTH.offWhite }}
+    >
+      <header className="sticky top-0 z-30 flex min-h-[96px] items-start justify-between border-b border-black/[0.06] bg-[#F4F1EB] px-6 pb-4 pt-6 md:relative md:z-10 md:min-h-0 md:items-center md:border-0 md:bg-transparent md:px-10 md:py-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-[12px] transition-colors duration-200 hover:text-[#111210]"
+          style={{ color: AUTH.textMuted }}
         >
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden>
+            <path
+              d="M19 12H5M11 6l-6 6 6 6"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Voltar ao início
+        </Link>
+
+        <span
+          className="pointer-events-none absolute left-1/2 block -translate-x-1/2 overflow-hidden"
+          style={{ top: 16, height: 60, width: 91 }}
+        >
+          <Image
+            src="/logos/logo-dark.png"
+            alt="Alpha Convites"
+            width={91}
+            height={60}
+            priority
+            className="h-full w-full"
+            style={{ objectFit: "cover", objectPosition: "center" }}
+          />
+        </span>
+
+        {existingUserId ? (
+          <button
+            type="button"
+            onClick={logout}
+            className="text-[12px] transition-colors duration-200 hover:text-[#111210]"
+            style={{ color: AUTH.textMuted }}
+          >
+            Trocar conta
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            className="text-[12px] transition-colors duration-200 hover:text-[#111210]"
+            style={{ color: AUTH.textMuted }}
+          >
+            Já tenho cadastro
+          </Link>
+        )}
+      </header>
+
+      <section className="flex flex-1 items-center justify-center px-4 py-10 md:px-6">
+        <div
+          className="grid w-full max-w-[1120px] overflow-hidden rounded-[24px] border md:grid-cols-[0.78fr_1.22fr]"
+          style={{ background: AUTH.warmWhite, borderColor: AUTH.border, boxShadow: "0 32px 90px rgba(0,0,0,0.18)" }}
+        >
+          <div className="h-[256px] md:h-auto md:min-h-[760px]">
+            <AuthMediaPanel
+              estado="criar"
+              onTrocar={() => router.push("/login")}
+              compactoMobile
+            />
+          </div>
+
+          <div className="p-6 sm:p-9 md:p-12">
+            <p
+              className="text-[11px] font-medium uppercase"
+              style={{ letterSpacing: "0.2em", color: AUTH.textMuted }}
+            >
+              Cadastro da turma
+            </p>
+            <h1
+              className="mt-5 font-light"
+              style={{ fontSize: "clamp(30px, 3vw, 40px)", lineHeight: 1.08, letterSpacing: "-0.03em", color: AUTH.ink }}
+            >
+              Vamos conhecer sua turma.
+            </h1>
+            <p className="mt-3 max-w-[48ch] text-[14px] leading-[1.5]" style={{ color: AUTH.textMuted }}>
+              Você vai gerar o link oficial para sua sala preencher a lista de adesão.
+              O cadastro é feito apenas pelo representante.
+            </p>
+
+            <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
           {existingUserId && (
-            <div className="border border-ink/20 bg-ink/[0.03] px-4 py-3 text-sm text-text-primary">
+            <div
+              className="rounded-[10px] border px-4 py-3 text-sm"
+              style={{ borderColor: AUTH.border, background: "rgba(17,18,16,0.03)", color: AUTH.ink }}
+            >
               Encontramos uma sessão ativa. Complete os dados da turma para
               liberar seu painel.
             </div>
@@ -385,10 +436,11 @@ export default function CadastroPage() {
             value={form.nome}
             onChange={(e) => setUpper("nome", e.target.value)}
             error={errors.nome}
+            variant="auth"
             required
           />
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <Input
               label="E-mail"
               name="email"
@@ -398,12 +450,14 @@ export default function CadastroPage() {
               onChange={(e) => set("email", e.target.value)}
               error={errors.email}
               readOnly={Boolean(existingUserId)}
+              variant="auth"
               required
             />
             <PhoneInput
               value={form.whatsapp}
               onChange={(v) => set("whatsapp", v)}
               error={errors.whatsapp}
+              variant="auth"
               required
             />
           </div>
@@ -416,6 +470,7 @@ export default function CadastroPage() {
             options={CURSOS_COMUNS}
             placeholder="Ex: Medicina"
             error={errors.curso}
+            variant="auth"
             required
           />
 
@@ -434,10 +489,11 @@ export default function CadastroPage() {
             }}
             placeholder="Ex: FIMCA, USP, UFRJ…"
             error={errors.instituicao}
+            variant="auth"
             required
           />
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <Select
               label="Estado"
               name="estado"
@@ -446,6 +502,7 @@ export default function CadastroPage() {
               placeholder="Selecione o estado"
               options={UFS.map((u) => ({ value: u.sigla, label: u.nome }))}
               error={errors.estado}
+              variant="auth"
               required
             />
             <Select
@@ -462,6 +519,7 @@ export default function CadastroPage() {
               }
               error={errors.cidade}
               disabled={!form.estado || municipioNomes.length === 0}
+              variant="auth"
               required
             />
           </div>
@@ -474,11 +532,12 @@ export default function CadastroPage() {
             placeholder="Selecione"
             options={SEMESTRES.map((s) => ({ value: s, label: s }))}
             error={errors.semestre}
+            variant="auth"
             required
           />
 
           {!existingUserId && (
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-5 sm:grid-cols-2">
               <Input
                 label="Senha"
                 name="senha"
@@ -488,6 +547,7 @@ export default function CadastroPage() {
                 onChange={(e) => set("senha", e.target.value)}
                 hint="Mínimo de 6 caracteres."
                 error={errors.senha}
+                variant="auth"
                 required
               />
               <Input
@@ -498,12 +558,13 @@ export default function CadastroPage() {
                 value={form.confirmar}
                 onChange={(e) => set("confirmar", e.target.value)}
                 error={errors.confirmar}
+                variant="auth"
                 required
               />
             </div>
           )}
 
-          <label className="flex cursor-pointer items-start gap-3 pt-2 text-sm text-text-secondary">
+          <label className="flex cursor-pointer items-start gap-3 pt-2 text-[13px] leading-[1.5]" style={{ color: AUTH.textMuted }}>
             <input
               type="checkbox"
               checked={aceito}
@@ -511,7 +572,8 @@ export default function CadastroPage() {
                 setAceito(e.target.checked);
                 setErrors((er) => ({ ...er, aceito: "" }));
               }}
-              className="mt-1 accent-ink"
+              className="mt-[3px] h-4 w-4 shrink-0"
+              style={{ accentColor: AUTH.ink }}
             />
             <span>
               Aceito os termos de uso e a política de privacidade da Alpha
@@ -519,28 +581,32 @@ export default function CadastroPage() {
             </span>
           </label>
           {errors.aceito && (
-            <p className="-mt-4 text-xs text-wine">{errors.aceito}</p>
+            <p className="-mt-3 text-xs text-[#C41230]">{errors.aceito}</p>
           )}
 
           {topError && (
-            <div className="border border-wine/30 bg-wine/5 px-4 py-3 text-sm text-wine">
+            <div className="rounded-[10px] border border-[#C41230] bg-[rgba(196,18,48,0.05)] px-4 py-3 text-sm text-[#C41230]">
               {topError}
             </div>
           )}
 
-          <Button type="submit" loading={submitting} fullWidth className="mt-4">
+          <AuthButton type="submit" loading={submitting} loadingLabel="Criando sua conta" className="mt-2">
             {submitting ? "Criando sua conta" : "Concluir cadastro"}
-          </Button>
+          </AuthButton>
 
-          <p className="text-center text-xs text-text-tertiary">
+          <p className="text-center text-[13px]" style={{ color: AUTH.textMuted }}>
             Já é cadastrado?{" "}
-            <Link href="/login" className="editorial-link text-text-primary">
+            <Link href="/login" className="font-medium underline-offset-4 hover:underline" style={{ color: AUTH.ink }}>
               Entrar
             </Link>
           </p>
-        </form>
+            </form>
+          </div>
+        </div>
       </section>
-      <Footer />
+      <footer className="px-6 pb-6 text-center text-[11px] md:px-10" style={{ color: AUTH.textMuted }}>
+        © 2026 Alpha Convites · Cadastro exclusivo para representantes de turma
+      </footer>
     </main>
   );
 }

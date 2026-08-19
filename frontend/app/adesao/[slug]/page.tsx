@@ -65,8 +65,8 @@ export async function generateMetadata({
   const ogVideo = absoluteUrl(PROMO_VIDEO_PATH);
 
   const title = turma
-    ? `Convites de formatura — Turma de ${turma.course_name} · ${turma.institution_name}`
-    : "Alpha Convites — Lista de Interesse";
+    ? `Convites de formatura | Turma de ${turma.course_name} · ${turma.institution_name}`
+    : "Alpha Convites | Lista de Interesse";
 
   const description = turma
     ? `A turma de ${turma.course_name} (${turma.institution_name} · ${turma.graduation_year}) está escolhendo seus convites de formatura com a Alpha. Demonstre seu interesse, sem compromisso.`
