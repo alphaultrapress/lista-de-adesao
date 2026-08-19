@@ -231,7 +231,7 @@ function ProgressCard({
     >
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6F6D68]">
+          <p className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6F6D68] sm:block">
             Acompanhe sua turma
           </p>
           <h2 className="mt-2 text-[27px] font-light tracking-[-0.04em] text-[#111210] sm:text-[32px]">
@@ -256,19 +256,19 @@ function ProgressCard({
 
       <div className="relative mt-6 grid gap-4 lg:grid-cols-[minmax(270px,0.82fr)_minmax(0,1.45fr)]">
         <section
-          className="relative isolate overflow-hidden rounded-[18px] p-5 text-[#FAF9F6] sm:p-6"
-          style={{ background: "#111210" }}
+          className="relative isolate flex flex-col justify-center overflow-hidden rounded-[18px] border p-5 text-[#111210] sm:p-6"
+          style={{ background: "#F8F7F3", borderColor: "#D8D4CC" }}
         >
           <div
             aria-hidden
             className="absolute inset-0 opacity-30"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(250,249,246,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(250,249,246,0.08) 1px, transparent 1px)",
+                "linear-gradient(rgba(17,18,16,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(17,18,16,0.05) 1px, transparent 1px)",
               backgroundSize: "24px 24px",
             }}
           />
-          <div className="relative flex items-center gap-5">
+          <div className="relative flex items-center justify-center gap-5">
             <div className="relative grid h-[154px] w-[154px] shrink-0 place-items-center">
               <svg
                 aria-label={`${initialGoalProgress}% da meta inicial atingida`}
@@ -281,7 +281,7 @@ function ProgressCard({
                   cy="90"
                   r={ringRadius}
                   fill="none"
-                  stroke="rgba(250,249,246,0.16)"
+                  stroke="#E8E5DF"
                   strokeWidth="10"
                 />
                 <circle
@@ -302,53 +302,33 @@ function ProgressCard({
                   {initialGoalProgress}
                   <span className="text-lg">%</span>
                 </p>
-                <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-white/55">
+                <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#6F6D68]">
                   meta inicial
                 </p>
               </div>
             </div>
 
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6F6D68]">
                 {metaAtingida ? "Meta concluída" : "Meta inicial"}
               </p>
-              <p className="mt-2 text-[20px] font-medium leading-none tracking-[-0.04em] text-white">
+              <p className="mt-2 text-[20px] font-medium leading-none tracking-[-0.04em] text-[#111210]">
                 {metaAtingida ? "30 convites confirmados" : "Chegar a 30 convites"}
               </p>
               <p className="mt-3 flex items-baseline gap-2">
                 <span className="text-[34px] font-light leading-none tracking-[-0.06em] tabular-nums">
                   {metaAtingida ? META_CONVITES : total}
                 </span>
-                <span className="text-sm text-white/60">/ {META_CONVITES}</span>
+                <span className="text-sm text-[#8A8781]">/ {META_CONVITES}</span>
               </p>
-              <p className="mt-3 text-sm leading-5 text-white/65">
+              <p className="mt-3 text-sm leading-5 text-[#3A3A3A]">
                 {metaAtingida
-                  ? "A lista continua aberta enquanto a equipe Alpha entra em contato com você."
-                  : `Faltam ${faltam} ${faltam === 1 ? "convite" : "convites"} para completar a meta inicial.`}
+                  ? "A equipe Alpha vai falar com você."
+                  : `Faltam ${faltam} ${faltam === 1 ? "convite" : "convites"}.`}
               </p>
             </div>
           </div>
 
-          <div className="relative mt-5 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
-            <div>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                Você está aqui
-              </p>
-              <p className="mt-1 text-sm font-medium text-white/90">
-                {metaAtingida ? "Meta concluída" : "A caminho da meta"}
-              </p>
-            </div>
-            <div>
-              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/45">
-                Depois da meta
-              </p>
-              <p className="mt-1 text-sm font-medium text-white/90">
-                {metaAtingida
-                  ? `${formatInviteCount(invitationsAfterGoal)} novas adesões`
-                  : "Começa após 30 convites"}
-              </p>
-            </div>
-          </div>
         </section>
 
         <section
@@ -358,16 +338,16 @@ function ProgressCard({
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6F6D68]">
-                Acompanhe as adesões
+                Convites na lista
               </p>
-              <p className="mt-1 text-sm leading-5 text-[#3A3A3A]">
-                {metaAtingida
-                  ? "A meta inicial foi alcançada. A lista segue aberta enquanto a equipe Alpha prepara o próximo contato."
-                  : "Cada bloco representa um convite confirmado na lista da turma."}
-              </p>
+              {!metaAtingida && (
+                <p className="mt-1 hidden text-sm leading-5 text-[#3A3A3A] sm:block">
+                  Cada bloco é um convite confirmado.
+                </p>
+              )}
             </div>
-            <span className="text-[11px] font-semibold tabular-nums text-[#111210]">
-              {formatInviteCount(total)} convites na lista
+            <span className="whitespace-nowrap text-[15px] font-semibold tabular-nums text-[#111210]">
+              {formatInviteCount(total)}
             </span>
           </div>
 
@@ -412,43 +392,24 @@ function ProgressCard({
             <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6F6D68]">
-                  {metaAtingida ? "Depois da meta" : "Próximo passo"}
+                  {metaAtingida ? "Convites extras" : "Próximo passo"}
                 </p>
                 <p className="mt-1 text-sm font-semibold text-[#111210]">
                   {metaAtingida
-                    ? `${formatInviteCount(invitationsAfterGoal)} novas adesões`
+                    ? `+${formatInviteCount(invitationsAfterGoal)} depois da meta`
                     : `Faltam ${faltam} ${faltam === 1 ? "convite" : "convites"}`}
                 </p>
               </div>
-              <p className="max-w-[340px] text-sm leading-5 text-[#6F6D68] sm:text-right">
+              <p className="hidden max-w-[340px] text-sm leading-5 text-[#6F6D68] sm:block sm:text-right">
                 {metaAtingida
-                  ? "Se quiser, continue enviando o link. Mais adesões fortalecem a negociação da turma."
-                  : "Compartilhe o link com a turma para alcançar a meta inicial."}
+                  ? "Continue enviando o link: quanto mais gente, melhor."
+                  : "Envie o link para a turma."}
               </p>
             </div>
           </div>
         </section>
       </div>
 
-      <div className="relative mt-5 border-t border-[#D8D4CC] pt-5">
-        <p className="max-w-4xl text-sm leading-relaxed text-[#3A3A3A]">
-          {total >= META_CONVITES ? (
-            <>
-              Sua turma já alcançou a meta inicial de {META_CONVITES} convites. {" "}
-              <span className="font-medium text-[#111210]">
-                A lista permanece aberta até o contato da equipe Alpha. Cada nova adesão fortalece a negociação da turma.
-              </span>
-            </>
-          ) : (
-            <>
-              A meta inicial é de {META_CONVITES} convites. {" "}
-              <span className="font-medium text-[#111210]">
-                Compartilhe o link para reunir a turma e alcançar esse primeiro objetivo.
-              </span>
-            </>
-          )}
-        </p>
-      </div>
 
       {achievement && (
         <AchievementModal
