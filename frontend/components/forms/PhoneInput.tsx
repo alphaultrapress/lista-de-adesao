@@ -10,7 +10,7 @@ interface PhoneInputProps {
   error?: string;
   required?: boolean;
   name?: string;
-  variant?: "default" | "auth";
+  variant?: "default" | "auth" | "escuro";
 }
 
 export default function PhoneInput({

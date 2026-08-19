@@ -11,7 +11,21 @@ const NAV_LINKS = [
 ];
 
 // Barra transparente sobre o vídeo do herói que vira preta sólida ao rolar.
-export default function SquareNav() {
+export default function SquareNav({
+  comConta = true,
+  comComoFunciona = true,
+  ctaHref = "/cadastro",
+  ctaLabel = "Cadastrar",
+}: {
+  /** Páginas que não criam conta (ex.: o link enviado para a turma) escondem
+   *  "Entrar" e apontam o botão para o formulário. */
+  comConta?: boolean;
+  /** A página de adesão não mostra "Como funciona" — o link não pode apontar
+   *  para uma âncora que não existe ali. */
+  comComoFunciona?: boolean;
+  ctaHref?: string;
+  ctaLabel?: string;
+} = {}) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -46,7 +60,9 @@ export default function SquareNav() {
         </Link>
 
         <nav className="hidden items-center gap-9 md:flex">
-          {NAV_LINKS.map((item) => (
+          {NAV_LINKS.filter(
+            (item) => comComoFunciona || item.href !== "#como-funciona",
+          ).map((item) => (
             <a
               key={item.href}
               href={item.href}
@@ -59,20 +75,22 @@ export default function SquareNav() {
         </nav>
 
         <div className="flex items-center gap-5">
-          <Link
-            href="/login"
-            className="text-[13px] font-normal uppercase text-paper transition-opacity duration-300 hover:underline"
-            style={{ letterSpacing: "-0.001em" }}
-          >
-            Entrar
-          </Link>
-          <Link
-            href="/cadastro"
+          {comConta && (
+            <Link
+              href="/login"
+              className="text-[13px] font-normal uppercase text-paper transition-opacity duration-300 hover:underline"
+              style={{ letterSpacing: "-0.001em" }}
+            >
+              Entrar
+            </Link>
+          )}
+          <a
+            href={ctaHref}
             className="inline-flex items-center justify-center border border-paper bg-paper px-6 py-3 text-[13px] font-medium uppercase text-obsidian transition-colors duration-300 hover:bg-transparent hover:text-paper"
             style={{ letterSpacing: "0.02em", borderRadius: 0 }}
           >
-            Cadastrar
-          </Link>
+            {ctaLabel}
+          </a>
         </div>
       </div>
     </header>
