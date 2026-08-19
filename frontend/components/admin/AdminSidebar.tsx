@@ -67,11 +67,15 @@ export default function AdminSidebar({
       {/* Recolhida a marca some: em 76px ela ficaria espremida, e um símbolo
           cortado atrapalha mais do que ajuda. Sobra só o botão de expandir. */}
       <div
-        className={`flex items-center ${compacta ? "justify-center px-3" : "gap-2 px-4"}`}
+        className={`relative flex items-center ${compacta ? "justify-center px-3" : "px-4"}`}
         style={{ height: 72, borderBottom: "1px solid rgba(255,255,255,0.07)" }}
       >
         {!compacta && (
-          <Link href="/admin/dashboard" className="block shrink-0" aria-label="Alpha Convites">
+          <Link
+            href="/admin/dashboard"
+            className="mx-auto block shrink-0"
+            aria-label="Alpha Convites"
+          >
             <MarcaAlpha />
           </Link>
         )}
@@ -80,7 +84,7 @@ export default function AdminSidebar({
           type="button"
           onClick={mobile ? onFechar : onToggle}
           aria-label={mobile ? "Fechar menu" : compacta ? "Expandir menu" : "Recolher menu"}
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors ${compacta ? "" : "ml-auto"}`}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors ${compacta ? "" : "absolute right-3"}`}
           style={{ color: "rgba(255,255,255,0.55)" }}
           onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
           onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
