@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AlertTriangle, CheckCircle2, Circle, Clock, Info, MinusCircle, Ban } from "lucide-react";
+import {
+  AlertTriangle,
+  BadgeCheck,
+  CheckCircle2,
+  Circle,
+  Clock,
+  Info,
+  MinusCircle,
+  Ban,
+} from "lucide-react";
 import { ADM, RADIUS } from "@/lib/admin/tokens";
 import { STATUS_LABEL, type StatusRep } from "@/lib/admin/data";
 
@@ -64,6 +73,9 @@ const ESTILO: Record<StatusRep, { cor: string; fundo: string; icone: typeof Circ
   em_andamento: { cor: ADM.warning, fundo: "rgba(162,103,25,0.10)", icone: Clock },
   pendente: { cor: ADM.textMuted, fundo: "rgba(111,113,107,0.10)", icone: MinusCircle },
   meta_atingida: { cor: ADM.success, fundo: "rgba(35,122,75,0.10)", icone: CheckCircle2 },
+  // Atendida vem depois da meta: mesmo verde, fundo mais firme e outro ícone,
+  // para os dois não se confundirem numa varredura rápida da tabela.
+  atendida: { cor: "#1B5E3A", fundo: "rgba(35,122,75,0.18)", icone: BadgeCheck },
   inativo: { cor: ADM.textMuted, fundo: "rgba(111,113,107,0.10)", icone: MinusCircle },
   bloqueado: { cor: ADM.danger, fundo: "rgba(180,35,45,0.09)", icone: Ban },
 };

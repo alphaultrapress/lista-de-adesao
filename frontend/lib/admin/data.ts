@@ -18,6 +18,7 @@ export type StatusRep =
   | "em_andamento"
   | "pendente"
   | "meta_atingida"
+  | "atendida"
   | "inativo"
   | "bloqueado";
 
@@ -26,6 +27,7 @@ export const STATUS_LABEL: Record<StatusRep, string> = {
   em_andamento: "Em andamento",
   pendente: "Pendente",
   meta_atingida: "Meta atingida",
+  atendida: "Atendida",
   inativo: "Inativo",
   bloqueado: "Bloqueado",
 };
@@ -37,6 +39,9 @@ export type RepLinha = Representative & {
   status: StatusRep;
   /** Timestamp mais recente entre cadastro, adesões e contatos. */
   ultimaAtividade: string | null;
+  /** Telefone do próprio representante — ele também entra na lista da turma,
+   *  e é a adesão com o mesmo e-mail que carrega o número dele. */
+  telefone?: string;
 };
 
 const DIA = 86_400_000;
@@ -48,7 +53,15 @@ const DIA = 86_400_000;
  * coluna de situação em `representatives`. Ficam no tipo para a tela já saber
  * exibi-los, mas nunca são atribuídos aqui — inventar seria pior que faltar.
  */
-function derivarStatus(convites: number, adesoes: number, criadoEm: string) {
+function derivarStatus(
+  convites: number,
+  adesoes: number,
+  criadoEm: string,
+  contatadaEm: string | null | undefined,
+) {
+  // O atendimento é o último passo da esteira: quem já foi contatado pela
+  // equipe mostra "Atendida", não mais "Meta atingida".
+  if (contatadaEm) return "atendida" as StatusRep;
   if (convites >= META_CONVITES) return "meta_atingida" as StatusRep;
   if (adesoes > 0) return "em_andamento" as StatusRep;
   const idade = Date.now() - new Date(criadoEm).getTime();
@@ -82,6 +95,7 @@ export function montarLinhas(
   alunos: Student[],
 ): RepLinha[] {
   const adesoesPor: Record<string, number> = {};
+  const telefonePor: Record<string, string> = {};
   const convitesPor: Record<string, number> = {};
   const ultimaPor: Record<string, string> = {};
 
@@ -89,6 +103,7 @@ export function montarLinhas(
     adesoesPor[a.representative_id] = (adesoesPor[a.representative_id] || 0) + 1;
     convitesPor[a.representative_id] =
       (convitesPor[a.representative_id] || 0) + (a.qtd_convites || 0);
+    if (a.phone && a.email) telefonePor[`${a.representative_id}|${a.email.toLowerCase()}`] = a.phone;
     const atual = ultimaPor[a.representative_id];
     if (!atual || a.created_at > atual) ultimaPor[a.representative_id] = a.created_at;
   }
@@ -112,8 +127,9 @@ export function montarLinhas(
       ...r,
       adesoes,
       convites,
-      status: derivarStatus(convites, adesoes, r.created_at),
+      status: derivarStatus(convites, adesoes, r.created_at, r.contacted_at),
       ultimaAtividade,
+      telefone: telefonePor[`${r.id}|${(r.email || "").toLowerCase()}`],
     };
   });
 }
@@ -178,7 +194,7 @@ export function indicadores(d: PainelDados): Indicador[] {
         : "Nenhuma turma na meta",
       calculo:
         "Turmas que bateram a meta e já receberam contato da equipe comercial.",
-      href: "/admin/representantes?status=meta_atingida",
+      href: "/admin/representantes?status=atendida",
     },
   ];
 }

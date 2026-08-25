@@ -9,11 +9,13 @@ import {
   Copy,
   Download,
   Eye,
+  MessageCircle,
   MoreHorizontal,
   Trash2,
   X,
 } from "lucide-react";
 import ConfirmDeleteModal from "@/components/admin/ConfirmDeleteModal";
+import WhatsAppModal from "@/components/admin/WhatsAppModal";
 import { useLoadingGate } from "@/components/ui/LoadingScreen";
 import { signOutAndClearSession, supabase, META_CONVITES } from "@/lib/supabase";
 import { formatPhone } from "@/lib/format";
@@ -55,6 +57,7 @@ function RepresentantesConteudo() {
   const [removendo, setRemovendo] = useState<string | undefined>();
   const [aRemover, setARemover] = useState<RepLinha | null>(null);
   const [menuAberto, setMenuAberto] = useState<string | null>(null);
+  const [whatsapp, setWhatsapp] = useState<RepLinha | null>(null);
   const [copiado, setCopiado] = useState<string | null>(null);
 
   /* ── filtros vivem na URL, então voltar da página de detalhes os preserva ── */
@@ -157,7 +160,16 @@ function RepresentantesConteudo() {
       if (curso && r.course_name !== curso) return false;
       if (instituicao && r.institution_name !== instituicao) return false;
       if (uf && r.state !== uf) return false;
-      if (status && r.status !== status) return false;
+      if (status) {
+        // "Meta atingida" também traz as turmas já atendidas: elas bateram a
+        // meta, só avançaram um passo depois. É o mesmo recorte que o
+        // indicador do painel conta.
+        const bate =
+          status === "meta_atingida"
+            ? r.convites >= META_CONVITES
+            : r.status === status;
+        if (!bate) return false;
+      }
       if (min !== null && r.adesoes < min) return false;
       if (limite !== null) {
         const t = new Date(r.created_at).getTime();
@@ -396,7 +408,7 @@ function RepresentantesConteudo() {
             }}
           >
             <option value="">Status</option>
-            {(["novo", "em_andamento", "pendente", "meta_atingida"] as StatusRep[]).map((s) => (
+            {(["novo", "em_andamento", "pendente", "meta_atingida", "atendida"] as StatusRep[]).map((s) => (
               <option key={s} value={s}>
                 {STATUS_LABEL[s]}
               </option>
@@ -615,6 +627,18 @@ function RepresentantesConteudo() {
                               <button
                                 type="button"
                                 onClick={() => {
+                                  setWhatsapp(r);
+                                  setMenuAberto(null);
+                                }}
+                                className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px]"
+                                style={{ color: ADM.text }}
+                              >
+                                <MessageCircle size={14} strokeWidth={1.7} />
+                                Enviar WhatsApp
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
                                   setARemover(r);
                                   setMenuAberto(null);
                                 }}
@@ -686,6 +710,10 @@ function RepresentantesConteudo() {
       </Painel>
 
       {/* Mesmo modal que o painel antigo usava, com a API dele (name/onClose). */}
+      {whatsapp && (
+        <WhatsAppModal linha={whatsapp} onClose={() => setWhatsapp(null)} />
+      )}
+
       <ConfirmDeleteModal
         open={Boolean(aRemover)}
         name={aRemover?.name}

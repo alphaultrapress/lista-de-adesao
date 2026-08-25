@@ -137,11 +137,13 @@ export default function AdminRepresentativePage() {
   const atendida = Boolean(representative?.contacted_at);
   const leadCriado = Boolean(representative?.lead_created_at);
 
-  const status: StatusRep = metaAtingida
-    ? "meta_atingida"
-    : students.length > 0
-      ? "em_andamento"
-      : "pendente";
+  const status: StatusRep = atendida
+    ? "atendida"
+    : metaAtingida
+      ? "meta_atingida"
+      : students.length > 0
+        ? "em_andamento"
+        : "pendente";
 
   const linkTurma = representative
     ? `${process.env.NEXT_PUBLIC_APP_URL || (typeof window !== "undefined" ? window.location.origin : "")}/adesao/${representative.slug}`
@@ -334,16 +336,8 @@ export default function AdminRepresentativePage() {
             >
               {representative.name}
             </h1>
+            {/* O badge já diz "Atendida" quando há contacted_at. */}
             <StatusBadge status={status} />
-            {atendida && (
-              <span
-                className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11.5px] font-medium"
-                style={{ background: "rgba(35,122,75,0.10)", color: ADM.success }}
-              >
-                <Check size={12} strokeWidth={2.2} />
-                Atendida
-              </span>
-            )}
           </div>
           <p className="mt-1.5 text-[13.5px]" style={{ color: ADM.textMuted }}>
             {representative.course_name} · {representative.institution_name} ·{" "}
