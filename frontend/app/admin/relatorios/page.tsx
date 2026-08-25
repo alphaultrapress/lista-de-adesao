@@ -668,9 +668,12 @@ export default function RelatoriosPage() {
           Convites em destaque · ordenado do maior para o menor
         </span>
       </div>
-      <div className="mb-6 grid grid-cols-1 items-start gap-3 lg:grid-cols-2 xl:grid-cols-3">
+      {/* Colunas em vez de grade: numa grade a linha inteira herda a altura do
+          painel mais alto, e "Atendimento" (2 itens) reservava o tamanho de
+          "Cursos" (8). Com multi-coluna cada painel encosta no de cima. */}
+      <div className="mb-6 columns-1 gap-3 lg:columns-2 xl:columns-3">
         {quebras.map((q) => (
-          <Painel key={q.titulo} padding={false}>
+          <Painel key={q.titulo} padding={false} className="mb-3 break-inside-avoid">
             <div
               className="flex items-baseline justify-between gap-2 px-4 py-3"
               style={{ borderBottom: `1px solid ${ADM.border}` }}
