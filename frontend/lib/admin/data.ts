@@ -151,7 +151,10 @@ export type Indicador = {
 export function indicadores(d: PainelDados): Indicador[] {
   const { linhas } = d;
   const total = linhas.length;
-  const comAdesoes = linhas.filter((r) => r.adesoes > 0).length;
+  // Adesões é a contagem de alunos, não de turmas com aluno: como o próprio
+  // representante entra na lista da turma dele, "turmas com pelo menos uma
+  // adesão" dava sempre 100% e não informava nada.
+  const adesoes = d.alunos.length;
   const naMeta = linhas.filter((r) => r.convites >= META_CONVITES);
   // "Atendida" = turma que bateu a meta e já recebeu contato da equipe.
   // O carimbo vem de `contacted_at`, o mesmo que a tela de detalhe grava.
@@ -170,12 +173,16 @@ export function indicadores(d: PainelDados): Indicador[] {
       href: "/admin/representantes",
     },
     {
-      chave: "com_adesoes",
-      label: "Com adesões",
-      valor: String(comAdesoes),
-      apoio: parte(comAdesoes),
-      calculo: "Representantes com pelo menos um aluno na lista.",
-      href: "/admin/representantes?status=em_andamento",
+      chave: "adesoes",
+      label: "Adesões",
+      valor: String(adesoes),
+      apoio: total
+        ? `${(adesoes / total).toFixed(1)} por turma em média`
+        : "Nenhuma turma cadastrada",
+      calculo:
+        "Total de alunos cadastrados nas listas, somando todas as turmas. O " +
+        "próprio representante entra na lista da turma dele e conta aqui.",
+      href: "/admin/relatorios",
     },
     {
       chave: "metas_atingidas",
