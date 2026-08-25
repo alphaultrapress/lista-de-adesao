@@ -11,6 +11,7 @@ import {
   FileDown,
   FileSpreadsheet,
   FileText,
+  Filter,
   Loader2,
   RotateCcw,
 } from "lucide-react";
@@ -147,17 +148,50 @@ export default function RelatoriosPage() {
   );
 
   const resumo = useMemo(() => resumoRelatorio(linhas), [linhas]);
-  const quebras = useMemo(
-    () =>
-      [
-        { titulo: "Atendimento", dados: porAtendimento(linhas), rotulo: (c: string) => c },
-        { titulo: "Status", dados: porStatus(linhas), rotulo: (c: string) => c },
-        { titulo: "Cursos", dados: porCurso(linhas).slice(0, 8), rotulo: (c: string) => c },
-        { titulo: "Estados", dados: porEstado(linhas).slice(0, 8), rotulo: (c: string) => c },
-        { titulo: "Mês a mês", dados: porMes(linhas, filtro.base), rotulo: rotuloMes },
-      ] as { titulo: string; dados: Agrupado[]; rotulo: (c: string) => string }[],
-    [linhas, filtro.base],
-  );
+  const quebras = useMemo(() => {
+    const igual = (c: string) => c;
+    const cursos = porCurso(linhas);
+    const estados = porEstado(linhas);
+    /** Painel que corta no top N avisa quanto ficou de fora. */
+    const nota = (mostrados: number, total: number) =>
+      total > mostrados ? `${mostrados} de ${total}` : undefined;
+
+    return [
+      {
+        titulo: "Atendimento",
+        coluna: "Situação",
+        dados: porAtendimento(linhas),
+        rotulo: igual,
+      },
+      { titulo: "Status", coluna: "Status", dados: porStatus(linhas), rotulo: igual },
+      {
+        titulo: "Cursos",
+        coluna: "Curso",
+        dados: cursos.slice(0, 8),
+        rotulo: igual,
+        nota: nota(Math.min(8, cursos.length), cursos.length),
+      },
+      {
+        titulo: "Estados",
+        coluna: "Estado",
+        dados: estados.slice(0, 8),
+        rotulo: igual,
+        nota: nota(Math.min(8, estados.length), estados.length),
+      },
+      {
+        titulo: "Mês a mês",
+        coluna: "Mês",
+        dados: porMes(linhas, filtro.base),
+        rotulo: rotuloMes,
+      },
+    ] as {
+      titulo: string;
+      coluna: string;
+      dados: Agrupado[];
+      rotulo: (c: string) => string;
+      nota?: string;
+    }[];
+  }, [linhas, filtro.base]);
 
   const set = (mudanca: Partial<FiltroRelatorio>) =>
     setFiltro((f) => ({ ...f, ...mudanca }));
@@ -366,8 +400,36 @@ export default function RelatoriosPage() {
       )}
 
       {/* ── filtros ── */}
-      <Painel className="mb-4">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+      <Painel padding={false} className="mb-6">
+        <div
+          className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+          style={{ borderBottom: `1px solid ${ADM.border}` }}
+        >
+          <span
+            className="inline-flex items-center gap-2 text-[13px] font-semibold"
+            style={{ color: ADM.text }}
+          >
+            <Filter size={14} strokeWidth={1.8} />
+            Filtros
+          </span>
+          {filtroAtivo && (
+            <button
+              type="button"
+              onClick={() => {
+                setFiltro(FILTRO_VAZIO);
+                setSelecao(new Set());
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium"
+              style={{ borderRadius: 999, border: `1px solid ${ADM.border}`, color: ADM.textMuted }}
+            >
+              <RotateCcw size={12} strokeWidth={1.8} />
+              Limpar filtros
+            </button>
+          )}
+        </div>
+
+        <div className="p-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
           <div className="sm:col-span-2">
             <Rotulo>Busca</Rotulo>
             <input
@@ -419,12 +481,37 @@ export default function RelatoriosPage() {
           </div>
         </div>
 
-        <div
-          className="mt-4 grid grid-cols-1 gap-3 border-t pt-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6"
-          style={{ borderColor: ADM.border }}
-        >
-          <div>
-            <Rotulo>A data é a de</Rotulo>
+          <div className="mt-5 border-t pt-4" style={{ borderColor: ADM.border }}>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <span
+                className="text-[11px] font-semibold uppercase"
+                style={{ letterSpacing: "0.07em", color: ADM.textMuted }}
+              >
+                Período e volume
+              </span>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {atalhos().map((a) => (
+                  <button
+                    key={a.label}
+                    type="button"
+                    onClick={() => set(a.valores)}
+                    className="px-3 py-1.5 text-[12px] font-medium"
+                    style={{
+                      borderRadius: 999,
+                      border: `1px solid ${ADM.border}`,
+                      background: ADM.bg,
+                      color: ADM.text,
+                    }}
+                  >
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+              <div>
+                <Rotulo>A data é a de</Rotulo>
             <select
               value={filtro.base}
               onChange={(e) => set({ base: e.target.value as FiltroRelatorio["base"] })}
@@ -512,45 +599,24 @@ export default function RelatoriosPage() {
                 style={campo}
               />
             </div>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          {atalhos().map((a) => (
-            <button
-              key={a.label}
-              type="button"
-              onClick={() => set(a.valores)}
-              className="px-3 py-1.5 text-[12px] font-medium"
-              style={{
-                borderRadius: 999,
-                border: `1px solid ${ADM.border}`,
-                background: ADM.bg,
-                color: ADM.text,
-              }}
-            >
-              {a.label}
-            </button>
-          ))}
-          {filtroAtivo && (
-            <button
-              type="button"
-              onClick={() => {
-                setFiltro(FILTRO_VAZIO);
-                setSelecao(new Set());
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium"
-              style={{ borderRadius: 999, border: `1px solid ${ADM.border}`, color: ADM.textMuted }}
-            >
-              <RotateCcw size={12} strokeWidth={1.8} />
-              Limpar filtros
-            </button>
-          )}
         </div>
       </Painel>
 
       {/* ── números do recorte ── */}
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
+      <div className="mb-3 flex items-baseline justify-between">
+        <h2 className="text-[13px] font-semibold" style={{ color: ADM.text }}>
+          Números do recorte
+        </h2>
+        <span className="text-[12px]" style={{ color: ADM.textMuted }}>
+          {filtro.base === "adesao"
+            ? "Contando só as adesões dentro do período"
+            : "Totais históricos das turmas do recorte"}
+        </span>
+      </div>
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
         {(
           [
             ["Turmas", numero(resumo.turmas), ""],
@@ -594,38 +660,88 @@ export default function RelatoriosPage() {
       </div>
 
       {/* ── quebras ── */}
-      <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="mb-3 flex items-baseline justify-between">
+        <h2 className="text-[13px] font-semibold" style={{ color: ADM.text }}>
+          Quebras do recorte
+        </h2>
+        <span className="text-[12px]" style={{ color: ADM.textMuted }}>
+          Convites em destaque · ordenado do maior para o menor
+        </span>
+      </div>
+      <div className="mb-6 grid grid-cols-1 items-start gap-3 lg:grid-cols-2 xl:grid-cols-3">
         {quebras.map((q) => (
           <Painel key={q.titulo} padding={false}>
-            <div className="px-4 py-3" style={{ borderBottom: `1px solid ${ADM.border}` }}>
+            <div
+              className="flex items-baseline justify-between gap-2 px-4 py-3"
+              style={{ borderBottom: `1px solid ${ADM.border}` }}
+            >
               <span className="text-[13px] font-semibold" style={{ color: ADM.text }}>
                 {q.titulo}
               </span>
+              {q.nota && (
+                <span className="shrink-0 text-[11.5px]" style={{ color: ADM.textMuted }}>
+                  {q.nota}
+                </span>
+              )}
             </div>
             {q.dados.length === 0 ? (
               <p className="px-4 py-4 text-[12.5px]" style={{ color: ADM.textMuted }}>
                 Nada no recorte.
               </p>
             ) : (
-              <table className="w-full">
+              /* `table-fixed` + colgroup: as três colunas de número têm largura
+                 travada, então sobra o resto para o rótulo em vez de ele ser
+                 espremido até virar reticências. */
+              <table className="w-full table-fixed">
+                <colgroup>
+                  <col />
+                  <col style={{ width: 62 }} />
+                  <col style={{ width: 68 }} />
+                  <col style={{ width: 76 }} />
+                </colgroup>
+                <thead>
+                  <tr>
+                    {[q.coluna, "Turmas", "Adesões", "Convites"].map((c, i) => (
+                      <th
+                        key={c}
+                        className={`px-4 py-2 text-[10px] font-semibold uppercase ${
+                          i === 0 ? "text-left" : "pl-0 pr-3 text-right"
+                        }`}
+                        style={{
+                          letterSpacing: "0.07em",
+                          color: ADM.textMuted,
+                          borderBottom: `1px solid ${ADM.border}`,
+                        }}
+                      >
+                        {c}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
                 <tbody>
                   {q.dados.map((g) => (
                     <tr key={g.chave} style={{ borderTop: `1px solid ${ADM.border}` }}>
                       <td
-                        className="max-w-0 truncate px-4 py-2 text-[12.5px]"
+                        className="truncate px-4 py-2 text-[12.5px]"
                         style={{ color: ADM.text }}
                         title={q.rotulo(g.chave)}
                       >
                         {q.rotulo(g.chave)}
                       </td>
                       <td
-                        className="whitespace-nowrap px-2 py-2 text-right text-[12.5px]"
+                        className="py-2 pl-0 pr-3 text-right text-[12.5px] tabular-nums"
                         style={{ color: ADM.textMuted }}
                       >
-                        {numero(g.turmas)} {g.turmas === 1 ? "turma" : "turmas"}
+                        {numero(g.turmas)}
                       </td>
                       <td
-                        className="whitespace-nowrap px-4 py-2 text-right text-[12.5px] font-semibold"
+                        className="py-2 pl-0 pr-3 text-right text-[12.5px] tabular-nums"
+                        style={{ color: ADM.textMuted }}
+                      >
+                        {numero(g.adesoes)}
+                      </td>
+                      <td
+                        className="py-2 pl-0 pr-3 text-right text-[12.5px] font-semibold tabular-nums"
                         style={{ color: ADM.text }}
                       >
                         {numero(g.convites)}
@@ -640,13 +756,22 @@ export default function RelatoriosPage() {
       </div>
 
       {/* ── turmas e alunos ── */}
+      <div className="mb-3 flex items-baseline justify-between">
+        <h2 className="text-[13px] font-semibold" style={{ color: ADM.text }}>
+          Turmas e alunos
+        </h2>
+        <span className="text-[12px]" style={{ color: ADM.textMuted }}>
+          Clique no representante para ver a lista de alunos dele
+        </span>
+      </div>
       <Painel padding={false}>
         <div
           className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
           style={{ borderBottom: `1px solid ${ADM.border}` }}
         >
           <span className="text-[13px] font-semibold" style={{ color: ADM.text }}>
-            Turmas e alunos
+            {numero(resumo.turmas)} {resumo.turmas === 1 ? "turma" : "turmas"} ·{" "}
+            {numero(resumo.adesoes)} {resumo.adesoes === 1 ? "aluno" : "alunos"}
           </span>
           <span className="text-[12px]" style={{ color: ADM.textMuted }}>
             {selecao.size

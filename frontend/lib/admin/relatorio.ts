@@ -283,26 +283,44 @@ export function porAtendimento(linhas: TurmaRelatorio[]): Agrupado[] {
 
 /** Mês a mês, pela data que a base do filtro definiu. */
 export function porMes(linhas: TurmaRelatorio[], base: BaseData): Agrupado[] {
-  const mapa = new Map<string, Agrupado>();
-  const somar = (k: string, adesoes: number, convites: number, turma: boolean) => {
-    const atual = mapa.get(k) ?? { chave: k, turmas: 0, adesoes: 0, convites: 0 };
-    if (turma) atual.turmas += 1;
-    atual.adesoes += adesoes;
-    atual.convites += convites;
-    mapa.set(k, atual);
+  // As turmas entram por Set: na base "adesão" o mesmo mês recebe vários
+  // alunos da mesma turma, e somar +1 por aluno inflaria a contagem.
+  type Acumulado = Agrupado & { turmasNoMes: Set<string> };
+  const mapa = new Map<string, Acumulado>();
+
+  const pegar = (k: string): Acumulado => {
+    const atual = mapa.get(k);
+    if (atual) return atual;
+    const novo: Acumulado = {
+      chave: k,
+      turmas: 0,
+      adesoes: 0,
+      convites: 0,
+      turmasNoMes: new Set(),
+    };
+    mapa.set(k, novo);
+    return novo;
   };
 
   for (const l of linhas) {
     if (base === "cadastro") {
-      somar(diaISO(l.rep.created_at).slice(0, 7), l.adesoes, l.convites, true);
+      const mes = pegar(diaISO(l.rep.created_at).slice(0, 7));
+      mes.turmasNoMes.add(l.rep.id);
+      mes.adesoes += l.adesoes;
+      mes.convites += l.convites;
     } else {
       for (const a of l.alunos) {
-        somar(diaISO(a.created_at).slice(0, 7), 1, a.qtd_convites || 0, false);
+        const mes = pegar(diaISO(a.created_at).slice(0, 7));
+        mes.turmasNoMes.add(l.rep.id);
+        mes.adesoes += 1;
+        mes.convites += a.qtd_convites || 0;
       }
     }
   }
 
-  return Array.from(mapa.values()).sort((a, b) => (a.chave < b.chave ? -1 : 1));
+  return Array.from(mapa.values())
+    .map(({ turmasNoMes, ...g }) => ({ ...g, turmas: turmasNoMes.size }))
+    .sort((a, b) => (a.chave < b.chave ? -1 : 1));
 }
 
 /** `2026-08` → `Agosto/2026`, para os cabeçalhos das exportações. */
