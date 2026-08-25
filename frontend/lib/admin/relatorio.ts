@@ -330,27 +330,37 @@ export function rotuloMes(chave: string): string {
   return nome ? `${nome}/${ano}` : chave;
 }
 
-/** Descrição textual do recorte — vai no topo do PDF e na aba de resumo. */
+/**
+ * O filtro escrito em português simples.
+ *
+ * Vai no topo do PDF, na aba de resumo da planilha e na tela. Frases inteiras
+ * em vez de "Curso: X": quem abre o relatório precisa entender o que está
+ * vendo sem ninguém explicar.
+ */
 export function descreverFiltro(f: FiltroRelatorio): string[] {
   const partes: string[] = [];
-  if (f.q) partes.push(`Busca: ${f.q}`);
-  if (f.curso) partes.push(`Curso: ${f.curso}`);
-  if (f.instituicao) partes.push(`Instituição: ${f.instituicao}`);
-  if (f.uf) partes.push(`Estado: ${f.uf}`);
-  if (f.cidade) partes.push(`Cidade: ${f.cidade}`);
-  if (f.status) partes.push(`Status: ${STATUS_LABEL[f.status as StatusRep] ?? f.status}`);
-  if (f.minConvites) partes.push(`Convites ≥ ${f.minConvites}`);
-  if (f.minAdesoes) partes.push(`Adesões ≥ ${f.minAdesoes}`);
-
-  const periodo: string[] = [];
-  if (f.ano) periodo.push(f.ano);
-  if (f.mes) periodo.push(MES_LABEL.find((m) => m.valor === f.mes)?.label ?? f.mes);
-  if (f.de) periodo.push(`de ${f.de.split("-").reverse().join("/")}`);
-  if (f.ate) periodo.push(`até ${f.ate.split("-").reverse().join("/")}`);
-  if (periodo.length) {
-    const base = f.base === "adesao" ? "Adesões" : "Cadastro";
-    partes.push(`${base}: ${periodo.join(" · ")}`);
+  if (f.q) partes.push(`procurando por "${f.q}"`);
+  if (f.curso) partes.push(`só do curso de ${f.curso}`);
+  if (f.instituicao) partes.push(`só da ${f.instituicao}`);
+  if (f.uf) partes.push(`só do estado ${f.uf}`);
+  if (f.cidade) partes.push(`só da cidade de ${f.cidade}`);
+  if (f.status) {
+    partes.push(`só as turmas com a situação "${STATUS_LABEL[f.status as StatusRep] ?? f.status}"`);
   }
+  if (f.minConvites) partes.push(`com ${f.minConvites} convites ou mais`);
+  if (f.minAdesoes) partes.push(`com ${f.minAdesoes} alunos ou mais`);
 
-  return partes.length ? partes : ["Sem filtros — base completa"];
+  const dia = (d: string) => d.split("-").reverse().join("/");
+  const mesNome = f.mes ? MES_LABEL.find((m) => m.valor === f.mes)?.label ?? f.mes : "";
+  const quem = f.base === "adesao" ? "com alunos que entraram" : "criadas";
+
+  if (f.de && f.ate) partes.push(`${quem} entre ${dia(f.de)} e ${dia(f.ate)}`);
+  else if (f.de) partes.push(`${quem} a partir de ${dia(f.de)}`);
+  else if (f.ate) partes.push(`${quem} até ${dia(f.ate)}`);
+
+  if (mesNome && f.ano) partes.push(`${quem} em ${mesNome} de ${f.ano}`);
+  else if (mesNome) partes.push(`${quem} no mês de ${mesNome}`);
+  else if (f.ano) partes.push(`${quem} em ${f.ano}`);
+
+  return partes.length ? partes : ["todas as turmas, sem nenhum filtro"];
 }

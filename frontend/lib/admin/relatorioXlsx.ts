@@ -94,7 +94,7 @@ function abaAgrupada(
   formatarChave: (c: string) => string = (c) => c,
 ): Sheet<Blob> {
   const linhas: SheetData = [
-    cabecalho([rotuloChave, "Turmas", "Adesões", "Convites", "Média de convites"]),
+    cabecalho([rotuloChave, "Turmas", "Alunos", "Convites", "Convites por turma"]),
     ...dados.map(
       (g) =>
         [
@@ -150,7 +150,7 @@ export async function baixarRelatorioXlsx({ linhas, filtro, baseUrl }: PlanilhaP
 
   /* ── aba 1: resumo ── */
   const abaResumo: SheetData = [
-    [{ value: "Relatório de adesões · Alpha Convites", ...TITULO, columnSpan: 2 }, null] as Row,
+    [{ value: "Relatório das turmas · Alpha Convites", ...TITULO, columnSpan: 2 }, null] as Row,
     [
       { value: "Gerado em", ...ROTULO },
       geradoEm
@@ -158,20 +158,20 @@ export async function baixarRelatorioXlsx({ linhas, filtro, baseUrl }: PlanilhaP
         : { value: "", type: String },
     ] as Row,
     [] as Row,
-    [{ value: "Recorte aplicado", fontWeight: "bold", textColor: TINTA }] as Row,
-    ...descreverFiltro(filtro).map((p) => [texto(p)] as Row),
+    [{ value: "O que está neste relatório", fontWeight: "bold", textColor: TINTA }] as Row,
+    [texto(`Mostrando ${descreverFiltro(filtro).join(", ")}.`)] as Row,
     [] as Row,
-    [{ value: "Números do recorte", fontWeight: "bold", textColor: TINTA }] as Row,
+    [{ value: "Resumo em números", fontWeight: "bold", textColor: TINTA }] as Row,
     ...(
       [
         ["Turmas", resumo.turmas],
-        ["Adesões", resumo.adesoes],
+        ["Alunos", resumo.adesoes],
         ["Convites", resumo.convites],
-        ["Média de convites por turma", Number(resumo.mediaConvites.toFixed(1))],
-        [`Turmas na meta (${META_CONVITES} convites)`, resumo.naMeta],
-        ["Turmas já atendidas", resumo.atendidas],
-        ["Turmas sem nenhuma adesão", resumo.semAdesao],
-        ["% das turmas na meta", Number(resumo.percentualMeta.toFixed(1))],
+        ["Convites por turma (média)", Number(resumo.mediaConvites.toFixed(1))],
+        [`Turmas que bateram a meta (${META_CONVITES} convites)`, resumo.naMeta],
+        ["Turmas com quem já falamos", resumo.atendidas],
+        ["Turmas sem nenhum aluno", resumo.semAdesao],
+        ["Quantas por cento bateram a meta", Number(resumo.percentualMeta.toFixed(1))],
       ] as [string, number][]
     ).map(([label, valor]) => [{ value: label, ...ROTULO }, numero(valor)] as Row),
   ];
@@ -187,18 +187,18 @@ export async function baixarRelatorioXlsx({ linhas, filtro, baseUrl }: PlanilhaP
       "Ano/Período",
       "Cidade",
       "UF",
-      "Status",
-      "Atendida",
-      "Na meta",
+      "Situação",
+      "Já falamos?",
+      "Bateu a meta?",
       "Convites",
-      "Adesões",
-      "Falta para a meta",
-      "Cadastro",
-      "Primeira adesão",
-      "Última adesão",
-      "Atendida em",
+      "Alunos",
+      "Faltam para a meta",
+      "Turma criada em",
+      "Primeiro aluno entrou em",
+      "Último aluno entrou em",
+      "Falamos em",
       "Lead gerado em",
-      "Meta notificada em",
+      "Avisamos da meta em",
       "Consultor",
       "Telefone do consultor",
       "Link da lista",
@@ -244,7 +244,7 @@ export async function baixarRelatorioXlsx({ linhas, filtro, baseUrl }: PlanilhaP
       "E-mail",
       "WhatsApp",
       "Convites",
-      "Data da adesão",
+      "Entrou em",
       "Curso",
       "Instituição",
       "Ano/Período",
@@ -292,9 +292,9 @@ export async function baixarRelatorioXlsx({ linhas, filtro, baseUrl }: PlanilhaP
       null,
       null,
       { value: `${l.convites} convites`, ...CABECALHO, align: "right" },
-      { value: `${l.adesoes} adesões`, ...CABECALHO, align: "right" },
+      { value: `${l.adesoes} alunos`, ...CABECALHO, align: "right" },
       {
-        value: l.atendida ? "ATENDIDA" : STATUS_LABEL[l.status].toUpperCase(),
+        value: l.atendida ? "JÁ FALAMOS" : STATUS_LABEL[l.status].toUpperCase(),
         ...CABECALHO,
         align: "right",
       },
@@ -311,7 +311,9 @@ export async function baixarRelatorioXlsx({ linhas, filtro, baseUrl }: PlanilhaP
     ] as Row);
 
     if (l.alunos.length === 0) {
-      abaTurmaATurma.push([{ value: "Nenhuma adesão neste recorte.", textColor: "#6F716B" }] as Row);
+      abaTurmaATurma.push([
+        { value: "Nenhum aluno entrou nesta turma nas datas escolhidas.", textColor: "#6F716B" },
+      ] as Row);
     } else {
       abaTurmaATurma.push(
         [
@@ -321,7 +323,7 @@ export async function baixarRelatorioXlsx({ linhas, filtro, baseUrl }: PlanilhaP
           { value: "E-mail", ...ROTULO, backgroundColor: AREIA },
           { value: "WhatsApp", ...ROTULO, backgroundColor: AREIA },
           { value: "Convites", ...ROTULO, backgroundColor: AREIA },
-          { value: "Adesão em", ...ROTULO, backgroundColor: AREIA },
+          { value: "Entrou em", ...ROTULO, backgroundColor: AREIA },
         ] as Row,
       );
       l.alunos.forEach((a, i) => {
@@ -377,15 +379,16 @@ export async function baixarRelatorioXlsx({ linhas, filtro, baseUrl }: PlanilhaP
         { width: 18 }, { width: 12 }, { width: 18 },
       ],
     },
-    abaAgrupada("Atendimento", "Situação", porAtendimento(linhas)),
-    abaAgrupada("Por status", "Status", porStatus(linhas)),
-    abaAgrupada("Por curso", "Curso", porCurso(linhas)),
-    abaAgrupada("Por instituição", "Instituição", porInstituicao(linhas)),
-    abaAgrupada("Por estado", "Estado", porEstado(linhas)),
-    abaAgrupada("Por mês", "Mês", porMes(linhas, filtro.base), rotuloMes),
+    // Nome de aba no Excel não aceita : \ / ? * [ ] — nada de "?" aqui.
+    abaAgrupada("Já falamos", "Resposta", porAtendimento(linhas)),
+    abaAgrupada("Situação das turmas", "Situação", porStatus(linhas)),
+    abaAgrupada("Cursos", "Curso", porCurso(linhas)),
+    abaAgrupada("Instituições", "Instituição", porInstituicao(linhas)),
+    abaAgrupada("Estados", "Estado", porEstado(linhas)),
+    abaAgrupada("Mês a mês", "Mês", porMes(linhas, filtro.base), rotuloMes),
   ];
 
   await writeXlsxFile(abas, { fontFamily: "Calibri", fontSize: 11 }).toFile(
-    `relatorio-adesoes-${new Date().toISOString().slice(0, 10)}.xlsx`,
+    `relatorio-turmas-${new Date().toISOString().slice(0, 10)}.xlsx`,
   );
 }

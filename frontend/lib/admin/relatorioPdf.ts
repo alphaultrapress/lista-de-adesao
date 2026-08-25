@@ -91,7 +91,7 @@ export async function baixarRelatorioPdf({
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(...OURO);
-  doc.text("LISTA DE ADESÃO · RELATÓRIO", 40, 72);
+  doc.text("LISTA DE ADESÃO · RELATÓRIO DAS TURMAS", 40, 72);
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(9);
   doc.text(`Gerado em ${dataHoraAdmin(new Date().toISOString())}`, W - 40, 72, {
@@ -102,12 +102,12 @@ export async function baixarRelatorioPdf({
   doc.setTextColor(...TINTA);
   doc.setFont("times", "bolditalic");
   doc.setFontSize(18);
-  doc.text("Relatório de adesões", 40, 118);
+  doc.text("Relatório das turmas", 40, 118);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9.5);
   doc.setTextColor(...CINZA);
-  const recorte = descreverFiltro(filtro).join("   ·   ");
+  const recorte = `Mostrando ${descreverFiltro(filtro).join(", ")}.`;
   const linhasRecorte = doc.splitTextToSize(recorte, W - 80) as string[];
   doc.text(linhasRecorte, 40, 136);
 
@@ -115,13 +115,13 @@ export async function baixarRelatorioPdf({
   const topo = 136 + linhasRecorte.length * 12 + 14;
   const cartoes: [string, string][] = [
     ["TURMAS", String(resumo.turmas)],
-    ["ADESÕES", String(resumo.adesoes)],
+    ["ALUNOS", String(resumo.adesoes)],
     ["CONVITES", String(resumo.convites)],
-    ["MÉDIA / TURMA", resumo.mediaConvites.toFixed(1)],
-    [`NA META (${META_CONVITES})`, String(resumo.naMeta)],
-    ["ATENDIDAS", String(resumo.atendidas)],
-    ["NÃO ATENDIDAS", String(resumo.turmas - resumo.atendidas)],
-    ["SEM ADESÃO", String(resumo.semAdesao)],
+    ["CONVITES POR TURMA", resumo.mediaConvites.toFixed(1)],
+    [`BATERAM A META (${META_CONVITES})`, String(resumo.naMeta)],
+    ["JÁ ATENDIDAS", String(resumo.atendidas)],
+    ["FALTA ATENDER", String(resumo.turmas - resumo.atendidas)],
+    ["SEM NENHUM ALUNO", String(resumo.semAdesao)],
   ];
   const larguraCartao = (W - 80 - 7 * 8) / 8;
   cartoes.forEach(([label, valor], i) => {
@@ -134,7 +134,7 @@ export async function baixarRelatorioPdf({
     doc.text(label, x + 10, topo + 17);
     doc.setFont("times", "bold");
     doc.setFontSize(17);
-    doc.setTextColor(...(label.startsWith("NA META") || label === "ATENDIDAS" ? VERDE : TINTA));
+    doc.setTextColor(...(label.startsWith("BATERAM") || label === "JÁ ATENDIDAS" ? VERDE : TINTA));
     doc.text(valor, x + 10, topo + 40);
     doc.setFont("helvetica", "normal");
   });
@@ -148,13 +148,13 @@ export async function baixarRelatorioPdf({
         "Representante",
         "Curso",
         "Instituição",
-        "Local",
+        "Cidade",
         "Ano",
-        "Cadastro",
+        "Criada em",
         "Convites",
-        "Adesões",
-        "Status",
-        "Atendida em",
+        "Alunos",
+        "Situação",
+        "Falamos em",
       ],
     ],
     body: linhas.map((l, i) => [
@@ -173,7 +173,7 @@ export async function baixarRelatorioPdf({
     foot: [
       [
         "",
-        `${linhas.length} turmas`,
+        `${linhas.length} turmas no total`,
         "",
         "",
         "",
@@ -181,7 +181,7 @@ export async function baixarRelatorioPdf({
         "",
         String(resumo.convites),
         String(resumo.adesoes),
-        `${resumo.atendidas} atendidas`,
+        `${resumo.atendidas} já atendidas`,
         "",
       ],
     ],
@@ -198,14 +198,14 @@ export async function baixarRelatorioPdf({
   });
 
   /* ── quebras ── */
-  const quebras: [string, Agrupado[], (c: string) => string][] = [
-    ["Atendimento", porAtendimento(linhas), (c) => c],
-    ["Por curso", porCurso(linhas).slice(0, 15), (c) => c],
-    ["Por estado", porEstado(linhas), (c) => c],
-    ["Por mês", porMes(linhas, filtro.base), rotuloMes],
+  const quebras: [string, string, Agrupado[], (c: string) => string][] = [
+    ["Já falamos com a turma?", "Resposta", porAtendimento(linhas), (c) => c],
+    ["Cursos", "Curso", porCurso(linhas).slice(0, 15), (c) => c],
+    ["Estados", "Estado", porEstado(linhas), (c) => c],
+    ["Mês a mês", "Mês", porMes(linhas, filtro.base), rotuloMes],
   ];
 
-  for (const [titulo, dados, formatar] of quebras) {
+  for (const [titulo, coluna, dados, formatar] of quebras) {
     if (!dados.length) continue;
     const y = ultimoY(doc, 200) + 26;
     if (y > doc.internal.pageSize.getHeight() - 140) doc.addPage();
@@ -216,7 +216,7 @@ export async function baixarRelatorioPdf({
     doc.text(titulo, 40, Math.min(inicio, doc.internal.pageSize.getHeight() - 120));
     autoTable(doc, {
       startY: Math.min(inicio, doc.internal.pageSize.getHeight() - 120) + 8,
-      head: [[titulo === "Atendimento" ? "Situação" : titulo.replace("Por ", ""), "Turmas", "Adesões", "Convites"]],
+      head: [[coluna, "Turmas", "Alunos", "Convites"]],
       body: dados.map((g) => [
         formatar(g.chave),
         String(g.turmas),
@@ -260,8 +260,8 @@ export async function baixarRelatorioPdf({
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(9);
       doc.text(
-        `${l.convites} convites · ${l.adesoes} adesões · ${
-          l.atendida ? `atendida em ${dataAdmin(l.rep.contacted_at)}` : "não atendida"
+        `${l.convites} convites · ${l.adesoes} alunos · ${
+          l.atendida ? `já falamos em ${dataAdmin(l.rep.contacted_at)}` : "ainda não falamos"
         }`,
         W - 40,
         44,
@@ -285,13 +285,13 @@ export async function baixarRelatorioPdf({
       if (l.alunos.length === 0) {
         doc.setFontSize(9.5);
         doc.setTextColor(...CINZA);
-        doc.text("Nenhuma adesão neste recorte.", 40, 145);
+        doc.text("Nenhum aluno entrou nesta turma nas datas escolhidas.", 40, 145);
         continue;
       }
 
       autoTable(doc, {
         startY: 134,
-        head: [["#", "Aluno", "E-mail", "WhatsApp", "Convites", "Adesão em"]],
+        head: [["#", "Aluno", "E-mail", "WhatsApp", "Convites", "Entrou em"]],
         body: l.alunos.map((a, i) => [
           String(i + 1),
           a.full_name,
@@ -325,5 +325,5 @@ export async function baixarRelatorioPdf({
     doc.text(`Página ${i} de ${paginas}`, W - 40, H - 20, { align: "right" });
   }
 
-  doc.save(`relatorio-adesoes-${new Date().toISOString().slice(0, 10)}.pdf`);
+  doc.save(`relatorio-turmas-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

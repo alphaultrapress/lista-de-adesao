@@ -158,12 +158,17 @@ export default function RelatoriosPage() {
 
     return [
       {
-        titulo: "Atendimento",
-        coluna: "Situação",
+        titulo: "Já falamos com a turma?",
+        coluna: "Resposta",
         dados: porAtendimento(linhas),
         rotulo: igual,
       },
-      { titulo: "Status", coluna: "Status", dados: porStatus(linhas), rotulo: igual },
+      {
+        titulo: "Situação das turmas",
+        coluna: "Situação",
+        dados: porStatus(linhas),
+        rotulo: igual,
+      },
       {
         titulo: "Cursos",
         coluna: "Curso",
@@ -338,9 +343,12 @@ export default function RelatoriosPage() {
             Relatórios
           </h1>
           <p className="mt-1.5 text-[13.5px]" style={{ color: ADM.textMuted }}>
-            {descreverFiltro(filtro).join(" · ")} — {numero(resumo.turmas)}{" "}
-            {resumo.turmas === 1 ? "turma" : "turmas"}, {numero(resumo.adesoes)}{" "}
-            {resumo.adesoes === 1 ? "adesão" : "adesões"}, {numero(resumo.convites)} convites.
+            Você está vendo {numero(resumo.turmas)}{" "}
+            {resumo.turmas === 1 ? "turma" : "turmas"}, com {numero(resumo.adesoes)}{" "}
+            {resumo.adesoes === 1 ? "aluno" : "alunos"} e {numero(resumo.convites)} convites.
+          </p>
+          <p className="mt-1 text-[13px]" style={{ color: ADM.textMuted }}>
+            Mostrando {descreverFiltro(filtro).join(", ")}.
           </p>
         </div>
 
@@ -357,7 +365,7 @@ export default function RelatoriosPage() {
             ) : (
               <FileSpreadsheet size={15} strokeWidth={1.8} />
             )}
-            Excel (.xlsx)
+            Baixar planilha
           </button>
           <button
             type="button"
@@ -371,7 +379,7 @@ export default function RelatoriosPage() {
             ) : (
               <FileText size={15} strokeWidth={1.8} />
             )}
-            PDF consolidado
+            Baixar PDF de tudo
           </button>
           <button
             type="button"
@@ -379,7 +387,7 @@ export default function RelatoriosPage() {
             disabled={lote !== null || alvoLote.length === 0}
             className="inline-flex items-center gap-2 px-3.5 text-[13px] font-medium disabled:opacity-50"
             style={botao(true)}
-            title="Gera um PDF para cada turma, em sequência."
+            title="Baixa um arquivo PDF separado para cada turma."
           >
             {lote ? (
               <Loader2 size={15} className="animate-spin" />
@@ -387,8 +395,8 @@ export default function RelatoriosPage() {
               <FileDown size={15} strokeWidth={1.8} />
             )}
             {lote
-              ? `Baixando ${lote.feito}/${lote.total}`
-              : `PDF por turma (${alvoLote.length})`}
+              ? `Baixando ${lote.feito} de ${lote.total}`
+              : `Um PDF para cada turma (${alvoLote.length})`}
           </button>
         </div>
       </header>
@@ -431,7 +439,7 @@ export default function RelatoriosPage() {
         <div className="p-5">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
           <div className="sm:col-span-2">
-            <Rotulo>Busca</Rotulo>
+            <Rotulo>Procurar</Rotulo>
             <input
               value={filtro.q}
               onChange={(e) => set({ q: e.target.value })}
@@ -487,7 +495,7 @@ export default function RelatoriosPage() {
                 className="text-[11px] font-semibold uppercase"
                 style={{ letterSpacing: "0.07em", color: ADM.textMuted }}
               >
-                Período e volume
+                Filtrar por data e por tamanho
               </span>
               <div className="flex flex-wrap items-center gap-1.5">
                 {atalhos().map((a) => (
@@ -511,15 +519,15 @@ export default function RelatoriosPage() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
               <div>
-                <Rotulo>A data é a de</Rotulo>
+                <Rotulo>Olhar a data de</Rotulo>
             <select
               value={filtro.base}
               onChange={(e) => set({ base: e.target.value as FiltroRelatorio["base"] })}
               className="w-full px-3 text-[13px] outline-none"
               style={campo}
             >
-              <option value="cadastro">Cadastro da turma</option>
-              <option value="adesao">Adesões dos alunos</option>
+              <option value="cadastro">Quando a turma foi criada</option>
+              <option value="adesao">Quando os alunos entraram</option>
             </select>
           </div>
           <div>
@@ -555,7 +563,7 @@ export default function RelatoriosPage() {
             </select>
           </div>
           <div>
-            <Rotulo>De (dia)</Rotulo>
+            <Rotulo>Do dia</Rotulo>
             <input
               type="date"
               value={filtro.de}
@@ -565,7 +573,7 @@ export default function RelatoriosPage() {
             />
           </div>
           <div>
-            <Rotulo>Até (dia)</Rotulo>
+            <Rotulo>Até o dia</Rotulo>
             <input
               type="date"
               value={filtro.ate}
@@ -576,7 +584,7 @@ export default function RelatoriosPage() {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Rotulo>Convites ≥</Rotulo>
+              <Rotulo>Mínimo de convites</Rotulo>
               <input
                 type="number"
                 min={0}
@@ -588,7 +596,7 @@ export default function RelatoriosPage() {
               />
             </div>
             <div>
-              <Rotulo>Adesões ≥</Rotulo>
+              <Rotulo>Mínimo de alunos</Rotulo>
               <input
                 type="number"
                 min={0}
@@ -608,25 +616,25 @@ export default function RelatoriosPage() {
       {/* ── números do recorte ── */}
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-[13px] font-semibold" style={{ color: ADM.text }}>
-          Números do recorte
+          Resumo em números
         </h2>
         <span className="text-[12px]" style={{ color: ADM.textMuted }}>
           {filtro.base === "adesao"
-            ? "Contando só as adesões dentro do período"
-            : "Totais históricos das turmas do recorte"}
+            ? "Contando só os alunos que entraram nas datas escolhidas"
+            : "Contando tudo o que cada turma juntou desde que foi criada"}
         </span>
       </div>
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 xl:grid-cols-8">
         {(
           [
-            ["Turmas", numero(resumo.turmas), ""],
-            ["Adesões", numero(resumo.adesoes), ""],
-            ["Convites", numero(resumo.convites), ""],
-            ["Média por turma", resumo.mediaConvites.toFixed(1), "convites"],
-            ["Na meta", numero(resumo.naMeta), `de ${META_CONVITES} convites`],
-            ["Atendidas", numero(resumo.atendidas), "com contato"],
-            ["Não atendidas", numero(resumo.turmas - resumo.atendidas), "aguardando"],
-            ["Sem adesão", numero(resumo.semAdesao), "nenhuma lista"],
+            ["Turmas", numero(resumo.turmas), "no total"],
+            ["Alunos", numero(resumo.adesoes), "somando todas as listas"],
+            ["Convites", numero(resumo.convites), "somando todas as turmas"],
+            ["Convites por turma", resumo.mediaConvites.toFixed(1), "na média"],
+            ["Bateram a meta", numero(resumo.naMeta), `${META_CONVITES} convites ou mais`],
+            ["Já atendidas", numero(resumo.atendidas), "a gente já falou com elas"],
+            ["Falta atender", numero(resumo.turmas - resumo.atendidas), "ainda não falamos"],
+            ["Sem nenhum aluno", numero(resumo.semAdesao), "a lista está vazia"],
           ] as [string, string, string][]
         ).map(([label, valor, apoio]) => (
           <div
@@ -662,10 +670,10 @@ export default function RelatoriosPage() {
       {/* ── quebras ── */}
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-[13px] font-semibold" style={{ color: ADM.text }}>
-          Quebras do recorte
+          Onde estão os convites
         </h2>
         <span className="text-[12px]" style={{ color: ADM.textMuted }}>
-          Convites em destaque · ordenado do maior para o menor
+          Do que tem mais convites para o que tem menos
         </span>
       </div>
       {/* Colunas em vez de grade: numa grade a linha inteira herda a altura do
@@ -761,10 +769,10 @@ export default function RelatoriosPage() {
       {/* ── turmas e alunos ── */}
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-[13px] font-semibold" style={{ color: ADM.text }}>
-          Turmas e alunos
+          Cada turma e seus alunos
         </h2>
         <span className="text-[12px]" style={{ color: ADM.textMuted }}>
-          Clique no representante para ver a lista de alunos dele
+          Clique no nome do representante para abrir a lista de alunos dele
         </span>
       </div>
       <Painel padding={false}>
@@ -778,15 +786,15 @@ export default function RelatoriosPage() {
           </span>
           <span className="text-[12px]" style={{ color: ADM.textMuted }}>
             {selecao.size
-              ? `${selecao.size} selecionada${selecao.size === 1 ? "" : "s"} para o lote`
-              : "Sem seleção — o lote usa todas as turmas do recorte"}
+              ? `${selecao.size} turma${selecao.size === 1 ? "" : "s"} marcada${selecao.size === 1 ? "" : "s"}`
+              : "Nenhuma turma marcada, então vai baixar todas"}
           </span>
         </div>
 
         {linhas.length === 0 ? (
           <Vazio
-            titulo="Nenhuma turma neste recorte"
-            detalhe="Afrouxe os filtros de período ou limpe a busca."
+            titulo="Nenhuma turma com esses filtros"
+            detalhe="Tente limpar os filtros para ver todas as turmas de novo."
           />
         ) : (
           <div className="overflow-x-auto">
@@ -808,11 +816,11 @@ export default function RelatoriosPage() {
                   {[
                     "Representante",
                     "Turma",
-                    "Local",
-                    "Cadastro",
+                    "Cidade",
+                    "Criada em",
                     "Convites",
-                    "Adesões",
-                    "Status",
+                    "Alunos",
+                    "Situação",
                     "",
                   ].map((c, i) => (
                     <th
@@ -912,7 +920,7 @@ export default function RelatoriosPage() {
                             type="button"
                             onClick={() => pdfDaTurma(l)}
                             disabled={exportando !== null}
-                            title="Baixar o PDF desta turma"
+                            title="Baixar o PDF só desta turma"
                             className="mr-1 inline-flex h-8 w-8 items-center justify-center rounded-md disabled:opacity-40"
                             style={{ border: `1px solid ${ADM.border}`, color: ADM.text }}
                           >
@@ -924,7 +932,7 @@ export default function RelatoriosPage() {
                           </button>
                           <Link
                             href={`/admin/dashboard/${l.rep.id}`}
-                            title="Abrir a turma"
+                            title="Abrir a página desta turma"
                             className="inline-flex h-8 w-8 items-center justify-center rounded-md"
                             style={{ border: `1px solid ${ADM.border}`, color: ADM.text }}
                           >
@@ -938,13 +946,13 @@ export default function RelatoriosPage() {
                           <td colSpan={9} className="px-4 py-4">
                             {l.alunos.length === 0 ? (
                               <p className="text-[12.5px]" style={{ color: ADM.textMuted }}>
-                                Nenhuma adesão neste recorte.
+                                Nenhum aluno entrou nesta turma nas datas escolhidas.
                               </p>
                             ) : (
                               <table className="w-full">
                                 <thead>
                                   <tr>
-                                    {["#", "Aluno", "E-mail", "WhatsApp", "Convites", "Adesão em"].map(
+                                    {["#", "Aluno", "E-mail", "WhatsApp", "Convites", "Entrou em"].map(
                                       (c) => (
                                         <th
                                           key={c}
@@ -1015,8 +1023,9 @@ export default function RelatoriosPage() {
 
       <p className="mt-3 flex items-center gap-1.5 text-[12px]" style={{ color: ADM.textMuted }}>
         <Check size={13} strokeWidth={1.8} />
-        O Excel, o PDF consolidado e o lote saem exatamente com o recorte acima. No lote o navegador
-        pode pedir permissão para baixar vários arquivos de uma vez.
+        Tudo o que você baixar vai ter exatamente o que está aparecendo nesta tela. Quando pedir um
+        PDF para cada turma, o navegador pode perguntar se deixa salvar vários arquivos de uma vez. É
+        só responder que sim.
       </p>
     </div>
   );
