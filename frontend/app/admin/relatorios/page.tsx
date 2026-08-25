@@ -27,14 +27,7 @@ import {
   filtrarRelatorio,
   FILTRO_VAZIO,
   MES_LABEL,
-  porAtendimento,
-  porCurso,
-  porEstado,
-  porMes,
-  porStatus,
   resumoRelatorio,
-  rotuloMes,
-  type Agrupado,
   type FiltroRelatorio,
   type TurmaRelatorio,
 } from "@/lib/admin/relatorio";
@@ -148,55 +141,6 @@ export default function RelatoriosPage() {
   );
 
   const resumo = useMemo(() => resumoRelatorio(linhas), [linhas]);
-  const quebras = useMemo(() => {
-    const igual = (c: string) => c;
-    const cursos = porCurso(linhas);
-    const estados = porEstado(linhas);
-    /** Painel que corta no top N avisa quanto ficou de fora. */
-    const nota = (mostrados: number, total: number) =>
-      total > mostrados ? `${mostrados} de ${total}` : undefined;
-
-    return [
-      {
-        titulo: "Já falamos com a turma?",
-        coluna: "Resposta",
-        dados: porAtendimento(linhas),
-        rotulo: igual,
-      },
-      {
-        titulo: "Situação das turmas",
-        coluna: "Situação",
-        dados: porStatus(linhas),
-        rotulo: igual,
-      },
-      {
-        titulo: "Cursos",
-        coluna: "Curso",
-        dados: cursos.slice(0, 8),
-        rotulo: igual,
-        nota: nota(Math.min(8, cursos.length), cursos.length),
-      },
-      {
-        titulo: "Estados",
-        coluna: "Estado",
-        dados: estados.slice(0, 8),
-        rotulo: igual,
-        nota: nota(Math.min(8, estados.length), estados.length),
-      },
-      {
-        titulo: "Mês a mês",
-        coluna: "Mês",
-        dados: porMes(linhas, filtro.base),
-        rotulo: rotuloMes,
-      },
-    ] as {
-      titulo: string;
-      coluna: string;
-      dados: Agrupado[];
-      rotulo: (c: string) => string;
-      nota?: string;
-    }[];
-  }, [linhas, filtro.base]);
 
   const set = (mudanca: Partial<FiltroRelatorio>) =>
     setFiltro((f) => ({ ...f, ...mudanca }));
@@ -664,105 +608,6 @@ export default function RelatoriosPage() {
               </span>
             )}
           </div>
-        ))}
-      </div>
-
-      {/* ── quebras ── */}
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-[13px] font-semibold" style={{ color: ADM.text }}>
-          Onde estão os convites
-        </h2>
-        <span className="text-[12px]" style={{ color: ADM.textMuted }}>
-          Do que tem mais convites para o que tem menos
-        </span>
-      </div>
-      {/* Colunas em vez de grade: numa grade a linha inteira herda a altura do
-          painel mais alto, e "Atendimento" (2 itens) reservava o tamanho de
-          "Cursos" (8). Com multi-coluna cada painel encosta no de cima. */}
-      <div className="mb-6 columns-1 gap-3 lg:columns-2 xl:columns-3">
-        {quebras.map((q) => (
-          <Painel key={q.titulo} padding={false} className="mb-3 break-inside-avoid">
-            <div
-              className="flex items-baseline justify-between gap-2 px-4 py-3"
-              style={{ borderBottom: `1px solid ${ADM.border}` }}
-            >
-              <span className="text-[13px] font-semibold" style={{ color: ADM.text }}>
-                {q.titulo}
-              </span>
-              {q.nota && (
-                <span className="shrink-0 text-[11.5px]" style={{ color: ADM.textMuted }}>
-                  {q.nota}
-                </span>
-              )}
-            </div>
-            {q.dados.length === 0 ? (
-              <p className="px-4 py-4 text-[12.5px]" style={{ color: ADM.textMuted }}>
-                Nada no recorte.
-              </p>
-            ) : (
-              /* `table-fixed` + colgroup: as três colunas de número têm largura
-                 travada, então sobra o resto para o rótulo em vez de ele ser
-                 espremido até virar reticências. */
-              <table className="w-full table-fixed">
-                <colgroup>
-                  <col />
-                  <col style={{ width: 62 }} />
-                  <col style={{ width: 68 }} />
-                  <col style={{ width: 76 }} />
-                </colgroup>
-                <thead>
-                  <tr>
-                    {[q.coluna, "Turmas", "Adesões", "Convites"].map((c, i) => (
-                      <th
-                        key={c}
-                        className={`px-4 py-2 text-[10px] font-semibold uppercase ${
-                          i === 0 ? "text-left" : "pl-0 pr-3 text-right"
-                        }`}
-                        style={{
-                          letterSpacing: "0.07em",
-                          color: ADM.textMuted,
-                          borderBottom: `1px solid ${ADM.border}`,
-                        }}
-                      >
-                        {c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {q.dados.map((g) => (
-                    <tr key={g.chave} style={{ borderTop: `1px solid ${ADM.border}` }}>
-                      <td
-                        className="truncate px-4 py-2 text-[12.5px]"
-                        style={{ color: ADM.text }}
-                        title={q.rotulo(g.chave)}
-                      >
-                        {q.rotulo(g.chave)}
-                      </td>
-                      <td
-                        className="py-2 pl-0 pr-3 text-right text-[12.5px] tabular-nums"
-                        style={{ color: ADM.textMuted }}
-                      >
-                        {numero(g.turmas)}
-                      </td>
-                      <td
-                        className="py-2 pl-0 pr-3 text-right text-[12.5px] tabular-nums"
-                        style={{ color: ADM.textMuted }}
-                      >
-                        {numero(g.adesoes)}
-                      </td>
-                      <td
-                        className="py-2 pl-0 pr-3 text-right text-[12.5px] font-semibold tabular-nums"
-                        style={{ color: ADM.text }}
-                      >
-                        {numero(g.convites)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </Painel>
         ))}
       </div>
 
