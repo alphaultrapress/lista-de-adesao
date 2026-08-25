@@ -69,6 +69,11 @@ function atalhos(): { label: string; valores: Partial<FiltroRelatorio> }[] {
   ];
 }
 
+const BASES = [
+  { valor: "cadastro" as const, label: "Quando a turma foi criada" },
+  { valor: "adesao" as const, label: "Quando os alunos entraram" },
+];
+
 const campo = {
   height: 38,
   borderRadius: RADIUS,
@@ -261,7 +266,7 @@ export default function RelatoriosPage() {
 
   const Rotulo = ({ children }: { children: React.ReactNode }) => (
     <span
-      className="mb-1 block text-[10.5px] font-semibold uppercase"
+      className="mb-1 block truncate text-[10.5px] font-semibold uppercase"
       style={{ letterSpacing: "0.07em", color: ADM.textMuted }}
     >
       {children}
@@ -381,57 +386,60 @@ export default function RelatoriosPage() {
         </div>
 
         <div className="p-5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
-          <div className="sm:col-span-2">
-            <Rotulo>Procurar</Rotulo>
-            <input
-              value={filtro.q}
-              onChange={(e) => set({ q: e.target.value })}
-              placeholder="Nome, e-mail, curso, instituição, cidade"
-              className="w-full px-3 text-[13px] outline-none"
-              style={campo}
-            />
-          </div>
-          {[
-            { k: "curso" as const, label: "Curso", ops: opcoes.cursos },
-            { k: "instituicao" as const, label: "Instituição", ops: opcoes.inst },
-            { k: "uf" as const, label: "Estado", ops: opcoes.ufs },
-            { k: "cidade" as const, label: "Cidade", ops: opcoes.cidades },
-          ].map((s) => (
-            <div key={s.k}>
-              <Rotulo>{s.label}</Rotulo>
-              <select
-                value={filtro[s.k]}
-                onChange={(e) => set({ [s.k]: e.target.value } as Partial<FiltroRelatorio>)}
+          {/* Todo campo ocupa exatamente uma coluna: seis por linha no desktop,
+              três no notebook, dois no tablet. Nenhum com o dobro da largura do
+              vizinho, e nenhuma linha sobrando com um campo solto. */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <div>
+              <Rotulo>Procurar</Rotulo>
+              <input
+                value={filtro.q}
+                onChange={(e) => set({ q: e.target.value })}
+                placeholder="Nome, e-mail, cidade"
                 className="w-full px-3 text-[13px] outline-none"
-                style={{ ...campo, color: filtro[s.k] ? ADM.text : ADM.textMuted }}
+                style={campo}
+              />
+            </div>
+            {[
+              { k: "curso" as const, label: "Curso", ops: opcoes.cursos },
+              { k: "instituicao" as const, label: "Instituição", ops: opcoes.inst },
+              { k: "uf" as const, label: "Estado", ops: opcoes.ufs },
+              { k: "cidade" as const, label: "Cidade", ops: opcoes.cidades },
+            ].map((s) => (
+              <div key={s.k}>
+                <Rotulo>{s.label}</Rotulo>
+                <select
+                  value={filtro[s.k]}
+                  onChange={(e) => set({ [s.k]: e.target.value } as Partial<FiltroRelatorio>)}
+                  className="w-full px-3 text-[13px] outline-none"
+                  style={{ ...campo, color: filtro[s.k] ? ADM.text : ADM.textMuted }}
+                >
+                  <option value="">Todos</option>
+                  {s.ops.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+            <div>
+              <Rotulo>Situação</Rotulo>
+              <select
+                value={filtro.status}
+                onChange={(e) => set({ status: e.target.value })}
+                className="w-full px-3 text-[13px] outline-none"
+                style={{ ...campo, color: filtro.status ? ADM.text : ADM.textMuted }}
               >
-                <option value="">Todos</option>
-                {s.ops.map((o) => (
-                  <option key={o} value={o}>
-                    {o}
+                <option value="">Todas</option>
+                {STATUS_FILTRAVEIS.map((s) => (
+                  <option key={s} value={s}>
+                    {STATUS_LABEL[s]}
                   </option>
                 ))}
               </select>
             </div>
-          ))}
-          <div>
-            <Rotulo>Status</Rotulo>
-            <select
-              value={filtro.status}
-              onChange={(e) => set({ status: e.target.value })}
-              className="w-full px-3 text-[13px] outline-none"
-              style={{ ...campo, color: filtro.status ? ADM.text : ADM.textMuted }}
-            >
-              <option value="">Todos</option>
-              {STATUS_FILTRAVEIS.map((s) => (
-                <option key={s} value={s}>
-                  {STATUS_LABEL[s]}
-                </option>
-              ))}
-            </select>
           </div>
-        </div>
 
           <div className="mt-5 border-t pt-4" style={{ borderColor: ADM.border }}>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -439,7 +447,7 @@ export default function RelatoriosPage() {
                 className="text-[11px] font-semibold uppercase"
                 style={{ letterSpacing: "0.07em", color: ADM.textMuted }}
               >
-                Filtrar por data e por tamanho
+                Datas e tamanho
               </span>
               <div className="flex flex-wrap items-center gap-1.5">
                 {atalhos().map((a) => (
@@ -461,96 +469,111 @@ export default function RelatoriosPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+            {/* Botão em vez de mais um select: isto escolhe o modo da seção
+                inteira, não é um campo como os outros. E fora da grade os seis
+                campos de baixo ficam todos do mesmo tamanho. */}
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="text-[12.5px]" style={{ color: ADM.textMuted }}>
+                Contar pela data de:
+              </span>
+              {BASES.map((b) => {
+                const ligado = filtro.base === b.valor;
+                return (
+                  <button
+                    key={b.valor}
+                    type="button"
+                    onClick={() => set({ base: b.valor })}
+                    aria-pressed={ligado}
+                    className="px-3 py-1.5 text-[12px] font-medium"
+                    style={{
+                      borderRadius: 999,
+                      border: `1px solid ${ligado ? ADM.ink : ADM.border}`,
+                      background: ligado ? ADM.ink : ADM.bg,
+                      color: ligado ? "#FFFFFF" : ADM.text,
+                    }}
+                  >
+                    {b.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               <div>
-                <Rotulo>Olhar a data de</Rotulo>
-            <select
-              value={filtro.base}
-              onChange={(e) => set({ base: e.target.value as FiltroRelatorio["base"] })}
-              className="w-full px-3 text-[13px] outline-none"
-              style={campo}
-            >
-              <option value="cadastro">Quando a turma foi criada</option>
-              <option value="adesao">Quando os alunos entraram</option>
-            </select>
-          </div>
-          <div>
-            <Rotulo>Ano</Rotulo>
-            <select
-              value={filtro.ano}
-              onChange={(e) => set({ ano: e.target.value })}
-              className="w-full px-3 text-[13px] outline-none"
-              style={{ ...campo, color: filtro.ano ? ADM.text : ADM.textMuted }}
-            >
-              <option value="">Todos</option>
-              {opcoes.anos.map((a) => (
-                <option key={a} value={a}>
-                  {a}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Rotulo>Mês</Rotulo>
-            <select
-              value={filtro.mes}
-              onChange={(e) => set({ mes: e.target.value })}
-              className="w-full px-3 text-[13px] outline-none"
-              style={{ ...campo, color: filtro.mes ? ADM.text : ADM.textMuted }}
-            >
-              <option value="">Todos</option>
-              {MES_LABEL.map((m) => (
-                <option key={m.valor} value={m.valor}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Rotulo>Do dia</Rotulo>
-            <input
-              type="date"
-              value={filtro.de}
-              onChange={(e) => set({ de: e.target.value })}
-              className="w-full px-3 text-[13px] outline-none"
-              style={campo}
-            />
-          </div>
-          <div>
-            <Rotulo>Até o dia</Rotulo>
-            <input
-              type="date"
-              value={filtro.ate}
-              onChange={(e) => set({ ate: e.target.value })}
-              className="w-full px-3 text-[13px] outline-none"
-              style={campo}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Rotulo>Mínimo de convites</Rotulo>
-              <input
-                type="number"
-                min={0}
-                value={filtro.minConvites}
-                onChange={(e) => set({ minConvites: e.target.value })}
-                placeholder="0"
-                className="w-full px-3 text-[13px] outline-none"
-                style={campo}
-              />
-            </div>
-            <div>
-              <Rotulo>Mínimo de alunos</Rotulo>
-              <input
-                type="number"
-                min={0}
-                value={filtro.minAdesoes}
-                onChange={(e) => set({ minAdesoes: e.target.value })}
-                placeholder="0"
-                className="w-full px-3 text-[13px] outline-none"
-                style={campo}
-              />
-            </div>
+                <Rotulo>Ano</Rotulo>
+                <select
+                  value={filtro.ano}
+                  onChange={(e) => set({ ano: e.target.value })}
+                  className="w-full px-3 text-[13px] outline-none"
+                  style={{ ...campo, color: filtro.ano ? ADM.text : ADM.textMuted }}
+                >
+                  <option value="">Todos</option>
+                  {opcoes.anos.map((a) => (
+                    <option key={a} value={a}>
+                      {a}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Rotulo>Mês</Rotulo>
+                <select
+                  value={filtro.mes}
+                  onChange={(e) => set({ mes: e.target.value })}
+                  className="w-full px-3 text-[13px] outline-none"
+                  style={{ ...campo, color: filtro.mes ? ADM.text : ADM.textMuted }}
+                >
+                  <option value="">Todos</option>
+                  {MES_LABEL.map((m) => (
+                    <option key={m.valor} value={m.valor}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Rotulo>Do dia</Rotulo>
+                <input
+                  type="date"
+                  value={filtro.de}
+                  onChange={(e) => set({ de: e.target.value })}
+                  className="w-full px-3 text-[13px] outline-none"
+                  style={campo}
+                />
+              </div>
+              <div>
+                <Rotulo>Até o dia</Rotulo>
+                <input
+                  type="date"
+                  value={filtro.ate}
+                  onChange={(e) => set({ ate: e.target.value })}
+                  className="w-full px-3 text-[13px] outline-none"
+                  style={campo}
+                />
+              </div>
+              <div>
+                <Rotulo>Mínimo de convites</Rotulo>
+                <input
+                  type="number"
+                  min={0}
+                  value={filtro.minConvites}
+                  onChange={(e) => set({ minConvites: e.target.value })}
+                  placeholder="0"
+                  className="w-full px-3 text-[13px] outline-none"
+                  style={campo}
+                />
+              </div>
+              <div>
+                <Rotulo>Mínimo de alunos</Rotulo>
+                <input
+                  type="number"
+                  min={0}
+                  value={filtro.minAdesoes}
+                  onChange={(e) => set({ minAdesoes: e.target.value })}
+                  placeholder="0"
+                  className="w-full px-3 text-[13px] outline-none"
+                  style={campo}
+                />
               </div>
             </div>
           </div>
