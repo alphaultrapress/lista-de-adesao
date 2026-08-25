@@ -75,3 +75,22 @@ export function percentual(n: number, casas = 0): string {
     maximumFractionDigits: casas,
   })}%`;
 }
+
+/**
+ * `2026-08-25` no fuso de São Paulo.
+ *
+ * Os filtros por dia/mês/ano do relatório comparam string com string: o banco
+ * guarda UTC e qualquer aritmética de fuso aqui erraria a virada do dia para
+ * quem cadastra à noite.
+ */
+export function diaISO(valor: string | Date | null | undefined): string {
+  if (!valor) return "";
+  const d = valor instanceof Date ? valor : new Date(valor);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-CA", { timeZone: FUSO });
+}
+
+/** O "hoje" que o painel enxerga — base dos atalhos de período. */
+export function hojeISO(): string {
+  return diaISO(new Date());
+}

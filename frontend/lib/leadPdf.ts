@@ -45,7 +45,11 @@ async function loadImage(
   }
 }
 
-export async function downloadLeadPdf(params: LeadPdfParams) {
+/**
+ * Monta o PDF da turma e devolve o documento — quem chama decide o nome do
+ * arquivo. O relatório reaproveita este mesmo layout no download em lote.
+ */
+export async function buildLeadPdf(params: LeadPdfParams) {
   const {
     curso,
     instituicao,
@@ -172,5 +176,10 @@ export async function downloadLeadPdf(params: LeadPdfParams) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+  return { doc, slug };
+}
+
+export async function downloadLeadPdf(params: LeadPdfParams) {
+  const { doc, slug } = await buildLeadPdf(params);
   doc.save(`lead-${slug}.pdf`);
 }

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, type LucideIcon } from "lucide-react";
+import { FileBarChart, LayoutDashboard, Users, type LucideIcon } from "lucide-react";
 
 export type NavItem = {
   label: string;
@@ -16,10 +16,14 @@ export type NavItem = {
 export const NAV: NavItem[] = [
   { label: "Visão geral", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Representantes", href: "/admin/representantes", icon: Users },
+  { label: "Relatórios", href: "/admin/relatorios", icon: FileBarChart },
 ];
 
 /** Migalha de pão a partir do pathname. */
 export function trilha(pathname: string): string[] {
+  if (pathname.startsWith("/admin/relatorios")) {
+    return ["Administração", "Relatórios"];
+  }
   if (pathname.startsWith("/admin/representantes")) {
     return ["Administração", "Representantes"];
   }
