@@ -13,6 +13,7 @@ import { getInitials, getAvatarColor } from "@/lib/avatar";
 import { isValidPhoneBr, onlyDigits } from "@/lib/cpf";
 import { buildQrPosterBlob, slugifyFile } from "@/lib/qrPoster";
 import { buildWhatsAppShareUrl } from "@/lib/share";
+import { registrarCadastroManual, registrarEnvio } from "@/lib/rastreio";
 import { absoluteUrl, PROMO_VIDEO_PATH } from "@/lib/site";
 import DashboardShareReminder from "./DashboardShareReminder";
 import Input from "../ui/Input";
@@ -142,6 +143,7 @@ export default function TurmaDashboard({ representative, adesaoUrl }: Props) {
 
       <DashboardShareReminder
         active={metaAtingida && !showAddModal}
+        representativeId={representativeId}
         adesaoUrl={adesaoUrl}
         nome={representative.name}
         curso={representative.course_name}
@@ -867,11 +869,14 @@ function Avatar({ name, index }: { name: string; index: number }) {
    CARD DE COMPARTILHAMENTO (compacto)
    ============================================================ */
 export function ShareCard({
+  representativeId,
   url,
   nome,
   curso,
   instituicao,
 }: {
+  /** Só para o rastreio: marca de qual turma partiu o envio do link. */
+  representativeId: string;
   url: string;
   nome: string;
   curso: string;
@@ -884,6 +889,7 @@ export function ShareCard({
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
+      registrarEnvio(representativeId, "envio_copia");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -914,6 +920,7 @@ export function ShareCard({
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(objectUrl);
+    registrarEnvio(representativeId, "envio_cartaz");
     flashFeedback("Imagem baixada");
   }
 
@@ -985,6 +992,7 @@ export function ShareCard({
           href={waShareUrl}
           target="_blank"
           rel="noreferrer"
+          onClick={() => registrarEnvio(representativeId, "envio_whatsapp")}
           className="mt-2 inline-flex items-center gap-2 rounded-lg border border-line bg-white px-3.5 py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-text-primary transition-all duration-300 hover:border-[#25D366]"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366">
@@ -1046,11 +1054,12 @@ function AddStudentModal({
     if (Object.keys(e).length) return;
 
     setSaving(true);
+    const email = form.email.trim().toLowerCase();
     const { error } = await supabase.from("students").insert({
       representative_id: representativeId,
       full_name: form.nome.trim().toUpperCase(),
       phone: onlyDigits(form.whatsapp),
-      email: form.email.trim().toLowerCase(),
+      email,
       qtd_convites: qtd,
     });
     setSaving(false);
@@ -1063,12 +1072,16 @@ function AddStudentModal({
       setErrors({ nome: error.message });
       return;
     }
+    // Sem esse registro, quem o representante cadastra à mão apareceria no
+    // painel como se tivesse entrado sozinho pelo link.
+    registrarCadastroManual(representativeId, email);
     onDone();
   }
 
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(url);
+      registrarEnvio(representativeId, "envio_copia");
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -1203,6 +1216,7 @@ function AddStudentModal({
               href={waShareUrl}
               target="_blank"
               rel="noreferrer"
+              onClick={() => registrarEnvio(representativeId, "envio_whatsapp")}
               className="inline-flex h-10 items-center gap-2 rounded-[10px] border bg-[#FAF9F6] px-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#111210] transition-all hover:border-[#25D366]"
               style={{ borderColor: AUTH.border }}
             >

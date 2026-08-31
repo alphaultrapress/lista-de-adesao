@@ -3,11 +3,14 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { buildWhatsAppShareUrl } from "@/lib/share";
+import { registrarEnvio } from "@/lib/rastreio";
 
 const REMINDER_INTERVAL_MS = 5 * 60 * 1000;
 
 interface Props {
   active: boolean;
+  /** Só para o rastreio: marca de qual turma partiu o envio do link. */
+  representativeId: string;
   adesaoUrl: string;
   nome: string;
   curso: string;
@@ -16,6 +19,7 @@ interface Props {
 
 export default function DashboardShareReminder({
   active,
+  representativeId,
   adesaoUrl,
   nome,
   curso,
@@ -127,7 +131,10 @@ export default function DashboardShareReminder({
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                registrarEnvio(representativeId, "envio_whatsapp");
+                setIsOpen(false);
+              }}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-[11px] bg-[#111210] px-5 text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-transform hover:-translate-y-0.5 hover:bg-[#252621]"
             >
               <svg width="17" height="17" viewBox="0 0 24 24" fill="#25D366" aria-hidden>

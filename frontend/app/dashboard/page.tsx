@@ -172,6 +172,7 @@ export default function DashboardPage() {
             </p>
             <div className="mt-5">
               <ShareCard
+                representativeId={representative.id}
                 url={adesaoUrl}
                 nome={representative.name}
                 curso={representative.course_name}

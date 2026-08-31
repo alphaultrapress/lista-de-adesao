@@ -73,6 +73,7 @@ npm run dev     # http://localhost:3000
 
 ```text
 POST   /api/notify-meta                     verifica se a turma bateu 30 convites
+POST   /api/rastreio                        registra evento do link (envio, visita, cadastro)
 GET    /api/cpf/[cpf]                       consulta CPF (API CPF Hub) — legado
 GET    /api/instituicoes?q=                 autocomplete de faculdades
 POST   /api/representatives/[id]/lead       cria o Lead no Bitrix24  (admin)
@@ -171,6 +172,51 @@ Roda com a **service role key** (server-side). Passo a passo:
 O carimbo é gravado **mesmo se o Bitrix falhar** — o que importa é a turma
 aparecer sinalizada no painel admin.
 
+### 5.4.1 Rastreio do link — quem enviou, quem entrou, quem se cadastrou
+
+Três gatilhos gravam evento em `link_events` (todos *fire-and-forget*: se o
+rastreio falhar, nada na tela quebra):
+
+| Onde | Quando | Tipo |
+|---|---|---|
+| Painel do representante | abre o WhatsApp, copia o link ou baixa o cartaz | `envio_*` |
+| `/adesao/[slug]` | a turma carrega com sucesso | `visita` |
+| `/adesao/[slug]` | o formulário é enviado com sucesso | `cadastro` |
+| Painel do representante | adiciona um colega à mão | `cadastro_manual` |
+
+O `visitor_id` é um uuid gravado no `localStorage` do visitante
+(`lib/rastreio.ts`). Não identifica ninguém — serve só para separar
+"10 visitas" de "10 pessoas" e para saber se quem visitou chegou a se
+cadastrar. Visita repetida do mesmo navegador só conta de novo depois de
+30 minutos.
+
+**Origem de cada cadastro.** Os dois eventos de cadastro carregam o e-mail
+de quem entrou (`identificador`), e é ele que casa o evento com a linha em
+`students` — o formulário público insere sem ler a linha de volta (o RLS
+não deixa o anônimo fazer `select` em `students`), então o id do aluno não
+existe do lado do navegador. Com isso o painel classifica linha a linha:
+
+| Selo | Regra |
+|---|---|
+| É o representante | e-mail do aluno = e-mail do representante (a linha nasce no `/cadastro`) |
+| Entrou pelo link | existe evento `cadastro` com aquele e-mail |
+| Cadastrado pelo representante | existe evento `cadastro_manual` com aquele e-mail |
+| Origem não registrada | nenhum evento — cadastro anterior ao rastreio |
+
+A regra do representante vem primeiro de propósito: ela é a única que vale
+retroativamente, para as turmas anteriores ao rastreio.
+
+No painel admin, o menu **Ações → Rastreio do link** abre o modal com o
+funil da turma: envios, visitas, quem se cadastrou (com o selo de origem) e
+quem entrou e saiu sem preencher.
+
+⚠️ **"Quem recebeu o link e não entrou" não é rastreável** e o modal diz
+isso na cara. O link é um só para a turma inteira: o representante escolhe
+os contatos dentro do WhatsApp, e essa escolha nunca passa pelo sistema.
+Para ter esse número nome a nome seria preciso o representante cadastrar os
+colegas e disparar um link individual por pessoa — mudança no fluxo dele,
+não só no painel.
+
 ### 5.5 Painel admin — `/admin/dashboard`
 
 Lista todas as turmas com busca por **nome, curso e instituição**, contagem
@@ -246,6 +292,25 @@ posteriores (todos idempotentes, rodados à mão no SQL Editor).
 | `full_name`, `phone`, `email` | |
 | `qtd_convites` | default 1 |
 | `cpf`, `birth_date` | **legado — hoje nulos**, ver §7 |
+
+### `link_events`
+
+Migração `20260831_rastreio_link.sql`. Uma linha por evento do ciclo do link
+da turma.
+
+| Coluna | Observação |
+|---|---|
+| `representative_id` | FK cascade |
+| `tipo` | `envio_whatsapp`, `envio_copia`, `envio_cartaz`, `visita`, `cadastro`, `cadastro_manual` |
+| `visitor_id` | id anônimo do navegador — só nos eventos `visita` e `cadastro` |
+| `identificador` | e-mail (minúsculo) de quem se cadastrou — migração `20260831_rastreio_origem_cadastro.sql` |
+| `origem` | de onde a visita veio (`whatsapp`, `instagram`, `direto`…) |
+| `dispositivo` | `celular` ou `computador` |
+
+**Ninguém escreve pelo navegador.** A tabela não tem política de insert: os
+eventos entram por `POST /api/rastreio`, que roda com a service role. Isso
+impede qualquer um de inflar os números de uma turma chamando o Supabase
+direto do cliente. O `select` é liberado para o dono da turma e para o admin.
 
 ### `admins`
 

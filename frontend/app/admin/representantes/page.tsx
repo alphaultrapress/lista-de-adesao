@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Activity,
   ArrowDown,
   ArrowUp,
   Copy,
@@ -15,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import ConfirmDeleteModal from "@/components/admin/ConfirmDeleteModal";
+import RastreioModal from "@/components/admin/RastreioModal";
 import WhatsAppModal from "@/components/admin/WhatsAppModal";
 import { useLoadingGate } from "@/components/ui/LoadingScreen";
 import { signOutAndClearSession, supabase, META_CONVITES } from "@/lib/supabase";
@@ -58,6 +60,7 @@ function RepresentantesConteudo() {
   const [aRemover, setARemover] = useState<RepLinha | null>(null);
   const [menuAberto, setMenuAberto] = useState<string | null>(null);
   const [whatsapp, setWhatsapp] = useState<RepLinha | null>(null);
+  const [rastreio, setRastreio] = useState<RepLinha | null>(null);
   const [copiado, setCopiado] = useState<string | null>(null);
 
   /* ── filtros vivem na URL, então voltar da página de detalhes os preserva ── */
@@ -615,6 +618,18 @@ function RepresentantesConteudo() {
                               <button
                                 type="button"
                                 onClick={() => {
+                                  setRastreio(r);
+                                  setMenuAberto(null);
+                                }}
+                                className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px]"
+                                style={{ color: ADM.text }}
+                              >
+                                <Activity size={14} strokeWidth={1.7} />
+                                Rastreio do link
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
                                   copiarLink(r);
                                   setMenuAberto(null);
                                 }}
@@ -708,6 +723,15 @@ function RepresentantesConteudo() {
           </div>
         )}
       </Painel>
+
+      {/* O funil do link da turma: envios, visitas e cadastros. */}
+      {rastreio && (
+        <RastreioModal
+          linha={rastreio}
+          alunos={dados?.alunos ?? []}
+          onClose={() => setRastreio(null)}
+        />
+      )}
 
       {/* Mesmo modal que o painel antigo usava, com a API dele (name/onClose). */}
       {whatsapp && (

@@ -22,6 +22,7 @@ import {
   supabase,
 } from "@/lib/supabase";
 import { isValidPhoneBr, onlyDigits } from "@/lib/cpf";
+import { registrarCadastro, registrarVisita } from "@/lib/rastreio";
 import { useLoadingGate } from "@/components/ui/LoadingScreen";
 
 export default function AdesaoClient({ slug }: { slug: string }) {
@@ -88,6 +89,9 @@ export default function AdesaoClient({ slug }: { slug: string }) {
         setNotFound(true);
       } else {
         setTurma(representative);
+        // Só conta como visita quando a turma existe de verdade: link
+        // quebrado não é audiência de ninguém.
+        registrarVisita(representative.id);
       }
       setLoading(false);
     })();
@@ -160,6 +164,10 @@ export default function AdesaoClient({ slug }: { slug: string }) {
       } else if (error) {
         throw error;
       }
+
+      // Marca no rastreio que este navegador saiu de "só olhou" para
+      // "se cadastrou" (fire-and-forget, igual à verificação de meta).
+      registrarCadastro(turma.id, form.email.trim().toLowerCase());
 
       // Dispara verificação de meta (fire-and-forget — não bloqueia UX)
       fetch("/api/notify-meta", {
